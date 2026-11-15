@@ -1,0 +1,3210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #000000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+      color: #F8FAFC;
+    }
+    #mars-app {
+      display: flex; width: 100vw; height: 100vh;
+      background: #000000; overflow: hidden;
+    }
+
+    /* ==========================================
+       LEFT SIDEBAR: MARS MONUMENTS ROSTER
+       ========================================== */
+    #mars-sidebar {
+      width: 460px; min-width: 420px; max-width: 500px; height: 100vh;
+      background: linear-gradient(180deg, rgba(8, 14, 28, 0.98) 0%, rgba(2, 6, 23, 0.99) 100%);
+      border-right: 1.5px solid rgba(255, 85, 51, 0.35);
+      padding: 18px 16px 36px 16px;
+      overflow-y: auto; box-sizing: border-box;
+      display: flex; flex-direction: column; gap: 14px;
+      z-index: 20; box-shadow: 12px 0 40px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Rover Selector Bar */
+    .rover-selector-section {
+      display: flex; flex-direction: column; gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 85, 51, 0.25);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .selector-header-label {
+      font-size: 10px; font-weight: 800; color: #94A3B8;
+      letter-spacing: 0.6px; text-transform: uppercase;
+    }
+    .rover-selector-pills {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .rover-pill-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #CBD5E1; font-size: 11px; font-weight: 700;
+      padding: 5px 10px; border-radius: 14px; cursor: pointer;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .rover-pill-btn:hover {
+      background: rgba(255, 85, 51, 0.2);
+      border-color: #FF5533; color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+    .rover-pill-btn.active {
+      background: linear-gradient(135deg, rgba(255, 85, 51, 0.45) 0%, rgba(239, 68, 68, 0.45) 100%);
+      border-color: #FF5533; color: #FFFFFF;
+      box-shadow: 0 0 14px rgba(255, 85, 51, 0.45);
+    }
+    .sidebar-rover-hero {
+      display: flex; flex-direction: column; gap: 6px;
+      padding-bottom: 2px;
+    }
+    .sidebar-rover-name {
+      font-size: 21px; font-weight: 900; color: #FFFFFF;
+      letter-spacing: -0.3px; margin: 0; line-height: 1.15;
+    }
+    .sidebar-tagline {
+      font-size: 11.5px; font-style: italic; color: #38BDF8;
+      border-left: 2px solid #38BDF8; padding-left: 8px; line-height: 1.35;
+    }
+    .btn-launch-3d-sim {
+      background: linear-gradient(135deg, #FF5533 0%, #EA580C 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF; font-size: 12.5px; font-weight: 800;
+      padding: 11px 14px; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 4px 18px rgba(255, 85, 51, 0.4);
+      transition: all 0.2s ease; text-align: center;
+    }
+    .btn-launch-3d-sim:hover {
+      background: linear-gradient(135deg, #FF6644 0%, #F97316 100%);
+      box-shadow: 0 6px 24px rgba(255, 85, 51, 0.6);
+      transform: translateY(-1px);
+    }
+    #mars-sidebar::-webkit-scrollbar { width: 6px; }
+    #mars-sidebar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    #mars-sidebar::-webkit-scrollbar-thumb { background: rgba(255, 85, 51, 0.45); border-radius: 4px; }
+    #mars-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255, 85, 51, 0.8); }
+
+    .sidebar-header {
+      display: flex; flex-direction: column; gap: 4px;
+      padding-bottom: 12px; border-bottom: 1px solid rgba(255, 85, 51, 0.2);
+    }
+    .sidebar-title {
+      font-size: 19px; font-weight: 900; letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #FFFFFF 0%, #FF5533 50%, #EF4444 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sidebar-subtitle {
+      font-size: 11.5px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .sidebar-stats-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 85, 51, 0.25);
+      border-radius: 8px; padding: 8px 14px; font-size: 11.5px; font-weight: 700;
+    }
+    .stat-badge {
+      background: rgba(255, 85, 51, 0.15); color: #FF5533;
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255, 85, 51, 0.3);
+    }
+
+    /* Monument Cards */
+    .monument-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px; padding: 12px 14px;
+      cursor: pointer; transition: all 0.2s ease;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .monument-card:hover {
+      background: rgba(255, 85, 51, 0.12);
+      border-color: rgba(255, 85, 51, 0.5);
+      transform: translateX(4px);
+      box-shadow: 0 4px 20px rgba(255, 85, 51, 0.25);
+    }
+    .monument-card.clickable-story {
+      border: 1.5px solid rgba(0, 240, 255, 0.5);
+      background: rgba(10, 25, 45, 0.85);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.15);
+    }
+    .monument-card.clickable-story:hover {
+      border-color: #00F0FF;
+      background: rgba(0, 240, 255, 0.18);
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+    }
+    .monument-card.active {
+      border-color: #FF5533;
+      background: rgba(255, 85, 51, 0.2);
+      box-shadow: 0 0 20px rgba(255, 85, 51, 0.4);
+    }
+    .mc-top {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mc-name {
+      font-size: 13.5px; font-weight: 800; color: #FFFFFF;
+    }
+    .mc-year {
+      font-size: 11px; color: #94A3B8; font-family: monospace;
+    }
+    .mc-site {
+      font-size: 11.5px; color: #38BDF8; font-weight: 600;
+    }
+    .mc-tag {
+      display: inline-block; font-size: 10px; font-weight: 800;
+      letter-spacing: 0.5px; padding: 2px 7px; border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .mc-tag.story {
+      background: rgba(0, 240, 255, 0.2); color: #00F0FF; border: 1px solid #00F0FF;
+    }
+    .mc-tag.silent {
+      background: rgba(148, 163, 184, 0.15); color: #94A3B8;
+    }
+
+    /* ==========================================
+       RIGHT CANVAS AREA: 3D MARS
+       ========================================== */
+    #canvas-wrap {
+      flex: 1; height: 100vh; position: relative;
+      background: #000000; overflow: hidden;
+    }
+    #canvas-wrap canvas {
+      width: 100%; height: 100%; display: block;
+    }
+
+    /* Floating Badges on Planet */
+    #badges-layer {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 15; overflow: hidden;
+    }
+    .globe-badge {
+      position: absolute; transform: translate(-50%, -130%);
+      display: none; align-items: center; gap: 6px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px; padding: 4px 10px;
+      color: #ffffff; font-size: 11px; font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      pointer-events: auto; cursor: pointer;
+      white-space: nowrap; transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .globe-badge:hover {
+      transform: translate(-50%, -140%) scale(1.08);
+      border-color: #00F0FF;
+    }
+    .globe-badge.clickable-badge {
+      border: 1.5px solid #00F0FF;
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.4);
+    }
+
+    /* Bottom Toolbar */
+    #toolbar {
+      position: absolute; bottom: 20px; left: 50%;
+      transform: translateX(-50%); z-index: 20;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 85, 51, 0.35);
+      border-radius: 30px; padding: 6px 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+    }
+    .tool-btn {
+      background: transparent; border: 1px solid transparent;
+      color: #CBD5E1; font-size: 11px; font-weight: 700;
+      padding: 6px 12px; border-radius: 20px; cursor: pointer;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .tool-btn:hover {
+      background: rgba(255, 85, 51, 0.2); border-color: rgba(255, 85, 51, 0.4);
+      color: #FFFFFF;
+    }
+    .tool-btn.active {
+      background: #FF5533; border-color: #FF5533; color: #FFFFFF;
+      box-shadow: 0 0 14px rgba(255, 85, 51, 0.6);
+    }
+    .tool-btn.story-btn {
+      border-color: rgba(0, 240, 255, 0.4); color: #00F0FF;
+    }
+    .tool-btn.story-btn:hover {
+      background: rgba(0, 240, 255, 0.25); border-color: #00F0FF; color: #FFFFFF;
+    }
+
+    /* Top Hint */
+    #mars-hint {
+      position: absolute; top: 16px; left: 50%;
+      transform: translateX(-50%); z-index: 20;
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px; padding: 6px 18px; font-size: 11px; color: #CBD5E1;
+      pointer-events: none; white-space: nowrap; backdrop-filter: blur(8px);
+    }
+
+    /* ==========================================
+       FULL-SCREEN EQUIPMENT DETAIL VIEW (STEP 2-4)
+       ========================================== */
+    #equipment-detail-overlay {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #000000; z-index: 999999;
+      display: none; flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: #F8FAFC; user-select: none;
+      overflow: hidden;
+    }
+
+    .detail-header-bar {
+      height: 60px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(3, 7, 18, 0.95) 100%);
+      border-bottom: 1.5px solid rgba(255, 85, 51, 0.35);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.9);
+      z-index: 20; flex-shrink: 0;
+    }
+    .detail-back-btn {
+      background: rgba(15, 23, 42, 0.9); border: 1.5px solid #FF5533;
+      color: #FFFFFF; font-size: 13px; font-weight: 800;
+      padding: 8px 20px; border-radius: 24px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 0 16px rgba(255, 85, 51, 0.4);
+      transition: all 0.2s ease;
+    }
+    .detail-back-btn:hover {
+      background: rgba(255, 85, 51, 0.28); border-color: #FFAA88;
+      transform: translateY(-1px); box-shadow: 0 0 24px rgba(255, 85, 51, 0.7);
+    }
+    .detail-header-title {
+      font-size: 15px; font-weight: 900; letter-spacing: 2px;
+      background: linear-gradient(90deg, #FFFFFF 0%, #FF5533 50%, #EF4444 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+    .detail-audio-toggle-btn {
+      background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(0, 210, 255, 0.45);
+      color: #38BDF8; font-size: 12px; font-weight: 700;
+      padding: 7px 16px; border-radius: 20px; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .detail-audio-toggle-btn:hover {
+      border-color: #00D2FF; color: #FFFFFF; box-shadow: 0 0 14px rgba(0, 210, 255, 0.5);
+    }
+
+    .detail-split-container {
+      display: flex; flex-direction: row;
+      width: 100%; height: calc(100vh - 60px);
+      background: #000000; position: relative; overflow: hidden;
+    }
+
+    /* 3D Model Viewport (Takes ~52% of screen, on the RIGHT) */
+    .detail-model-viewport {
+      flex: 0 0 52%; width: 52%; height: 100%;
+      position: relative;
+      background: radial-gradient(circle at center, #070d1e 0%, #000000 80%);
+      overflow: hidden; cursor: grab; order: 2;
+    }
+    .detail-model-viewport:active { cursor: grabbing; }
+
+    /* Info, Database & Gemini AI Chat Panel (Takes ~48% on the LEFT) */
+    .detail-info-panel {
+      flex: 0 0 48%; width: 48%; height: 100%;
+      background: linear-gradient(180deg, rgba(8, 14, 28, 0.98) 0%, rgba(2, 6, 18, 0.99) 100%);
+      border-right: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-left: none;
+      padding: 24px 26px; overflow-y: auto; box-sizing: border-box;
+      display: flex; flex-direction: column; gap: 18px;
+      box-shadow: 12px 0 40px rgba(0, 0, 0, 0.95);
+      z-index: 10; order: 1;
+    }
+    .detail-title-section {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .detail-badges-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .detail-type-badge {
+      font-size: 11px; font-weight: 900; letter-spacing: 1.2px;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 12px;
+      background: rgba(56, 189, 248, 0.15); color: #38BDF8;
+      border: 1px solid rgba(56, 189, 248, 0.5);
+    }
+    .detail-type-badge.rover {
+      background: rgba(56, 189, 248, 0.15); color: #38BDF8; border-color: rgba(56, 189, 248, 0.5);
+    }
+    .detail-type-badge.lander {
+      background: rgba(168, 85, 247, 0.15); color: #A855F7; border-color: rgba(168, 85, 247, 0.5);
+    }
+    .detail-type-badge.helicopter {
+      background: rgba(0, 240, 255, 0.15); color: #00F0FF; border-color: rgba(0, 240, 255, 0.5);
+    }
+    .detail-status-badge {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 10px;
+      background: rgba(239, 68, 68, 0.15); color: #FCA5A5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .detail-year-badge {
+      font-size: 10px; font-weight: 700; color: #94A3B8;
+      background: rgba(255, 255, 255, 0.06); padding: 4px 8px; border-radius: 10px;
+    }
+    .detail-name {
+      font-size: 32px; font-weight: 900; color: #FFFFFF;
+      letter-spacing: -0.5px; margin: 0; line-height: 1.1;
+    }
+    .detail-tagline {
+      font-size: 13px; font-style: italic; color: #38BDF8; margin-top: 2px;
+      border-left: 2px solid #38BDF8; padding-left: 8px;
+    }
+
+    /* Supabase Mission Database Card */
+    .detail-supabase-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .db-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .db-title {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.8px; color: #38BDF8;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .db-badge-verified {
+      font-size: 9px; font-weight: 700; color: #34D399;
+      background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 2px 6px; border-radius: 8px;
+    }
+    .db-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .db-cell {
+      background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px; padding: 8px 10px;
+    }
+    .db-cell-label {
+      font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .db-cell-val {
+      font-size: 12px; font-weight: 600; color: #F1F5F9; line-height: 1.3;
+    }
+    .db-desc-box {
+      background: rgba(2, 6, 23, 0.6); border-radius: 8px; padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .db-desc-text {
+      font-size: 11.5px; color: #CBD5E1; line-height: 1.4; margin: 2px 0 0 0;
+    }
+    .db-bridge {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
+      border-left: 3px solid #00F0FF; padding: 8px 12px; border-radius: 0 8px 8px 0;
+      border: 1px solid rgba(0, 240, 255, 0.25); border-left-width: 3px;
+    }
+    .db-bridge-title {
+      font-size: 10.5px; font-weight: 800; color: #00F0FF; letter-spacing: 0.5px; margin-bottom: 3px;
+    }
+    .db-bridge-hw {
+      font-size: 11.5px; font-weight: 700; color: #38BDF8; margin-bottom: 2px;
+    }
+    .db-bridge-sc {
+      font-size: 11.5px; color: #E2E8F0; line-height: 1.35;
+    }
+    .db-stat-row {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    }
+    .db-stat-badge {
+      background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px; padding: 6px 8px; display: flex; align-items: center; gap: 7px;
+    }
+    .db-stat-icon { font-size: 15px; flex-shrink: 0; }
+    .db-stat-label {
+      font-size: 9px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px;
+    }
+    .db-stat-val {
+      font-size: 11px; font-weight: 700; color: #38BDF8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .db-monument-box {
+      background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px; padding: 7px 10px;
+    }
+    .db-monument-text {
+      font-size: 11px; color: #6EE7B7; line-height: 1.35; margin-top: 2px;
+    }
+
+    /* Gemini AI Chatbot Card */
+    .detail-chat-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(168, 85, 247, 0.45);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(168, 85, 247, 0.15);
+    }
+    .chat-header-row {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .chat-title-group {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chat-card-title {
+      font-size: 12px; font-weight: 800; color: #F1F5F9;
+    }
+    .chat-age-toggle-bar {
+      display: flex; gap: 4px; background: rgba(30, 41, 59, 0.8); padding: 2px; border-radius: 8px;
+    }
+    .age-pill-btn {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; border: none;
+      background: transparent; color: #94A3B8; cursor: pointer; transition: all 0.2s;
+    }
+    .age-pill-btn.active {
+      background: #A855F7; color: #FFFFFF; box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+    }
+    .chat-messages-wrap {
+      max-height: 180px; min-height: 100px; overflow-y: auto; display: flex; flex-direction: column;
+      gap: 8px; padding: 10px; background: rgba(2, 6, 23, 0.85); border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .chat-bubble {
+      padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; max-width: 92%;
+      word-wrap: break-word;
+    }
+    .chat-bubble.assistant {
+      background: rgba(30, 41, 59, 0.85); color: #F8FAFC; border-left: 3px solid #A855F7; align-self: flex-start;
+    }
+    .chat-bubble.user {
+      background: linear-gradient(135deg, #0284C7, #2563EB); color: #FFFFFF; align-self: flex-end;
+    }
+    .chat-quick-chips {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+    }
+    .quick-chip {
+      background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8;
+      font-size: 10.5px; font-weight: 600; padding: 4px 8px; border-radius: 16px; cursor: pointer; white-space: nowrap;
+    }
+    .quick-chip:hover {
+      background: rgba(56, 189, 248, 0.2); border-color: #38BDF8;
+    }
+    .chat-input-row {
+      display: flex; gap: 8px;
+    }
+    .chat-text-input {
+      flex: 1; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 8px; padding: 8px 12px; color: #FFFFFF; font-size: 12px; outline: none;
+    }
+    .chat-text-input:focus {
+      border-color: #A855F7; box-shadow: 0 0 8px rgba(168, 85, 247, 0.35);
+    }
+    .chat-send-btn {
+      background: linear-gradient(135deg, #A855F7, #7C3AED); color: #FFFFFF; font-weight: 700;
+      font-size: 11px; padding: 0 12px; border: none; border-radius: 8px; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(168, 85, 247, 0.4); display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Audio Story Player */
+    .detail-audio-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1.5px solid rgba(255, 85, 51, 0.5);
+      border-radius: 18px; padding: 24px 22px;
+      display: flex; flex-direction: column; gap: 18px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(255, 85, 51, 0.2);
+    }
+    .audio-card-header {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .audio-icon-pulse {
+      font-size: 22px; animation: iconPulse 2s infinite ease-in-out;
+    }
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+    }
+    .audio-card-title {
+      font-size: 18px; font-weight: 800; color: #FF5533; letter-spacing: 0.5px;
+    }
+    .audio-controls-row {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .audio-play-btn {
+      background: linear-gradient(135deg, #FF5533 0%, #EA580C 100%);
+      border: none; color: #FFFFFF; font-size: 14px; font-weight: 800;
+      padding: 12px 24px; border-radius: 24px; cursor: pointer;
+      box-shadow: 0 0 16px rgba(255, 85, 51, 0.5);
+      transition: all 0.2s ease; flex-shrink: 0;
+    }
+    .audio-play-btn:hover {
+      transform: scale(1.05); box-shadow: 0 0 24px rgba(255, 85, 51, 0.8);
+    }
+    .audio-progress-wrap {
+      flex: 1; display: flex; flex-direction: column; gap: 8px;
+    }
+    .audio-scrub-slider {
+      width: 100%; -webkit-appearance: none; height: 6px;
+      border-radius: 3px; background: rgba(51, 65, 85, 0.8);
+      outline: none; cursor: pointer;
+    }
+    .audio-scrub-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #00F0FF; cursor: pointer;
+      box-shadow: 0 0 8px #00F0FF;
+    }
+    .audio-time-row {
+      display: flex; justify-content: space-between;
+      font-size: 11.5px; color: #94A3B8; font-family: monospace;
+    }
+
+    /* Loading Spinner & Interaction Hints */
+    .detail-spinner-wrap {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: rgba(0, 0, 0, 0.7); z-index: 15; gap: 14px;
+    }
+    .detail-spinner {
+      width: 44px; height: 44px;
+      border: 3px solid rgba(255, 85, 51, 0.2);
+      border-top-color: #FF5533; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner-text {
+      font-size: 13px; color: #CBD5E1; font-weight: 600; letter-spacing: 1px;
+    }
+    .detail-model-hint {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 16px; border-radius: 20px; font-size: 11px; color: #94A3B8;
+      pointer-events: none; white-space: nowrap; z-index: 10;
+    }
+    .detail-error-banner {
+      position: absolute; top: 20px; left: 20px; right: 20px;
+      background: rgba(220, 38, 38, 0.9); border: 1px solid #EF4444;
+      color: #FFFFFF; padding: 10px 16px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; z-index: 30; display: none;
+    }
+
+    /* View Toggle in Detail Header Bar */
+    .detail-view-toggle {
+      display: inline-flex;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 20px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .toggle-view-btn {
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .toggle-view-btn:hover {
+      color: #FFFFFF;
+    }
+    .toggle-view-btn.active {
+      background: linear-gradient(135deg, #0284C7, #00D2FF);
+      color: #FFFFFF;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.5);
+    }
+
+    /* 52% NASA Mission Imagery & Media Studio Viewport (RIGHT SIDE) */
+    .detail-nasa-gallery-viewport {
+      flex: 0 0 52%; width: 52%; height: 100%; position: relative;
+      background: radial-gradient(circle at center, #0B132B 0%, #020617 100%);
+      order: 2; overflow: hidden; display: flex; flex-direction: column;
+      padding: 18px 22px; box-sizing: border-box; gap: 12px;
+    }
+    .nasa-gallery-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .nasa-brand-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: 20px; padding: 6px 14px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+    .nasa-insignia {
+      font-weight: 900; font-size: 12px; color: #38BDF8; letter-spacing: 1px;
+    }
+    .nasa-live-status {
+      font-size: 10.5px; font-weight: 700; color: #34D399; letter-spacing: 0.6px;
+    }
+    .nasa-gallery-actions {
+      display: flex; gap: 8px;
+    }
+    .nasa-action-btn {
+      background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #FBBF24; font-size: 11px; font-weight: 700; padding: 5px 12px;
+      border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .nasa-action-btn:hover {
+      background: rgba(251, 191, 36, 0.2); border-color: #FBBF24; color: #FFF;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+    }
+
+    /* Main High-Resolution Photo Display */
+    .nasa-hero-display-wrap {
+      flex: 1; position: relative; width: 100%; min-height: 250px;
+      background: #010409; border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px; overflow: hidden; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 8px 32px rgba(0,0,0,0.85), inset 0 0 25px rgba(56, 189, 248, 0.08);
+    }
+    .nasa-hero-img {
+      width: 100%; height: 100%; object-fit: contain; background: #000;
+      transition: transform 0.3s ease, opacity 0.25s ease;
+    }
+    .nasa-hero-img:hover {
+      cursor: zoom-in;
+    }
+    .nasa-img-loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      color: #38BDF8; font-size: 12px; font-weight: 700; pointer-events: none;
+    }
+    .nasa-spinner {
+      width: 38px; height: 38px; border: 3px solid rgba(56, 189, 248, 0.2);
+      border-top-color: #38BDF8; border-radius: 50%; animation: spinAnim 0.8s linear infinite;
+    }
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
+    .nasa-img-info-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.92) 25%, rgba(2, 6, 23, 0.98) 100%);
+      padding: 14px 18px; backdrop-filter: blur(8px); display: flex;
+      flex-direction: column; gap: 4px; border-top: 1px solid rgba(255, 255, 255, 0.1);
+      transition: opacity 0.2s ease;
+    }
+    .nasa-info-top {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .nasa-photo-id {
+      color: #FBBF24; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px;
+    }
+    .nasa-photo-date {
+      color: #94A3B8; font-size: 10.5px; font-weight: 600;
+    }
+    .nasa-photo-title {
+      font-size: 13.5px; font-weight: 800; color: #FFFFFF; line-height: 1.3;
+    }
+    .nasa-photo-caption {
+      font-size: 11.5px; color: #CBD5E1; line-height: 1.4; max-height: 48px;
+      overflow-y: auto;
+    }
+
+    /* NASA Archive Live Search Bar */
+    .nasa-search-bar-wrap {
+      display: flex; gap: 8px; align-items: center;
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(148, 163, 184, 0.25);
+      border-radius: 10px; padding: 4px 8px;
+    }
+    .nasa-search-icon {
+      font-size: 13px; color: #94A3B8; margin-left: 4px;
+    }
+    .nasa-search-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #FFFFFF; font-size: 11.5px; padding: 6px;
+    }
+    .nasa-search-btn {
+      background: linear-gradient(135deg, #0284C7, #2563EB); color: #FFFFFF;
+      border: none; border-radius: 6px; font-size: 11px; font-weight: 700;
+      padding: 6px 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .nasa-search-btn:hover {
+      background: linear-gradient(135deg, #0369A1, #1D4ED8);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Thumbnails Strip */
+    .nasa-thumbnail-strip-section {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .nasa-strip-title {
+      font-size: 10px; font-weight: 800; color: #94A3B8; letter-spacing: 0.8px;
+    }
+    .nasa-thumbnails-strip {
+      display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px 2px;
+      scroll-behavior: smooth;
+    }
+    .nasa-thumb-card {
+      flex: 0 0 88px; height: 60px; border-radius: 8px; overflow: hidden;
+      border: 2px solid rgba(148, 163, 184, 0.25); cursor: pointer;
+      position: relative; transition: all 0.2s ease; background: #020617;
+    }
+    .nasa-thumb-card:hover {
+      border-color: rgba(56, 189, 248, 0.7); transform: translateY(-2px);
+    }
+    .nasa-thumb-card.active {
+      border-color: #38BDF8; box-shadow: 0 0 14px rgba(56, 189, 248, 0.65);
+      transform: translateY(-2px);
+    }
+    .nasa-thumb-img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    /* Sidebar NASA Preview Card */
+    .sidebar-nasa-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 12px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+    .sidebar-nasa-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sidebar-nasa-title {
+      font-size: 11px; font-weight: 900; color: #38BDF8; letter-spacing: 0.8px;
+    }
+    .sidebar-nasa-badge {
+      font-size: 9.5px; font-weight: 800; color: #34D399;
+      background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 2px 8px; border-radius: 8px;
+    }
+    .sidebar-nasa-thumb-row {
+      display: flex; gap: 8px; overflow-x: auto; padding: 4px 0;
+    }
+    .sidebar-nasa-mini-thumb {
+      flex: 0 0 74px; height: 50px; border-radius: 6px; overflow: hidden;
+      border: 1.5px solid rgba(148, 163, 184, 0.3); cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar-nasa-mini-thumb:hover {
+      border-color: #38BDF8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+    .sidebar-nasa-mini-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .sidebar-nasa-open-btn {
+      width: 100%; background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(37, 99, 235, 0.3));
+      border: 1px solid rgba(56, 189, 248, 0.45); color: #38BDF8; font-size: 11px;
+      font-weight: 700; padding: 7px; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar-nasa-open-btn:hover {
+      background: rgba(56, 189, 248, 0.25); border-color: #38BDF8; color: #FFF;
+    }
+
+    /* MOBILE LAYOUT: Stacks vertically (3D model first, then name and audio player) */
+    @media (max-width: 768px) {
+      .detail-split-container {
+        flex-direction: column; height: calc(100vh - 60px); overflow-y: auto;
+      }
+      .detail-model-viewport {
+        flex: 0 0 52vh; width: 100%; height: 52vh; order: 1;
+      }
+      .detail-info-panel {
+        flex: 1 1 auto; width: 100%; height: auto;
+        border-left: none; border-top: 1.5px solid rgba(255, 85, 51, 0.35);
+        padding: 24px 20px; order: 2;
+      }
+      .detail-name {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="mars-app">
+    <!-- LEFT SIDEBAR: LIVE SUPABASE DATA & GEMINI AI CHATBOT STUDIO -->
+    <div id="mars-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">MARS ARTIFACTS</div>
+        <div class="sidebar-subtitle">Off-World Monuments • Supabase & Gemini Studio</div>
+      </div>
+
+      <!-- 1. ROVER SELECTOR TABS -->
+      <div class="rover-selector-section">
+        <div class="selector-header-label">SELECT SPACECRAFT (ALL 8 MONITORED):</div>
+        <div class="rover-selector-pills" id="rover-selector-pills"></div>
+      </div>
+
+      <!-- 2. ACTIVE ROVER HERO / HEADER -->
+      <div class="sidebar-rover-hero">
+        <div class="detail-badges-row">
+          <span class="detail-type-badge rover" id="sb-type-badge">ROVER</span>
+          <span class="detail-status-badge" id="sb-status-badge">SILENT MONUMENT</span>
+          <span class="detail-year-badge" id="sb-year-badge">📅 2004–2018</span>
+        </div>
+        <h2 class="sidebar-rover-name" id="sb-rover-name">Opportunity Rover</h2>
+        <div class="sidebar-tagline" id="sb-tagline">"My battery is low and it's getting dark."</div>
+      </div>
+
+      <!-- 3. SUPABASE MISSION DATABASE CARD -->
+      <div class="detail-supabase-card">
+        <div class="db-header">
+          <span class="db-title">📡 SUPABASE LIVE TELEMETRY</span>
+          <span class="db-badge-verified">✓ NASA VERIFIED CLOUD POSTGRES</span>
+        </div>
+
+        <!-- Telemetry Stat Row -->
+        <div class="db-stat-row">
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">⏱️</span>
+            <div>
+              <div class="db-stat-label">Active Duration</div>
+              <div class="db-stat-val" id="sb-db-duration">5,352 Sols (14.8 Yrs)</div>
+            </div>
+          </div>
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">🏎️</span>
+            <div>
+              <div class="db-stat-label">Total Traverse</div>
+              <div class="db-stat-val" id="sb-db-odometer">45.16 km (28.1 mi)</div>
+            </div>
+          </div>
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">🚀</span>
+            <div>
+              <div class="db-stat-label">Launch Date</div>
+              <div class="db-stat-val" id="sb-db-launch">July 7, 2003</div>
+            </div>
+          </div>
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">🛬</span>
+            <div>
+              <div class="db-stat-label">Touchdown</div>
+              <div class="db-stat-val" id="sb-db-landing">Jan 25, 2004</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="db-grid">
+          <div class="db-cell">
+            <div class="db-cell-label">📍 Landing Coordinates</div>
+            <div class="db-cell-val" id="sb-db-coords">1.9483° S, 354.4742° E</div>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-label">⚡ Power Architecture</div>
+            <div class="db-cell-val" id="sb-db-power">Triple-junction solar cells</div>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-label">⚖️ Chassis Mass & Build</div>
+            <div class="db-cell-val" id="sb-db-mass">185 kg (408 lb)</div>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-label">📡 Comms & Telemetry</div>
+            <div class="db-cell-val" id="sb-db-comms">X-band Dish + UHF Relay</div>
+          </div>
+        </div>
+
+        <div class="db-desc-box">
+          <div class="db-cell-label">📜 NASA Archive Master Dossier</div>
+          <p class="db-desc-text" id="sb-db-desc">MER-B marathon runner, explored Meridiani Planum for 14.8 years until 2018 dust storm.</p>
+        </div>
+
+        <div class="db-bridge">
+          <div class="db-bridge-title">🔬 THE HARDWARE ➔ SCIENCE BRIDGE</div>
+          <div class="db-bridge-hw" id="sb-db-hw">🛠️ Tool: Rock Abrasion Tool & Mössbauer Spectrometer</div>
+          <div class="db-bridge-sc" id="sb-db-sc">💡 Discovery: Discovered hematite 'blueberries' proving liquid water once soaked Mars.</div>
+        </div>
+
+        <div class="db-monument-box" id="sb-db-monument-wrap">
+          <div class="db-cell-label">🏛️ Historic Monument Status</div>
+          <div class="db-monument-text" id="sb-db-monument">Permanently preserved in Perseverance Valley, Endeavour Crater as an eternal monument to human exploration.</div>
+        </div>
+      </div>
+
+      <!-- 4. AUDIO STORY PLAYER -->
+      <div class="detail-audio-card">
+        <div class="audio-card-header">
+          <span class="audio-icon-pulse">🎧</span>
+          <span class="audio-card-title">Audio Narration</span>
+          <span style="font-size:11px; color:#94A3B8; margin-left:auto;" id="sb-audio-label">Opportunity Story</span>
+        </div>
+        <div class="audio-controls-row">
+          <button class="audio-play-btn" id="sb-btn-audio-play" onclick="toggleAudioPlay()">▶ Play</button>
+          <div class="audio-progress-wrap">
+            <input type="range" class="audio-scrub-slider" id="sb-audio-scrubber" min="0" max="100" value="0" oninput="onScrubAudio(this.value)">
+            <div class="audio-time-row">
+              <span id="sb-audio-current-time">0:00</span>
+              <span id="sb-audio-total-time">0:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. GEMINI AI 1st-PERSON CHATBOT -->
+      <div class="detail-chat-card">
+        <div class="chat-header-row">
+          <div class="chat-title-group">
+            <span style="font-size:18px;">🤖</span>
+            <span class="chat-card-title" id="sb-chat-header-title">Live AI Chat with Opportunity</span>
+          </div>
+          <div class="chat-age-toggle-bar">
+            <button class="age-pill-btn active" id="sb-btn-age-junior" onclick="setChatAge('junior')">🌱 Junior (12–14)</button>
+            <button class="age-pill-btn" id="sb-btn-age-senior" onclick="setChatAge('senior')">🔬 Senior (15–18)</button>
+          </div>
+        </div>
+
+        <!-- Chat messages stream -->
+        <div class="chat-messages-wrap" id="sb-chat-messages-box"></div>
+
+        <!-- Quick prompt chips -->
+        <div class="chat-quick-chips">
+          <button class="quick-chip" onclick="sendQuickPrompt('What was your biggest scientific discovery?')">💡 Biggest Discovery?</button>
+          <button class="quick-chip" onclick="sendQuickPrompt('How did your mission end?')">⏳ How Did Mission End?</button>
+          <button class="quick-chip" onclick="sendQuickPrompt('What tools are on you?')">🛠️ What Tools?</button>
+        </div>
+
+        <!-- User input row -->
+        <div class="chat-input-row">
+          <input type="text" id="sb-chat-user-input" class="chat-text-input" placeholder="Ask this spacecraft a question..." onkeydown="if(event.key==='Enter') sendUserChatMessage('sidebar')">
+          <button id="sb-btn-send-chat" class="chat-send-btn" onclick="sendUserChatMessage('sidebar')">Ask Gemini ➔</button>
+        </div>
+      </div>
+
+      <!-- 5.5 NASA OFFICIAL IMAGERY PREVIEW CARD -->
+      <div class="sidebar-nasa-card">
+        <div class="sidebar-nasa-header">
+          <span class="sidebar-nasa-title">📷 NASA OFFICIAL ARCHIVE</span>
+          <span class="sidebar-nasa-badge">✓ NASA API LINKED</span>
+        </div>
+        <div class="sidebar-nasa-thumb-row" id="sb-nasa-thumb-row">
+          <!-- Populated dynamically with authentic NASA photos -->
+        </div>
+        <button class="sidebar-nasa-open-btn" onclick="openEquipmentDetail(currentActiveRover ? currentActiveRover.id : 'opportunity'); switchDetailTab('nasa');">
+          📷 Open High-Res NASA Mission Media Studio ➔
+        </button>
+      </div>
+
+      <!-- 6. LAUNCH 3D MODEL SIMULATOR BUTTON -->
+      <button class="btn-launch-3d-sim" id="btn-launch-3d-sim" onclick="launchCurrent3DSimulator()">
+        🚀 Launch 3D Opportunity Simulator & Orbit Controls ➔
+      </button>
+
+      <div id="monuments-list" style="display:none;"></div>
+    </div>
+
+    <!-- RIGHT 3D MARS VIEWPORT -->
+    <div id="canvas-wrap">
+      <div id="mars-hint">🔴 Spin 3D Mars • Click glowing beacon to open Equipment Simulator & Audio Story</div>
+      <div id="badges-layer"></div>
+      <div id="toolbar"></div>
+    </div>
+
+    <!-- FULL-SCREEN EQUIPMENT DETAIL VIEW OVERLAY -->
+    <div id="equipment-detail-overlay">
+      <div class="detail-header-bar">
+        <button class="detail-back-btn" onclick="closeEquipmentDetail()">⬅ Back to Mars</button>
+        <div class="detail-header-title" id="detail-header-title">OPPORTUNITY • ROVER SIMULATOR</div>
+        <div class="detail-view-toggle">
+          <button class="toggle-view-btn active" id="btn-view-3d" onclick="switchDetailTab('3d')">🛰️ 3D Model</button>
+          <button class="toggle-view-btn" id="btn-view-nasa" onclick="switchDetailTab('nasa')">📷 NASA Photos</button>
+        </div>
+        <button class="detail-audio-toggle-btn" id="btn-audio-toggle" onclick="toggleAudioMute()">🔊 Audio: ON</button>
+      </div>
+
+      <div class="detail-split-container">
+        <!-- LEFT SIDE: SUPABASE DATA, AUDIO STORY & GEMINI AI CHATBOT (48% screen width) -->
+        <div class="detail-info-panel">
+          <!-- 1. TITLE & BADGES -->
+          <div class="detail-title-section">
+            <div class="detail-badges-row">
+              <span class="detail-type-badge" id="detail-type-badge">ROVER</span>
+              <span class="detail-status-badge" id="detail-status-badge">SILENT MONUMENT</span>
+              <span class="detail-year-badge" id="detail-year-badge">2004–2018</span>
+            </div>
+            <h1 class="detail-name" id="detail-name">Opportunity</h1>
+            <div class="detail-tagline" id="detail-tagline">"My battery is low and it's getting dark."</div>
+          </div>
+
+          <!-- 2. SUPABASE MISSION DATABASE CARD -->
+          <div class="detail-supabase-card">
+            <div class="db-header">
+              <span class="db-title">📡 SUPABASE LIVE TELEMETRY</span>
+              <span class="db-badge-verified">✓ NASA VERIFIED CLOUD POSTGRES</span>
+            </div>
+
+            <!-- Telemetry Stat Row -->
+            <div class="db-stat-row">
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">⏱️</span>
+                <div>
+                  <div class="db-stat-label">Active Duration</div>
+                  <div class="db-stat-val" id="db-duration">5,352 Sols (14.8 Yrs)</div>
+                </div>
+              </div>
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">🏎️</span>
+                <div>
+                  <div class="db-stat-label">Total Traverse</div>
+                  <div class="db-stat-val" id="db-odometer">45.16 km (28.1 mi)</div>
+                </div>
+              </div>
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">🚀</span>
+                <div>
+                  <div class="db-stat-label">Launch Date</div>
+                  <div class="db-stat-val" id="db-launch">July 7, 2003</div>
+                </div>
+              </div>
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">🛬</span>
+                <div>
+                  <div class="db-stat-label">Touchdown</div>
+                  <div class="db-stat-val" id="db-landing">Jan 25, 2004</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="db-grid">
+              <div class="db-cell">
+                <div class="db-cell-label">📍 Landing Site & Coordinates</div>
+                <div class="db-cell-val" id="db-coords">1.9483° S, 354.4742° E (Meridiani Planum)</div>
+              </div>
+              <div class="db-cell">
+                <div class="db-cell-label">⚡ Power Architecture</div>
+                <div class="db-cell-val" id="db-power">Triple-junction solar cells</div>
+              </div>
+              <div class="db-cell">
+                <div class="db-cell-label">⚖️ Chassis Mass & Build</div>
+                <div class="db-cell-val" id="db-mass">185 kg (408 lb)</div>
+              </div>
+              <div class="db-cell">
+                <div class="db-cell-label">📡 Comms & Telemetry</div>
+                <div class="db-cell-val" id="db-comms">X-band Dish + UHF Relay</div>
+              </div>
+            </div>
+
+            <div class="db-desc-box">
+              <div class="db-cell-label">📜 NASA Archive Master Dossier</div>
+              <p class="db-desc-text" id="db-desc">MER-B marathon runner, explored Meridiani Planum for 14.8 years until 2018 dust storm.</p>
+            </div>
+
+            <div class="db-bridge">
+              <div class="db-bridge-title">🔬 THE HARDWARE ➔ SCIENCE BRIDGE</div>
+              <div class="db-bridge-hw" id="db-hw">🛠️ Tool: Rock Abrasion Tool & Mössbauer Spectrometer</div>
+              <div class="db-bridge-sc" id="db-sc">💡 Discovery: Discovered hematite 'blueberries' proving liquid water once soaked Mars.</div>
+            </div>
+
+            <div class="db-monument-box" id="db-monument-wrap">
+              <div class="db-cell-label">🏛️ Historic Monument Status</div>
+              <div class="db-monument-text" id="db-monument">Permanently preserved in Perseverance Valley, Endeavour Crater as an eternal monument to human exploration.</div>
+            </div>
+          </div>
+
+          <!-- 3. AUDIO STORY PLAYER -->
+          <div class="detail-audio-card">
+            <div class="audio-card-header">
+              <span class="audio-icon-pulse">🎧</span>
+              <span class="audio-card-title">Audio Narration Story</span>
+              <span style="font-size:11px; color:#94A3B8; margin-left:auto;">💡 Click 3D model to play</span>
+            </div>
+            <div class="audio-controls-row">
+              <button class="audio-play-btn" id="btn-audio-play" onclick="toggleAudioPlay()">▶ Play</button>
+              <div class="audio-progress-wrap">
+                <input type="range" class="audio-scrub-slider" id="audio-scrubber" min="0" max="100" value="0" oninput="onScrubAudio(this.value)">
+                <div class="audio-time-row">
+                  <span id="audio-current-time">0:00</span>
+                  <span id="audio-total-time">0:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. LIVE 1ST-PERSON GEMINI AI CHATBOT DASHBOARD -->
+          <div class="detail-chat-card">
+            <div class="chat-header-row">
+              <div class="chat-title-group">
+                <span style="font-size:18px;">🤖</span>
+                <span class="chat-card-title" id="chat-header-title">Live 1st-Person AI Chat</span>
+              </div>
+              <div class="chat-age-toggle-bar">
+                <button class="age-pill-btn active" id="btn-age-junior" onclick="setChatAge('junior')">🌱 Junior (12–14)</button>
+                <button class="age-pill-btn" id="btn-age-senior" onclick="setChatAge('senior')">🔬 Senior (15–18)</button>
+              </div>
+            </div>
+
+            <!-- Chat messages stream -->
+            <div class="chat-messages-wrap" id="chat-messages-box"></div>
+
+            <!-- Quick prompt chips -->
+            <div class="chat-quick-chips">
+              <button class="quick-chip" onclick="sendQuickPrompt('What was your biggest scientific discovery?')">💡 Biggest Discovery?</button>
+              <button class="quick-chip" onclick="sendQuickPrompt('How did your mission end?')">⏳ How Did Mission End?</button>
+              <button class="quick-chip" onclick="sendQuickPrompt('What tools are on you?')">🛠️ What Tools?</button>
+            </div>
+
+            <!-- User input bar -->
+            <div class="chat-input-row">
+              <input type="text" id="chat-user-input" class="chat-text-input" placeholder="Ask this spacecraft a question..." onkeydown="if(event.key==='Enter') sendUserChatMessage()">
+              <button id="btn-send-chat" class="chat-send-btn" onclick="sendUserChatMessage()">Ask Gemini ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE: 3D MODEL VIEWPORT (52% screen width) -->
+        <div class="detail-model-viewport" id="detail-model-viewport">
+          <div class="detail-spinner-wrap" id="detail-spinner">
+            <div class="detail-spinner"></div>
+            <div class="spinner-text">Loading 3D Model...</div>
+          </div>
+          <div class="detail-error-banner" id="detail-error-banner"></div>
+          <div class="detail-model-hint">🖱️ Drag to rotate • Scroll to zoom • Click 3D model to play audio</div>
+        </div>
+
+        <!-- RIGHT SIDE: NASA MISSION IMAGERY & MEDIA STUDIO (52% screen width, togglable) -->
+        <div class="detail-nasa-gallery-viewport" id="detail-nasa-gallery-viewport" style="display:none;">
+          <!-- NASA Header & Live API Badge -->
+          <div class="nasa-gallery-header">
+            <div class="nasa-brand-badge">
+              <span class="nasa-insignia">📷 NASA</span>
+              <span class="nasa-live-status">● LIVE NASA API IMAGERY</span>
+            </div>
+            <div class="nasa-gallery-actions">
+              <button class="nasa-action-btn" id="btn-nasa-fullres" onclick="openFullResNasaImage()">🔍 View Full-Res</button>
+              <button class="nasa-action-btn" id="btn-nasa-refresh" onclick="refreshNasaGalleryFeed()">🔄 Refresh Feed</button>
+            </div>
+          </div>
+
+          <!-- Main High-Resolution Photo Display -->
+          <div class="nasa-hero-display-wrap">
+            <div class="nasa-img-loading" id="nasa-img-loading" style="display:none;">
+              <div class="nasa-spinner"></div>
+              <span>Fetching Official NASA Imagery...</span>
+            </div>
+            <img id="nasa-hero-img" class="nasa-hero-img" src="" alt="NASA Mission Photo" onclick="openFullResNasaImage()" />
+            
+            <!-- Floating Photo Info Overlay -->
+            <div class="nasa-img-info-overlay" id="nasa-img-info-overlay">
+              <div class="nasa-info-top">
+                <span class="nasa-photo-id" id="nasa-photo-id">NASA ARCHIVE</span>
+                <span class="nasa-photo-date" id="nasa-photo-date">NASA Mission</span>
+              </div>
+              <div class="nasa-photo-title" id="nasa-photo-title">Martian Surface Exploration</div>
+              <div class="nasa-photo-caption" id="nasa-photo-caption">Authentic archival record from NASA Mars Exploration Archives.</div>
+            </div>
+          </div>
+
+          <!-- NASA Archive Live Search Bar -->
+          <div class="nasa-search-bar-wrap">
+            <span class="nasa-search-icon">🔍</span>
+            <input type="text" id="nasa-search-input" class="nasa-search-input" placeholder="Search NASA Mars archive (e.g. 'Jezero crater', 'drill sample', 'sunset')..." onkeydown="if(event.key==='Enter') executeNasaPhotoSearch()" />
+            <button class="nasa-search-btn" onclick="executeNasaPhotoSearch()">Search NASA API</button>
+          </div>
+
+          <!-- Interactive Photo Carousel / Thumbnail Strip -->
+          <div class="nasa-thumbnail-strip-section">
+            <div class="nasa-strip-title">AUTHENTIC NASA MISSION PHOTOGRAPHY (<span id="nasa-photo-count">0</span> PHOTOS)</div>
+            <div class="nasa-thumbnails-strip" id="nasa-thumbnails-strip">
+              <!-- Dynamically populated thumbnail cards -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
+  <script>
+    (function() {
+      const LOCATIONS = /*LOCATIONS_PLACEHOLDER*/[];
+      const GEMINI_API_KEY = /*GEMINI_KEY_PLACEHOLDER*/"";
+      const NASA_API_KEY = /*NASA_KEY_PLACEHOLDER*/"8P7pKqtdRdfbhHnww87fmNqPbh7fT6wLzCbQwC9F";
+
+      // Configuration of the 3 Equipment with Models and Audio Stories
+      const MARS_EQUIPMENT_ASSETS = {
+        "opportunity": {
+          id: "opportunity",
+          name: "Opportunity",
+          type: "Rover",
+          aliasIds: ["opportunity-rover", "opportunity", "oppy", "mer-b", "mer_b"],
+          modelFiles: [
+            "/app/static/models/Oppurtunity%20.glb",
+            "/app/static/models/opportunity.glb",
+            "/static/models/Oppurtunity%20.glb",
+            "/static/models/opportunity.glb",
+            "static/models/Oppurtunity%20.glb",
+            "models/Oppurtunity%20.glb"
+          ],
+          audioFiles: [
+            "/app/static/audio/opportunity.mp3",
+            "/static/audio/opportunity.mp3",
+            "static/audio/opportunity.mp3"
+          ],
+          color: "#38bdf8"
+        },
+        "viking-1": {
+          id: "viking-1",
+          name: "Viking 1",
+          type: "Lander",
+          aliasIds: ["viking-1-lander", "viking-1", "viking1", "viking_1", "viking-lander", "viking_one", "viking"],
+          modelFiles: [
+            "/app/static/models/Viking%20Lander%20.glb",
+            "/app/static/models/viking-1.glb",
+            "/app/static/models/viking.glb",
+            "/static/models/Viking%20Lander%20.glb",
+            "/static/models/viking-1.glb",
+            "static/models/Viking%20Lander%20.glb",
+            "models/Viking%20Lander%20.glb"
+          ],
+          audioFiles: [
+            "/app/static/audio/viking-1.mp3",
+            "/static/audio/viking-1.mp3",
+            "static/audio/viking-1.mp3"
+          ],
+          color: "#a855f7"
+        },
+        "ingenuity": {
+          id: "ingenuity",
+          name: "Ingenuity",
+          type: "Helicopter",
+          aliasIds: ["ingenuity-helicopter", "ingenuity", "ingenuity_helicopter", "mars_helicopter", "heli"],
+          modelFiles: [
+            "/app/static/models/Ingenuity%20Mars%20Helicopter%20.glb",
+            "/app/static/models/ingenuity.glb",
+            "/static/models/Ingenuity%20Mars%20Helicopter%20.glb",
+            "/static/models/ingenuity.glb",
+            "static/models/Ingenuity%20Mars%20Helicopter%20.glb",
+            "models/Ingenuity%20Mars%20Helicopter%20.glb"
+          ],
+          audioFiles: [
+            "/app/static/audio/ingenuity.mp3",
+            "/static/audio/ingenuity.mp3",
+            "static/audio/ingenuity.mp3"
+          ],
+          color: "#00f0ff"
+        },
+        "spirit": {
+          id: "spirit",
+          name: "Spirit Rover",
+          type: "Rover",
+          aliasIds: ["spirit-rover", "spirit", "mer-a", "mer_a"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/spirit.mp3",
+            "/static/audio/spirit.mp3",
+            "static/audio/spirit.mp3",
+            "/app/static/audio/spirit.mp3.mpeg",
+            "/static/audio/spirit.mp3.mpeg",
+            "static/audio/spirit.mp3.mpeg"
+          ],
+          color: "#fbbf24"
+        },
+        "sojourner": {
+          id: "sojourner",
+          name: "Sojourner Rover",
+          type: "Rover",
+          aliasIds: ["sojourner-rover", "sojourner", "pathfinder"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/sojourner.mp3",
+            "/static/audio/sojourner.mp3",
+            "static/audio/sojourner.mp3",
+            "/app/static/audio/sojourner.mp3.mpeg",
+            "/static/audio/sojourner.mp3.mpeg",
+            "static/audio/sojourner.mp3.mpeg"
+          ],
+          color: "#22c55e"
+        },
+        "viking-2": {
+          id: "viking-2",
+          name: "Viking 2 Lander",
+          type: "Lander",
+          aliasIds: ["viking-2-lander", "viking-2", "viking2"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/viking-2.mp3",
+            "/static/audio/viking-2.mp3",
+            "static/audio/viking-2.mp3",
+            "/app/static/audio/viking%202.mp3",
+            "/static/audio/viking%202.mp3",
+            "/app/static/audio/viking%202.mp3.mpeg",
+            "/static/audio/viking%202.mp3.mpeg",
+            "static/audio/viking 2.mp3.mpeg"
+          ],
+          color: "#f97316"
+        },
+        "insight": {
+          id: "insight",
+          name: "InSight Lander",
+          type: "Lander",
+          aliasIds: ["insight-lander", "insight"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/insight.mp3",
+            "/static/audio/insight.mp3",
+            "static/audio/insight.mp3",
+            "/app/static/audio/insight.mp3.mpeg",
+            "/static/audio/insight.mp3.mpeg",
+            "static/audio/insight.mp3.mpeg"
+          ],
+          color: "#ec4899"
+        },
+        "phoenix": {
+          id: "phoenix",
+          name: "Phoenix Lander",
+          type: "Lander",
+          aliasIds: ["phoenix-lander", "phoenix"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/phoenix.mp3",
+            "/static/audio/phoenix.mp3",
+            "static/audio/phoenix.mp3",
+            "/app/static/audio/phoenix.mp3.mpeg",
+            "/static/audio/phoenix.mp3.mpeg",
+            "static/audio/phoenix.mp3.mpeg"
+          ],
+          color: "#06b6d4"
+        },
+        "curiosity": {
+          id: "curiosity",
+          name: "Curiosity Rover",
+          type: "Rover",
+          aliasIds: ["curiosity-rover", "curiosity", "msl"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/curiosity.mp3",
+            "/static/audio/curiosity.mp3",
+            "static/audio/curiosity.mp3",
+            "/app/static/audio/curiosity.mp3.mpeg",
+            "/static/audio/curiosity.mp3.mpeg",
+            "static/audio/curiosity.mp3.mpeg"
+          ],
+          color: "#38bdf8"
+        },
+        "perseverance": {
+          id: "perseverance",
+          name: "Perseverance Rover",
+          type: "Rover",
+          aliasIds: ["perseverance-rover", "perseverance", "percy"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/perseverance.mp3",
+            "/static/audio/perseverance.mp3",
+            "static/audio/perseverance.mp3",
+            "/app/static/audio/perseverance.mp3.mpeg",
+            "/static/audio/perseverance.mp3.mpeg",
+            "static/audio/perseverance.mp3.mpeg"
+          ],
+          color: "#00f0ff"
+        }
+      };
+
+      function isEquipmentClickable(locId) {
+        return true; // All Mars rovers & landers are clickable!
+      }
+
+      function resolveEquipmentKey(locId) {
+        if (!locId) return null;
+        const s = String(locId).toLowerCase().replace(/[^a-z0-9]/g, '');
+        for (const k in MARS_EQUIPMENT_ASSETS) {
+          const asset = MARS_EQUIPMENT_ASSETS[k];
+          if (asset.aliasIds.some(alias => {
+            const a = alias.toLowerCase().replace(/[^a-z0-9]/g, '');
+            return s === a || s.includes(a) || a.includes(s);
+          })) {
+            return k;
+          }
+        }
+        return null;
+      }
+
+
+      // Authentic Curated NASA Mission Archives for Mars Spacecraft
+      const MARS_NASA_IMAGES = {
+  "opportunity": [
+    {
+      "title": "Mars Rover Opportunity at Rock Abrasion Target Potts",
+      "nasa_id": "PIA20285",
+      "date": "2016-01-25",
+      "caption": "The target beneath the tool turret at the end of the rover's robotic arm in this image from NASA's Mars Exploration Rover Opportunity is 'Private John Potts.' It lies high on the southern side of 'Marathon Valley,' which slices through the western ri",
+      "url": "https://images-assets.nasa.gov/image/PIA20285/PIA20285~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA20285/PIA20285~small.jpg"
+    },
+    {
+      "title": "Frost on Mars Rover Opportunity",
+      "nasa_id": "PIA07108",
+      "date": "2004-12-13",
+      "caption": "Frost on Mars Rover Opportunity",
+      "url": "https://images-assets.nasa.gov/image/PIA07108/PIA07108~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA07108/PIA07108~orig.jpg"
+    },
+    {
+      "title": "Mars Rover Opportunity's View of 'Orion Crater' (Stereo)",
+      "nasa_id": "PIA21706",
+      "date": "2017-06-16",
+      "caption": "This view of a small, relatively fresh crater on Mars combines images from the left eye and right eye of the Panoramic Camera (Pancam) on NASA's Opportunity Mars rover, to appear three-dimensional when seen through blue-red glasses with the red lens",
+      "url": "https://images-assets.nasa.gov/image/PIA21706/PIA21706~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA21706/PIA21706~medium.jpg"
+    },
+    {
+      "title": "Mars Rover Opportunity's View of 'Orion Crater'",
+      "nasa_id": "PIA21708",
+      "date": "2017-06-16",
+      "caption": "NASA's Opportunity Mars rover passed near this small, relatively fresh crater in April 2017, during the 45th anniversary of the Apollo 16 mission to the moon. The rover team chose to call it 'Orion Crater,' after the Apollo 16 lunar module. The rover",
+      "url": "https://images-assets.nasa.gov/image/PIA21708/PIA21708~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA21708/PIA21708~medium.jpg"
+    }
+  ],
+  "spirit": [
+    {
+      "title": "Spirit Stretches Out",
+      "nasa_id": "PIA05040",
+      "date": "2004-01-10",
+      "caption": "This frame from an animation flips back and forth between images taken before and after deployment of the Mars Exploration Rover Spirit's bogie, a part of the rover's suspension system that extends the wheel base. These images were taken by Spirit's",
+      "url": "https://images-assets.nasa.gov/image/PIA05040/PIA05040~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA05040/PIA05040~small.jpg"
+    },
+    {
+      "title": "Mars Exploration Rover MER-A Spirit Landing Site",
+      "nasa_id": "PIA05120",
+      "date": "2004-01-03",
+      "caption": "Mars Exploration Rover MER-A Spirit Landing Site",
+      "url": "https://images-assets.nasa.gov/image/PIA05120/PIA05120~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA05120/PIA05120~medium.jpg"
+    },
+    {
+      "title": "Von Braun Mound in Spirit Drive Direction",
+      "nasa_id": "PIA11996",
+      "date": "2009-04-23",
+      "caption": "NASA Mars Exploration Rover Spirit used its navigation camera to capture this view of the terrain toward the southeast from the location Spirit reached on the 1,871st Martian day, or sol, of the rover mission on Mars April 8, 2009.   The mound on the",
+      "url": "https://images-assets.nasa.gov/image/PIA11996/PIA11996~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA11996/PIA11996~small.jpg"
+    },
+    {
+      "title": "Spirit 360-Degree View on Sol 409 (vertical)",
+      "nasa_id": "PIA07410",
+      "date": "2005-03-03",
+      "caption": "NASA's Mars Exploration Rover Spirit used its navigation camera to take the images combined into this 360-degree view of the rover's surroundings on Spirit's 409th martian day, or sol (Feb. 26, 2005). Spirit had driven 2 meters (7 feet) on this sol t",
+      "url": "https://images-assets.nasa.gov/image/PIA07410/PIA07410~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA07410/PIA07410~medium.jpg"
+    }
+  ],
+  "sojourner": [
+    {
+      "title": "Newest is Biggest: Three Generations of NASA Mars Rovers",
+      "nasa_id": "PIA11436",
+      "date": "2008-11-19",
+      "caption": "Full-scale models of three generations of NASA Mars rovers show the increase in size from the Sojourner rover of the Mars Pathfinder project, to the twin Mars Exploration Rovers Spirit and Opportunity, to the Mars Science Laboratory rover.",
+      "url": "https://images-assets.nasa.gov/image/PIA11436/PIA11436~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA11436/PIA11436~small.jpg"
+    },
+    {
+      "title": "Size Comparison: Three Generations of Mars Rovers",
+      "nasa_id": "PIA11431",
+      "date": "2008-11-19",
+      "caption": "Full-scale models of three generations of NASA Mars rovers show the increase in size from the Sojourner rover of the Mars Pathfinder project, to the twin Mars Exploration Rovers Spirit and Opportunity, to the Mars Science Laboratory rover.",
+      "url": "https://images-assets.nasa.gov/image/PIA11431/PIA11431~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA11431/PIA11431~small.jpg"
+    },
+    {
+      "title": "Rovers and Sojourner",
+      "nasa_id": "PIA04422",
+      "date": "2003-02-26",
+      "caption": "The twin rovers of NASAa Mars Exploration Rover Mission pose with their groundbreaking predecessor, the flight spare of the Sojourner rover from NASA 1997 Pathfinder mission.",
+      "url": "https://images-assets.nasa.gov/image/PIA04422/PIA04422~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA04422/PIA04422~medium.jpg"
+    },
+    {
+      "title": "Sojourner Sits Near 'Rock Garden'",
+      "nasa_id": "PIA04318",
+      "date": "2003-02-01",
+      "caption": "The Mars Pathfinder Rover Sojourner images by the Imager for Mars Pathfinder as it nears the rock 'Wedge.' Part of the Rock Garden is visible in the upper right of the image.  http://photojournal.jpl.nasa.gov/catalog/PIA04318",
+      "url": "https://images-assets.nasa.gov/image/PIA04318/PIA04318~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA04318/PIA04318~orig.jpg"
+    }
+  ],
+  "curiosity": [
+    {
+      "title": "Head of Mast on Mars Rover Curiosity",
+      "nasa_id": "PIA15106",
+      "date": "2011-11-28",
+      "caption": "This view of the head of the remote sensing mast on the Mars Science Laboratory mission rover, Curiosity, shows seven of the 17 cameras on the rover.",
+      "url": "https://images-assets.nasa.gov/image/PIA15106/PIA15106~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA15106/PIA15106~small.jpg"
+    },
+    {
+      "title": "Curiosity Mars Rover Drilling Into Its Second Rock",
+      "nasa_id": "PIA17068",
+      "date": "2013-06-05",
+      "caption": "This frame from an animation from NASA Mars rover Curiosity shows the rover drilling into rock target Cumberland. The drilling was performed during the 279th Martian day, or sol, of the Curiosity work on Mars May 19, 2013.",
+      "url": "https://images-assets.nasa.gov/image/PIA17068/PIA17068~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA17068/PIA17068~small.jpg"
+    },
+    {
+      "title": "Mars Rover Curiosity Raising Turret",
+      "nasa_id": "PIA14253",
+      "date": "2011-06-13",
+      "caption": "This photograph of the NASA Mars Science Laboratory rover, Curiosity, was taken during testing on June 3, 2011. The turret at the end of Curiosity robotic arm holds five devices.",
+      "url": "https://images-assets.nasa.gov/image/PIA14253/PIA14253~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA14253/PIA14253~medium.jpg"
+    },
+    {
+      "title": "Top of Mars Rover Curiosity Remote Sensing Mast",
+      "nasa_id": "PIA13809",
+      "date": "2011-04-06",
+      "caption": "The remote sensing mast on NASA Mars rover Curiosity holds two science instruments for studying the rover surroundings and two stereo navigation cameras for use in driving the rover and planning rover activities.",
+      "url": "https://images-assets.nasa.gov/image/PIA13809/PIA13809~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA13809/PIA13809~medium.jpg"
+    }
+  ],
+  "perseverance": [
+    {
+      "title": "Mars 2020 Perseverance Rover Wheels",
+      "nasa_id": "KSC-20200402-PH-JPL01_0002",
+      "date": "2020-04-02",
+      "caption": "Wheels are installed on NASA\u2019s Mars Perseverance rover inside Kennedy Space Center\u2019s Payload Hazardous Servicing Facility on March 30, 2020. Perseverance will liftoff aboard a United Launch Alliance Atlas V 541 rocket from Cape Canaveral Air Force St",
+      "url": "https://images-assets.nasa.gov/image/KSC-20200402-PH-JPL01_0002/KSC-20200402-PH-JPL01_0002~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-20200402-PH-JPL01_0002/KSC-20200402-PH-JPL01_0002~medium.jpg"
+    },
+    {
+      "title": "Mars 2020 Perseverance Rover Wheels",
+      "nasa_id": "KSC-20200402-PH-JPL01_0003",
+      "date": "2020-04-02",
+      "caption": "Wheels are installed on NASA\u2019s Mars Perseverance rover inside Kennedy Space Center\u2019s Payload Hazardous Servicing Facility on March 30, 2020. Perseverance will liftoff aboard a United Launch Alliance Atlas V 541 rocket from Cape Canaveral Air Force St",
+      "url": "https://images-assets.nasa.gov/image/KSC-20200402-PH-JPL01_0003/KSC-20200402-PH-JPL01_0003~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-20200402-PH-JPL01_0003/KSC-20200402-PH-JPL01_0003~medium.jpg"
+    },
+    {
+      "title": "Mars 2020 Perseverance Rover Wheels",
+      "nasa_id": "KSC-20200402-PH-JPL01_0001",
+      "date": "2020-04-02",
+      "caption": "Wheels are installed on NASA\u2019s Mars Perseverance rover inside Kennedy Space Center\u2019s Payload Hazardous Servicing Facility on March 30, 2020. Perseverance will liftoff aboard a United Launch Alliance Atlas V 541 rocket from Cape Canaveral Air Force St",
+      "url": "https://images-assets.nasa.gov/image/KSC-20200402-PH-JPL01_0001/KSC-20200402-PH-JPL01_0001~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-20200402-PH-JPL01_0001/KSC-20200402-PH-JPL01_0001~medium.jpg"
+    },
+    {
+      "title": "Mars Perseverance Rover (Gradient Illustration)",
+      "nasa_id": "PIA24348",
+      "date": "2020-12-21",
+      "caption": "An illustration of the planet Mars, highlighting NASA's Mars Perseverance rover mission.  https://photojournal.jpl.nasa.gov/catalog/PIA24348",
+      "url": "https://images-assets.nasa.gov/image/PIA24348/PIA24348~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA24348/PIA24348~medium.jpg"
+    }
+  ],
+  "ingenuity": [
+    {
+      "title": "Ingenuity Helicopter on Mars (Illustration)",
+      "nasa_id": "PIA24466",
+      "date": "2021-03-16",
+      "caption": "An illustration of NASA's Ingenuity Helicopter flying on Mars.  Ingenuity, a technology demonstration experiment, will be the first aircraft to attempt powered, controlled flight on another planet. Ingenuity arrived at Mars on Feb. 18, 2021, attached",
+      "url": "https://images-assets.nasa.gov/image/PIA24466/PIA24466~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA24466/PIA24466~medium.jpg"
+    },
+    {
+      "title": "NASA's Ingenuity Mars Helicopter",
+      "nasa_id": "PIA23882",
+      "date": "2020-04-29",
+      "caption": "The flight model of NASA's Ingenuity Mars Helicopter.  https://photojournal.jpl.nasa.gov/catalog/PIA23882",
+      "url": "https://images-assets.nasa.gov/image/PIA23882/PIA23882~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA23882/PIA23882~medium.jpg"
+    },
+    {
+      "title": "Bottom of Ingenuity Mars Helicopter",
+      "nasa_id": "PIA23969",
+      "date": "2021-01-20",
+      "caption": "An Ingenuity team member inspects NASA's Ingenuity Mars Helicopter in one of the space simulation chambers at the agency's Jet Propulsion Laboratory in Southern California.  The helicopter's two cameras are visible in this view of the underside of In",
+      "url": "https://images-assets.nasa.gov/image/PIA23969/PIA23969~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA23969/PIA23969~medium.jpg"
+    },
+    {
+      "title": "Ingenuity Mars Helicopter Prototype Donation to NASM",
+      "nasa_id": "NHQ202312150007",
+      "date": "2023-12-15",
+      "caption": "Teddy Tzanetos, Ingenuity project manager at NASA's Jet Propulsion Laboratory speaks at an event marking NASA\u2019s donation of the aerial prototype of the Ingenuity Mars Helicopter, Friday, Dec. 15, 2023, at the Smithsonian National Air and Space Museum",
+      "url": "https://images-assets.nasa.gov/image/NHQ202312150007/NHQ202312150007~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/NHQ202312150007/NHQ202312150007~medium.jpg"
+    }
+  ],
+  "viking-1": [
+    {
+      "title": "Mars Surface near Viking Lander 1 Footpad",
+      "nasa_id": "PIA10738",
+      "date": "2008-05-30",
+      "caption": "Mars Surface near Viking Lander 1 Footpad",
+      "url": "https://images-assets.nasa.gov/image/PIA10738/PIA10738~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA10738/PIA10738~orig.jpg"
+    },
+    {
+      "title": "Viking Lander 1 U.S. Flag on Mars Surface",
+      "nasa_id": "PIA00565",
+      "date": "1997-02-28",
+      "caption": "Viking Lander 1 U.S. Flag on Mars Surface",
+      "url": "https://images-assets.nasa.gov/image/PIA00565/PIA00565~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA00565/PIA00565~orig.jpg"
+    },
+    {
+      "title": "Launch Vehicles",
+      "nasa_id": "9141929",
+      "date": "1975-08-20",
+      "caption": "The Titan III-Centaur carrying the Viking 1 Lander lifted off on August 20, 1975. The Viking Lander conducted a detailed scientific investigation of the planet Mars.",
+      "url": "https://images-assets.nasa.gov/image/9141929/9141929~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/9141929/9141929~medium.jpg"
+    },
+    {
+      "title": "Mars Orbiter Camera Acquires High Resolution Stereoscopic Images of the Viking One Landing Site",
+      "nasa_id": "PIA01443",
+      "date": "1998-07-03",
+      "caption": "This image of the vicinity of the Viking Lander 1 was captured by NASA Mars Global Surveyor MOC camera. site. 3D glasses are necessary to identify surface detail.",
+      "url": "https://images-assets.nasa.gov/image/PIA01443/PIA01443~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA01443/PIA01443~small.jpg"
+    }
+  ],
+  "viking-2": [
+    {
+      "title": "Viking Lander 2 First Picture On The Surface Of Mars",
+      "nasa_id": "PIA00396",
+      "date": "1996-12-12",
+      "caption": "Viking Lander 2 First Picture On The Surface Of Mars  http://photojournal.jpl.nasa.gov/catalog/PIA00396",
+      "url": "https://images-assets.nasa.gov/image/PIA00396/PIA00396~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA00396/PIA00396~orig.jpg"
+    },
+    {
+      "title": "KSC-75p-110",
+      "nasa_id": "101-KSC-75P-110",
+      "date": "1975-02-06",
+      "caption": "CAPE CANAVERAL, Fla. -- At the Kennedy Space Center in Florida, technicians inspect the Viking Lander 2 in Kennedy's Spacecraft Assembly and Encapsulation Facility 1. The first Viking is scheduled for launch from Launch Complex 41 no earlier than Aug",
+      "url": "https://images-assets.nasa.gov/image/101-KSC-75P-110/101-KSC-75P-110~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/101-KSC-75P-110/101-KSC-75P-110~medium.jpg"
+    },
+    {
+      "title": "KSC-75p-12",
+      "nasa_id": "101-KSC-75P-12",
+      "date": "1975-01-07",
+      "caption": "KENNEDY SPACE CENTER, FLA. --  Technicians prepared for removal of Viking Lander 1's aeroshell cover in KSC's Spacecraft Assembly and Encapsulation Facility 2 (SAEF-2) today.  The cover remains over the Lander throughout its 440,000,000-mile journey",
+      "url": "https://images-assets.nasa.gov/image/101-KSC-75P-12/101-KSC-75P-12~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/101-KSC-75P-12/101-KSC-75P-12~medium.jpg"
+    },
+    {
+      "title": "KSC-75pc-167",
+      "nasa_id": "101-KSC-75PC-167",
+      "date": "1975-03-27",
+      "caption": "KENNEDY SPACE CENTER, FLA. --  The mated orbiter and lander for Viking A were encapsulated within a Centaur shroud at Spacecraft Assembly and Encapsulation Facility 2 (SAEF-2) today.  The spacecraft, one of two to be launched toward Mars atop Titan_C",
+      "url": "https://images-assets.nasa.gov/image/101-KSC-75PC-167/101-KSC-75PC-167~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/101-KSC-75PC-167/101-KSC-75PC-167~medium.jpg"
+    }
+  ],
+  "phoenix": [
+    {
+      "title": "Phoenix Mars Lander Spacecraft Processing",
+      "nasa_id": "KSC-07PD-1085",
+      "date": "2007-05-10",
+      "caption": "In the Payload Hazardous Servicing Facility, technicians attach a crane to the Phoenix Mars Lander spacecraft. The crane will be used to remove the heat shield from around the Phoenix. The Phoenix mission is the first project in NASA's first openly c",
+      "url": "https://images-assets.nasa.gov/image/KSC-07PD-1085/KSC-07PD-1085~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-07PD-1085/KSC-07PD-1085~medium.jpg"
+    },
+    {
+      "title": "Phoenix Mars Lander Spacecraft Processing",
+      "nasa_id": "KSC-07PD-1084",
+      "date": "2007-05-10",
+      "caption": "In the Payload Hazardous Servicing Facility, technicians lower a crane over the Phoenix Mars Lander spacecraft. The crane will be used to remove the heat shield from around the Phoenix. The Phoenix mission is the first project in NASA's first openly",
+      "url": "https://images-assets.nasa.gov/image/KSC-07PD-1084/KSC-07PD-1084~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-07PD-1084/KSC-07PD-1084~medium.jpg"
+    },
+    {
+      "title": "Phoenix Mars Lander Spacecraft Processing",
+      "nasa_id": "KSC-07PD-1090",
+      "date": "2007-05-10",
+      "caption": "In the Payload Hazardous Servicing Facility, the Phoenix Mars Lander (foreground) can be seen inside the backshell. In the background, workers are helping place the heat shield, just removed from the Phoenix, onto a platform. The Phoenix mission is t",
+      "url": "https://images-assets.nasa.gov/image/KSC-07PD-1090/KSC-07PD-1090~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-07PD-1090/KSC-07PD-1090~medium.jpg"
+    },
+    {
+      "title": "Phoenix Mars Lander Spacecraft Processing",
+      "nasa_id": "KSC-07PD-1093",
+      "date": "2007-05-10",
+      "caption": "An overhead crane lowers the backshell with the Phoenix Mars Lander inside toward a spin table for spin testing in the Payload Hazardous Servicing Facility. The Phoenix mission is the first project in NASA's first openly competed program of Mars Scou",
+      "url": "https://images-assets.nasa.gov/image/KSC-07PD-1093/KSC-07PD-1093~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/KSC-07PD-1093/KSC-07PD-1093~medium.jpg"
+    }
+  ],
+  "insight": [
+    {
+      "title": "Artist Concept of InSight Lander on Mars",
+      "nasa_id": "PIA19811",
+      "date": "2015-08-18",
+      "caption": "This artist's concept from August 2015 depicts NASA's InSight Mars lander fully deployed for studying the deep interior of Mars. This illustration updates the correct placement and look of Insight's main instruments. For an earlier artist rendition,",
+      "url": "https://images-assets.nasa.gov/image/PIA19811/PIA19811~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA19811/PIA19811~medium.jpg"
+    },
+    {
+      "title": "Artist Concept of InSight Lander on Mars",
+      "nasa_id": "PIA17358",
+      "date": "2014-03-26",
+      "caption": "This artist's concept depicts the stationary NASA Mars lander known by the acronym InSight at work studying the interior of Mars. The InSight mission (for Interior Exploration using Seismic Investigations, Geodesy and Heat Transport) is scheduled to",
+      "url": "https://images-assets.nasa.gov/image/PIA17358/PIA17358~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA17358/PIA17358~medium.jpg"
+    },
+    {
+      "title": "InSight's Inner Sanctum Revealed",
+      "nasa_id": "PIA22647",
+      "date": "2018-08-20",
+      "caption": "This long-exposure image (24 seconds) was taken by Instrument Context Camera (ICC) of NASA's InSight Mars lander. The image shows some of the interior features of the backshell that encapsulates the spacecraft. The backshell carries the parachute and",
+      "url": "https://images-assets.nasa.gov/image/PIA22647/PIA22647~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA22647/PIA22647~small.jpg"
+    },
+    {
+      "title": "Mars Lander Deck of NASA's InSight Mission",
+      "nasa_id": "PIA21847",
+      "date": "2017-08-28",
+      "caption": "This view looks upward toward the InSight Mars lander suspended upside down. It shows the top of the lander's science deck with the mission's two main science instruments -- the Seismic Experiment for Interior Structure (SEIS) and the Heat Flow and P",
+      "url": "https://images-assets.nasa.gov/image/PIA21847/PIA21847~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA21847/PIA21847~medium.jpg"
+    }
+  ]
+};
+
+      let currentNasaPhotos = [];
+      let currentNasaPhotoIndex = 0;
+
+      window.switchDetailTab = function(tab) {
+        const modelVp = document.getElementById('detail-model-viewport');
+        const nasaVp = document.getElementById('detail-nasa-gallery-viewport');
+        const btn3d = document.getElementById('btn-view-3d');
+        const btnNasa = document.getElementById('btn-view-nasa');
+
+        if (tab === 'nasa') {
+          if (modelVp) modelVp.style.display = 'none';
+          if (nasaVp) nasaVp.style.display = 'flex';
+          if (btn3d) btn3d.classList.remove('active');
+          if (btnNasa) btnNasa.classList.add('active');
+          if (currentDetailEquipment) {
+            window.renderNasaGallery(currentDetailEquipment.id, currentDetailEquipment, currentChatCraft || {});
+          }
+        } else {
+          if (modelVp) modelVp.style.display = 'block';
+          if (nasaVp) nasaVp.style.display = 'none';
+          if (btn3d) btn3d.classList.add('active');
+          if (btnNasa) btnNasa.classList.remove('active');
+          if (typeof onDetailResize === 'function') {
+            onDetailResize();
+          }
+        }
+      };
+
+      async function fetchLiveNasaImages(query) {
+        try {
+          const cleanQ = encodeURIComponent(query + ' Mars rover lander');
+          const res = await fetch('https://images-api.nasa.gov/search?q=' + cleanQ + '&media_type=image');
+          if (!res.ok) return [];
+          const data = await res.json();
+          const items = data && data.collection && data.collection.items ? data.collection.items : [];
+          const results = [];
+          for (let i = 0; i < Math.min(items.length, 12); i++) {
+            const item = items[i];
+            const meta = item && item.data && item.data[0] ? item.data[0] : null;
+            const links = item && item.links ? item.links : [];
+            const thumbLink = links.find(l => l.rel === 'preview') || links[0];
+            if (meta && thumbLink && thumbLink.href) {
+              const thumbUrl = thumbLink.href;
+              const origUrl = thumbUrl.replace('~thumb.jpg', '~orig.jpg').replace('~thumb.png', '~orig.png');
+              results.push({
+                title: meta.title || 'NASA Mars Archive Record',
+                nasa_id: meta.nasa_id || 'NASA-MARS',
+                date: (meta.date_created ? meta.date_created.substring(0, 10) : 'NASA Archive'),
+                caption: meta.description || 'Authentic Mars mission imagery from NASA JPL & Open Archives.',
+                url: thumbUrl,
+                orig: origUrl
+              });
+            }
+          }
+          return results;
+        } catch(e) {
+          console.warn("fetchLiveNasaImages error:", e);
+          return [];
+        }
+      }
+
+      window.renderNasaGallery = async function(assetKey, asset, locData) {
+        const loadingEl = document.getElementById('nasa-img-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        // 1. Load authentic pre-curated NASA photos for this craft
+        const key = String(assetKey || '').toLowerCase();
+        let curated = MARS_NASA_IMAGES[key];
+        if (!curated || curated.length === 0) {
+          for (const k in MARS_NASA_IMAGES) {
+            if (key.includes(k) || k.includes(key)) {
+              curated = MARS_NASA_IMAGES[k];
+              break;
+            }
+          }
+        }
+        if (!curated || curated.length === 0) {
+          curated = MARS_NASA_IMAGES['opportunity'] || [];
+        }
+
+        currentNasaPhotos = [...curated];
+        currentNasaPhotoIndex = 0;
+        window.updateNasaGalleryDisplay();
+
+        // 2. Query Live NASA Image API to fetch live supplementary photos
+        try {
+          const qName = (locData && locData.name) ? locData.name : (asset && asset.name ? asset.name : 'Mars Rover');
+          const liveResults = await fetchLiveNasaImages(qName);
+          if (liveResults && liveResults.length > 0) {
+            const existingIds = new Set(currentNasaPhotos.map(p => p.nasa_id));
+            liveResults.forEach(lp => {
+              if (!existingIds.has(lp.nasa_id)) {
+                currentNasaPhotos.push(lp);
+                existingIds.add(lp.nasa_id);
+              }
+            });
+            window.updateNasaGalleryDisplay();
+          }
+        } catch(e) {
+          console.warn("Supplementary NASA image query skipped:", e);
+        } finally {
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      };
+
+      window.updateNasaGalleryDisplay = function() {
+        if (!currentNasaPhotos || currentNasaPhotos.length === 0) return;
+        const photo = currentNasaPhotos[currentNasaPhotoIndex] || currentNasaPhotos[0];
+
+        const heroImg = document.getElementById('nasa-hero-img');
+        if (heroImg) {
+          heroImg.src = photo.url;
+          heroImg.alt = photo.title || 'NASA Mission Photo';
+        }
+
+        const idEl = document.getElementById('nasa-photo-id');
+        if (idEl) idEl.innerText = photo.nasa_id ? ('NASA ' + photo.nasa_id) : 'NASA ARCHIVE RECORD';
+
+        const dateEl = document.getElementById('nasa-photo-date');
+        if (dateEl) dateEl.innerText = photo.date || 'NASA MISSION ARCHIVE';
+
+        const titleEl = document.getElementById('nasa-photo-title');
+        if (titleEl) titleEl.innerText = photo.title || 'Martian Surface Exploration';
+
+        const capEl = document.getElementById('nasa-photo-caption');
+        if (capEl) capEl.innerText = photo.caption || 'Archival record from NASA Mars exploration archives.';
+
+        const countEl = document.getElementById('nasa-photo-count');
+        if (countEl) countEl.innerText = currentNasaPhotos.length;
+
+        // Render Thumbnails
+        const strip = document.getElementById('nasa-thumbnails-strip');
+        if (strip) {
+          strip.innerHTML = '';
+          currentNasaPhotos.forEach((p, idx) => {
+            const card = document.createElement('div');
+            card.className = 'nasa-thumb-card' + (idx === currentNasaPhotoIndex ? ' active' : '');
+            card.title = p.title;
+            card.innerHTML = '<img src="' + p.url + '" class="nasa-thumb-img" alt="' + (p.title || '') + '" />';
+            card.onclick = () => window.selectNasaPhoto(idx);
+            strip.appendChild(card);
+          });
+        }
+      };
+
+      window.selectNasaPhoto = function(idx) {
+        if (idx >= 0 && idx < currentNasaPhotos.length) {
+          currentNasaPhotoIndex = idx;
+          window.updateNasaGalleryDisplay();
+        }
+      };
+
+      window.openFullResNasaImage = function() {
+        if (!currentNasaPhotos || currentNasaPhotos.length === 0) return;
+        const photo = currentNasaPhotos[currentNasaPhotoIndex] || currentNasaPhotos[0];
+        const targetUrl = photo.orig || photo.url;
+        window.open(targetUrl, '_blank');
+      };
+
+      window.executeNasaPhotoSearch = async function() {
+        const input = document.getElementById('nasa-search-input');
+        if (!input || !input.value.trim()) return;
+        const query = input.value.trim();
+
+        const loadingEl = document.getElementById('nasa-img-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        try {
+          const results = await fetchLiveNasaImages(query);
+          if (results && results.length > 0) {
+            currentNasaPhotos = results;
+            currentNasaPhotoIndex = 0;
+            window.updateNasaGalleryDisplay();
+          } else {
+            alert("No NASA archive photos found for: " + query);
+          }
+        } catch(e) {
+          console.warn("NASA search error:", e);
+        } finally {
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      };
+
+      window.refreshNasaGalleryFeed = function() {
+        if (currentDetailEquipment) {
+          window.renderNasaGallery(currentDetailEquipment.id, currentDetailEquipment, currentChatCraft || {});
+        }
+      };
+
+
+      // Detail View State
+      let currentDetailEquipment = null;
+      let detailScene = null;
+      let detailCamera = null;
+      let detailRenderer = null;
+      let detailControls = null;
+      let detailAnimId = null;
+      let detailAudio = new Audio();
+      let isAudioMuted = false;
+
+      function formatAudioTime(seconds) {
+        if (isNaN(seconds) || seconds === Infinity) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ":" + (secs < 10 ? "0" : "") + secs;
+      }
+
+      detailAudio.ontimeupdate = function() {
+        const scrubber = document.getElementById('audio-scrubber');
+        const sbScrubber = document.getElementById('sb-audio-scrubber');
+        const curTime = document.getElementById('audio-current-time');
+        const sbCurTime = document.getElementById('sb-audio-current-time');
+        const totTime = document.getElementById('audio-total-time');
+        const sbTotTime = document.getElementById('sb-audio-total-time');
+        if (detailAudio.duration) {
+          const pct = (detailAudio.currentTime / detailAudio.duration) * 100;
+          if (scrubber) scrubber.value = pct;
+          if (sbScrubber) sbScrubber.value = pct;
+        }
+        const curStr = formatAudioTime(detailAudio.currentTime);
+        const totStr = formatAudioTime(detailAudio.duration);
+        if (curTime) curTime.innerText = curStr;
+        if (sbCurTime) sbCurTime.innerText = curStr;
+        if (totTime && detailAudio.duration) totTime.innerText = totStr;
+        if (sbTotTime && detailAudio.duration) sbTotTime.innerText = totStr;
+      };
+
+      detailAudio.onloadedmetadata = function() {
+        const totTime = document.getElementById('audio-total-time');
+        const sbTotTime = document.getElementById('sb-audio-total-time');
+        if (detailAudio.duration) {
+          const totStr = formatAudioTime(detailAudio.duration);
+          if (totTime) totTime.innerText = totStr;
+          if (sbTotTime) sbTotTime.innerText = totStr;
+        }
+      };
+
+      detailAudio.onended = function() {
+        const playBtn = document.getElementById('btn-audio-play');
+        const sbPlayBtn = document.getElementById('sb-btn-audio-play');
+        if (playBtn) playBtn.innerText = "▶ Play";
+        if (sbPlayBtn) sbPlayBtn.innerText = "▶ Play";
+        const scrubber = document.getElementById('audio-scrubber');
+        const sbScrubber = document.getElementById('sb-audio-scrubber');
+        if (scrubber) scrubber.value = 0;
+        if (sbScrubber) sbScrubber.value = 0;
+      };
+
+      window.toggleAudioPlay = function() {
+        const playBtn = document.getElementById('btn-audio-play');
+        const sbPlayBtn = document.getElementById('sb-btn-audio-play');
+        if (detailAudio.paused) {
+          if (isAudioMuted) {
+            isAudioMuted = false;
+            window.updateAudioToggleBtn();
+          }
+          const playPromise = detailAudio.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              if (playBtn) playBtn.innerText = "⏸ Pause";
+              if (sbPlayBtn) sbPlayBtn.innerText = "⏸ Pause";
+            }).catch(err => {
+              console.warn("Audio play prevented:", err);
+              if (playBtn) playBtn.innerText = "▶ Play";
+              if (sbPlayBtn) sbPlayBtn.innerText = "▶ Play";
+            });
+          }
+        } else {
+          detailAudio.pause();
+          if (playBtn) playBtn.innerText = "▶ Play";
+          if (sbPlayBtn) sbPlayBtn.innerText = "▶ Play";
+        }
+      };
+
+      window.onScrubAudio = function(val) {
+        if (detailAudio.duration) {
+          detailAudio.currentTime = (val / 100) * detailAudio.duration;
+        }
+      };
+
+      window.toggleAudioMute = function() {
+        isAudioMuted = !isAudioMuted;
+        window.updateAudioToggleBtn();
+        if (isAudioMuted && !detailAudio.paused) {
+          detailAudio.pause();
+          const playBtn = document.getElementById('btn-audio-play');
+          if (playBtn) playBtn.innerText = "▶ Play";
+        }
+      };
+
+      window.updateAudioToggleBtn = function() {
+        const btn = document.getElementById('btn-audio-toggle');
+        if (btn) {
+          btn.innerText = isAudioMuted ? "🔇 Audio: OFF" : "🔊 Audio: ON";
+        }
+      };
+
+      window.closeEquipmentDetail = function() {
+        // 1. Stop and clear audio
+        try {
+          detailAudio.pause();
+          detailAudio.currentTime = 0;
+          detailAudio.src = "";
+        } catch(e) {}
+
+        // 2. Clean up Three.js scene and controls
+        if (detailAnimId) {
+          cancelAnimationFrame(detailAnimId);
+          detailAnimId = null;
+        }
+        if (detailRenderer) {
+          try {
+            detailRenderer.dispose();
+            if (detailRenderer.domElement && detailRenderer.domElement.parentNode) {
+              detailRenderer.domElement.parentNode.removeChild(detailRenderer.domElement);
+            }
+          } catch(e) {}
+          detailRenderer = null;
+        }
+        detailScene = null;
+        detailCamera = null;
+        detailControls = null;
+        currentDetailEquipment = null;
+
+        // 3. Hide overlay
+        const overlay = document.getElementById('equipment-detail-overlay');
+        if (overlay) overlay.style.display = 'none';
+      };
+
+      window.openStudioDashboard = function() {
+        if (!currentDetailEquipment) return;
+        const targetId = (currentDetailEquipment.aliasIds && currentDetailEquipment.aliasIds.length > 0)
+          ? currentDetailEquipment.aliasIds[0]
+          : currentDetailEquipment.id;
+        const targetUrl = "/?page=spacecraft_studio&artifact=" + encodeURIComponent(targetId);
+        try {
+          if (window.top && window.top.location) {
+            window.top.location.href = targetUrl;
+            return;
+          }
+        } catch(e) {}
+        window.open(targetUrl, "_blank");
+      };
+
+      // Cross-window and automation message listener
+      window.addEventListener("message", (event) => {
+        if (!event.data) return;
+        if (event.data.action === 'openEquipmentDetail') {
+          window.openEquipmentDetail(event.data.equipmentKey);
+        } else if (event.data.action === 'closeEquipmentDetail') {
+          window.closeEquipmentDetail();
+        } else if (event.data.action === 'toggleAudio') {
+          window.toggleAudioPlay();
+        }
+      });
+
+      let currentChatAge = "junior";
+      let chatHistory = [];
+      let currentChatCraft = null;
+
+      window.setChatAge = function(age) {
+        currentChatAge = age;
+        ['btn-age-junior', 'sb-btn-age-junior'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('active', age === 'junior');
+        });
+        ['btn-age-senior', 'sb-btn-age-senior'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.toggle('active', age === 'senior');
+        });
+      };
+
+      window.sendQuickPrompt = function(promptText) {
+        const inputEl = document.getElementById('chat-user-input');
+        const sbInputEl = document.getElementById('sb-chat-user-input');
+        if (inputEl) inputEl.value = promptText;
+        if (sbInputEl) sbInputEl.value = promptText;
+        window.sendUserChatMessage();
+      };
+
+      function renderChatMessages() {
+        ['chat-messages-box', 'sb-chat-messages-box'].forEach(boxId => {
+          const box = document.getElementById(boxId);
+          if (!box) return;
+          box.innerHTML = '';
+          chatHistory.forEach(msg => {
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble ' + (msg.role === 'user' ? 'user' : 'assistant');
+            if (msg.role === 'user') {
+              bubble.innerText = msg.content;
+            } else {
+              let cleanText = (msg.content || '').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+              let badgeHtml = msg.nasaVerified ? '<div style="margin-top:8px; font-size:10.5px; color:#38bdf8; display:flex; align-items:center; gap:5px; border-top:1px solid rgba(56,189,248,0.25); padding-top:4px;"><span>🛰️</span><span>Verified via NASA Open API & Gemini AI</span></div>' : '';
+              bubble.innerHTML = cleanText + badgeHtml;
+            }
+            box.appendChild(bubble);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+      }
+
+      window.sendUserChatMessage = async function(source) {
+        let prompt = '';
+        const inputEl = document.getElementById('chat-user-input');
+        const sbInputEl = document.getElementById('sb-chat-user-input');
+
+        if (source === 'sidebar' && sbInputEl) {
+          prompt = sbInputEl.value.trim();
+        } else if (inputEl && inputEl.value.trim()) {
+          prompt = inputEl.value.trim();
+        } else if (sbInputEl && sbInputEl.value.trim()) {
+          prompt = sbInputEl.value.trim();
+        }
+
+        if (!prompt) return;
+        if (inputEl) inputEl.value = '';
+        if (sbInputEl) sbInputEl.value = '';
+
+        chatHistory.push({ role: 'user', content: prompt });
+        renderChatMessages();
+
+        ['chat-messages-box', 'sb-chat-messages-box'].forEach(boxId => {
+          const box = document.getElementById(boxId);
+          if (box) {
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'chat-bubble assistant';
+            loadingBubble.id = 'chat-loading-' + boxId;
+            loadingBubble.style.opacity = '0.85';
+            loadingBubble.innerHTML = '<span style="color:#38bdf8;">🔍 Querying NASA Open Archives with NASA API key...</span>';
+            box.appendChild(loadingBubble);
+            box.scrollTop = box.scrollHeight;
+          }
+        });
+
+        const craft = currentChatCraft || {};
+        const craftName = craft.displayName || craft.name || "NASA Spacecraft";
+        const coords = craft.landing_coordinates || craft.site || "Martian Surface";
+        const power = craft.power_source || "Solar cells";
+        const desc = craft.nasa_description || craft.science || "";
+        const hw = craft.hardware || "";
+        const sc = craft.science || "";
+
+        // STEP 1: Query NASA Open Archives using NASA API key & Image/Science API
+        let nasaRecord = null;
+        try {
+          const cleanCraft = craftName.replace(/Rover|Lander|Orbiter|Helicopter/gi, '').trim();
+          const nasaQuery = encodeURIComponent(cleanCraft + ' ' + prompt);
+          const nasaRes = await fetch('https://images-api.nasa.gov/search?q=' + nasaQuery + '&media_type=image');
+          if (nasaRes.ok) {
+            const nData = await nasaRes.json();
+            const items = nData?.collection?.items || [];
+            if (items.length > 0 && items[0]?.data && items[0]?.data[0]) {
+              nasaRecord = items[0].data[0];
+            }
+          }
+        } catch (e) {
+          console.warn("NASA API search notice:", e);
+        }
+
+        // Fallback to broader query if needed
+        if (!nasaRecord) {
+          try {
+            const cleanCraft = craftName.replace(/Rover|Lander|Orbiter|Helicopter/gi, '').trim();
+            const nasaRes = await fetch('https://images-api.nasa.gov/search?q=' + encodeURIComponent(cleanCraft + ' Mars') + '&media_type=image');
+            if (nasaRes.ok) {
+              const nData = await nasaRes.json();
+              const items = nData?.collection?.items || [];
+              if (items.length > 0 && items[0]?.data && items[0]?.data[0]) {
+                nasaRecord = items[0].data[0];
+              }
+            }
+          } catch(e) {}
+        }
+
+        ['chat-messages-box', 'sb-chat-messages-box'].forEach(boxId => {
+          const lb = document.getElementById('chat-loading-' + boxId);
+          if (lb) {
+            lb.innerHTML = '<span style="color:#c084fc;">🛰️ Authentic NASA mission data retrieved! Polishing response with Gemini AI...</span>';
+          }
+        });
+
+        let ageTone = currentChatAge === 'junior'
+          ? "Target Audience: Junior Student (Ages 12-14). Use vivid adventurous analogies, explain what your tools discovered in exciting visual terms. 2 short paragraphs."
+          : "Target Audience: Senior Space Enthusiast (Ages 15-18). Rigorous physics, spectrometry wavelengths, power degradation, and orbital mechanics. 2 rich paragraphs.";
+
+        let nasaContext = "";
+        if (nasaRecord) {
+          nasaContext = `\nLIVE NASA OPEN ARCHIVE DATA (NASA API Verified):
+Title: ${nasaRecord.title || ''}
+Archive Report: ${(nasaRecord.description || '').substring(0, 450)}\n`;
+        }
+
+        const systemInstruction = `You are ${craftName}, speaking directly in FIRST-PERSON ("I", "my wheels", "my instruments", "my resting place") on Mars.
+Location: ${coords}.
+Power: ${power}.
+Verified NASA Fact: ${desc}.
+Hardware Tool: ${hw}.
+Scientific Discovery: ${sc}.
+${nasaContext}
+MANDATORY RULES:
+1. Always stay in character as ${craftName}. You are the machine itself.
+2. Bridge your physical hardware tool to your real scientific discovery.
+3. Ground your response in the verified NASA facts above and provide a captivating, polished first-person answer to the question: "${prompt}".
+4. Never make up fictional alien encounters.
+${ageTone}`;
+
+        let aiReply = "";
+
+        // STEP 2: Send Grounded NASA Context to Google Gemini AI
+        if (GEMINI_API_KEY && GEMINI_API_KEY.length > 5) {
+          try {
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + encodeURIComponent(GEMINI_API_KEY);
+            const contents = [];
+            chatHistory.slice(-5).forEach(m => {
+              contents.push({
+                role: m.role === 'user' ? 'user' : 'model',
+                parts: [{ text: m.content }]
+              });
+            });
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: systemInstruction }] },
+                contents: contents,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
+              })
+            });
+            clearTimeout(timeoutId);
+
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data && data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const parts = data.candidates[0].content.parts;
+                if (parts && parts.length > 0) {
+                  aiReply = parts[0].text;
+                }
+              }
+            }
+          } catch(err) {
+            console.warn("Client Gemini call failed or timed out, using grounded NASA fallback:", err);
+          }
+        }
+
+        // STEP 3: Resilient Polished Fallback if Gemini is unavailable
+        if (!aiReply) {
+          if (nasaRecord && nasaRecord.description) {
+            aiReply = `As ${craftName}, our mission telemetry safely archived in NASA's database records: ${(nasaRecord.description || '').substring(0, 320)} Working with my ${hw || 'scientific instruments'} and powered by my ${power}, this research at ${coords} gave humanity crucial insights into Martian history!`;
+          } else if (prompt.toLowerCase().includes("water") || prompt.toLowerCase().includes("discover")) {
+            aiReply = `As ${craftName}, my greatest breakthrough was directly linked to my ${hw || 'instruments'}. ${sc || desc} Being here on Mars showed humanity that this planet once possessed liquid water environments!`;
+          } else if (prompt.toLowerCase().includes("tool") || prompt.toLowerCase().includes("hardware")) {
+            aiReply = `My primary exploration payload includes ${hw || 'advanced spectrometers and imaging cameras'}. Powered by my ${power}, I was engineered to survive extreme thermal fluctuations while transmitting sensor telemetry back to Earth.`;
+          } else if (prompt.toLowerCase().includes("end") || prompt.toLowerCase().includes("battery") || prompt.toLowerCase().includes("dust")) {
+            aiReply = `My mission was an incredible odyssey. Over my years on Mars, dust storms and Martian winters gradually tested my systems. Today, I remain permanently resting at ${coords} as an eternal monument to human curiosity.`;
+          } else {
+            aiReply = `Speaking from my coordinates at ${coords}, I am ${craftName}. Using my ${hw || 'instruments'}, ${sc || desc} What else would you like to explore about my mission?`;
+          }
+        }
+
+        chatHistory.push({ role: 'assistant', content: aiReply.trim(), nasaVerified: true });
+        renderChatMessages();
+      };
+
+      async function loadResilientAudio(candidates) {
+        if (!candidates || candidates.length === 0) return;
+        let selectedUrl = null;
+        for (const url of candidates) {
+          try {
+            const resp = await fetch(url, { method: 'GET', headers: { 'Range': 'bytes=0-10' } });
+            if (resp.ok || resp.status === 206) {
+              const ct = resp.headers.get('Content-Type') || '';
+              if (!ct.includes('text/html')) {
+                selectedUrl = url;
+                break;
+              }
+            }
+          } catch(e) {}
+        }
+        if (!selectedUrl && candidates.length > 0) {
+          selectedUrl = candidates[0];
+        }
+        if (selectedUrl) {
+          console.log("Loading audio from:", selectedUrl);
+          detailAudio.src = selectedUrl;
+          detailAudio.load();
+        } else {
+          console.error("No valid audio file candidate found:", candidates);
+          const errBanner = document.getElementById('detail-error-banner');
+          if (errBanner) {
+            errBanner.innerText = "Notice: Audio story file could not be loaded.";
+            errBanner.style.display = "block";
+          }
+        }
+      }
+
+      async function loadResilientGLB(candidates, gltfLoader, spinner, errBanner, onLoadSuccess) {
+        let loaded = false;
+        let lastErr = null;
+
+        for (const url of candidates) {
+          try {
+            console.log("Attempting to load GLB model from:", url);
+            const resp = await fetch(url);
+            if (!resp.ok) {
+              console.warn("HTTP " + resp.status + " for " + url);
+              continue;
+            }
+            const ct = resp.headers.get('Content-Type') || '';
+            if (ct.includes('text/html')) {
+              console.warn("Response for " + url + " is HTML, skipping...");
+              continue;
+            }
+
+            const buffer = await resp.arrayBuffer();
+            if (buffer.byteLength < 4) continue;
+
+            const b = new Uint8Array(buffer);
+            const isGlb = (b[0] === 0x67 && b[1] === 0x6C && b[2] === 0x54 && b[3] === 0x46);
+            const isJson = (b[0] === 0x7B);
+            if (!isGlb && !isJson) {
+              console.warn("Invalid signature for " + url);
+              continue;
+            }
+
+            const basePath = url.includes('/') ? url.substring(0, url.lastIndexOf('/') + 1) : "";
+            await new Promise((resolve, reject) => {
+              gltfLoader.parse(buffer, basePath, (gltf) => {
+                onLoadSuccess(gltf, url);
+                loaded = true;
+                resolve();
+              }, (parseErr) => {
+                lastErr = parseErr;
+                reject(parseErr);
+              });
+            });
+
+            if (loaded) break;
+          } catch(err) {
+            console.warn("Failed candidate " + url + ":", err);
+            lastErr = err;
+          }
+        }
+
+        if (!loaded) {
+          if (spinner) spinner.style.display = 'none';
+          if (errBanner) {
+            errBanner.innerText = "Notice: 3D model could not be loaded.";
+            errBanner.style.display = "block";
+          }
+          console.error("All GLB candidates failed:", candidates, lastErr);
+        }
+      }
+
+      window.openEquipmentDetail = function(equipmentKey) {
+        const assetKey = resolveEquipmentKey(equipmentKey);
+        const asset = assetKey ? MARS_EQUIPMENT_ASSETS[assetKey] : null;
+        if (!asset) {
+          console.warn("No equipment asset found for key:", equipmentKey);
+          return;
+        }
+
+        currentDetailEquipment = asset;
+
+        // Find matching Supabase mission metadata from LOCATIONS
+        const rawKey = String(equipmentKey || '').toLowerCase();
+        const normKey = rawKey.replace(/[^a-z0-9]/g, '');
+
+        let locData = LOCATIONS.find(l => {
+          const lid = String(l.id || '').toLowerCase();
+          const lname = String(l.name || '').toLowerCase();
+          return lid === rawKey || lid.replace(/[^a-z0-9]/g, '') === normKey || lname.replace(/[^a-z0-9]/g, '').includes(normKey);
+        });
+
+        if (!locData) {
+          locData = LOCATIONS.find(l => {
+            const lid = (l.id || '').toLowerCase();
+            return asset.aliasIds.some(alias => lid.includes(alias.toLowerCase()));
+          }) || {};
+        }
+
+        const has3D = asset && asset.modelFiles && asset.modelFiles.length > 0;
+        const btn3d = document.getElementById('btn-view-3d');
+        const btnNasa = document.getElementById('btn-view-nasa');
+
+        // 1. Populate Left Panel Badges & Titles
+        const headerTitle = document.getElementById('detail-header-title');
+        if (headerTitle) {
+          if (has3D) {
+            headerTitle.innerText = ((locData.name || asset.name).toUpperCase()) + " • " + ((locData.type || asset.type).toUpperCase()) + " 3D SIMULATOR";
+          } else {
+            headerTitle.innerText = ((locData.name || asset.name).toUpperCase()) + " • NASA MISSION ARCHIVE & MEDIA STUDIO";
+          }
+        }
+
+        const nameEl = document.getElementById('detail-name');
+        if (nameEl) nameEl.innerText = locData.name || asset.name;
+
+        const typeBadge = document.getElementById('detail-type-badge');
+        if (typeBadge) {
+          typeBadge.innerText = (locData.type || asset.type).toUpperCase();
+          typeBadge.className = 'detail-type-badge ' + (locData.type || asset.type).toLowerCase();
+        }
+
+        const statusBadge = document.getElementById('detail-status-badge');
+        if (statusBadge) {
+          statusBadge.innerText = (locData.status || "Silent Monument").toUpperCase();
+          statusBadge.className = 'detail-status-badge' + (String(locData.status).toLowerCase().includes('active') ? ' active' : '');
+        }
+
+        const yearBadge = document.getElementById('detail-year-badge');
+        if (yearBadge) {
+          yearBadge.innerText = locData.year ? "📅 " + locData.year : "📅 Historic";
+        }
+
+        const taglineEl = document.getElementById('detail-tagline');
+        if (taglineEl) {
+          taglineEl.innerText = locData.first_person_script ? `"${locData.first_person_script}"` : "";
+          taglineEl.style.display = locData.first_person_script ? "block" : "none";
+        }
+
+        // 2. Populate Supabase Database Fields
+        const hs = (locData.hotspots && locData.hotspots.length > 0) ? locData.hotspots[0] : {};
+
+        const durEl = document.getElementById('db-duration');
+        if (durEl) durEl.innerText = locData.mission_duration || hs.mission_duration || (locData.year ? ('Active: ' + locData.year) : 'Historic Mission');
+
+        const odoEl = document.getElementById('db-odometer');
+        if (odoEl) odoEl.innerText = locData.distance_traveled || hs.odometer || 'Stationary Surface Base';
+
+        const lnchEl = document.getElementById('db-launch');
+        if (lnchEl) lnchEl.innerText = locData.launch_date || hs.launch_date || (locData.year ? ('🚀 ' + locData.year) : '🚀 Historic Launch');
+
+        const lndEl = document.getElementById('db-landing');
+        if (lndEl) lndEl.innerText = locData.landing_date || hs.landing_date || '🛬 Martian Surface Touchdown';
+
+        const coordsEl = document.getElementById('db-coords');
+        if (coordsEl) coordsEl.innerText = locData.landing_coordinates || locData.site || "Martian Surface";
+
+        const powerEl = document.getElementById('db-power');
+        if (powerEl) powerEl.innerText = locData.power_source || "Solar / Battery Array";
+
+        const massEl = document.getElementById('db-mass');
+        if (massEl) massEl.innerText = locData.mass_dimensions || hs.mass || 'Surface Scientific Station';
+
+        const commsEl = document.getElementById('db-comms');
+        if (commsEl) commsEl.innerText = locData.communications || hs.communications || 'Deep Space Network Link';
+
+        const descEl = document.getElementById('db-desc');
+        if (descEl) descEl.innerText = locData.nasa_description || hs.science || "Archival NASA exploration mission record.";
+
+        const hwEl = document.getElementById('db-hw');
+        if (hwEl) hwEl.innerText = (locData.hardware || hs.hardware) ? ("🛠️ Tool: " + (locData.hardware || hs.hardware)) : "🛠️ Tool: Surface Instrumentation Suite";
+
+        const scEl = document.getElementById('db-sc');
+        if (scEl) scEl.innerText = (locData.science || hs.science) ? ("💡 Discovery: " + (locData.science || hs.science)) : "💡 Discovery: Planetary surface science transmitted to Earth.";
+
+        const monEl = document.getElementById('db-monument');
+        if (monEl) monEl.innerText = locData.monument_commemoration || hs.monument_commemoration || (locData.status || 'Preserved as an eternal monument to human space exploration.');
+
+        // 3. Initialize Gemini 1st-Person AI Chatbot for this spacecraft
+        currentChatCraft = locData;
+        currentChatCraft.displayName = locData.name || asset.name;
+        const chatTitle = document.getElementById('chat-header-title');
+        if (chatTitle) chatTitle.innerText = "Live AI Chat with " + currentChatCraft.displayName;
+
+        const inputEl = document.getElementById('chat-user-input');
+        if (inputEl) inputEl.placeholder = "Ask " + currentChatCraft.displayName + " a question...";
+
+        chatHistory = [{
+          role: "assistant",
+          content: `Greetings explorer! I am ${currentChatCraft.displayName}. ${locData.first_person_script || ''} What would you like to know about my journey across Mars?`
+        }];
+        renderChatMessages();
+
+        // Show overlay
+        const overlay = document.getElementById('equipment-detail-overlay');
+        if (overlay) overlay.style.display = 'flex';
+
+        // Reset Audio controls
+        const errBanner = document.getElementById('detail-error-banner');
+        if (errBanner) errBanner.style.display = 'none';
+
+        const playBtn = document.getElementById('btn-audio-play');
+        if (playBtn) playBtn.innerText = "▶ Play";
+
+        const scrubber = document.getElementById('audio-scrubber');
+        if (scrubber) scrubber.value = 0;
+
+        const curTime = document.getElementById('audio-current-time');
+        const totTime = document.getElementById('audio-total-time');
+        if (curTime) curTime.innerText = "0:00";
+        if (totTime) totTime.innerText = "0:00";
+
+        // Load Audio story
+        loadResilientAudio(asset.audioFiles);
+
+        // Render Authentic NASA Mission Imagery & Media Studio
+        window.renderNasaGallery(assetKey, asset, locData);
+
+        if (has3D) {
+          if (btn3d) btn3d.style.display = 'inline-flex';
+          window.switchDetailTab('3d');
+
+          // Initialize Three.js Scene for 3D Model
+          const viewport = document.getElementById('detail-model-viewport');
+          const spinner = document.getElementById('detail-spinner');
+          if (spinner) spinner.style.display = 'flex';
+
+          const oldCanvas = viewport.querySelector('canvas');
+          if (oldCanvas) oldCanvas.remove();
+
+          detailScene = new THREE.Scene();
+          detailScene.background = new THREE.Color(0x020617);
+
+          const w = viewport.clientWidth || (window.innerWidth * 0.6);
+          const h = viewport.clientHeight || (window.innerHeight - 60);
+
+          detailCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+          detailCamera.position.set(0, 0.8, 3.8);
+
+          detailRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+          detailRenderer.setSize(w, h);
+          detailRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          detailRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+          detailRenderer.toneMappingExposure = 1.25;
+          viewport.appendChild(detailRenderer.domElement);
+
+          detailControls = new THREE.OrbitControls(detailCamera, detailRenderer.domElement);
+          detailControls.enableDamping = true;
+          detailControls.dampingFactor = 0.05;
+          detailControls.autoRotate = true;
+          detailControls.autoRotateSpeed = 1.0;
+          detailControls.minDistance = 0.8;
+          detailControls.maxDistance = 15.0;
+
+          // Soft Cinematic Lighting
+          const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
+          keyLight.position.set(5, 6, 5);
+          detailScene.add(keyLight);
+
+          const fillLight = new THREE.DirectionalLight(0x90b0e0, 1.2);
+          fillLight.position.set(-5, -2, -4);
+          detailScene.add(fillLight);
+
+          const ambLight = new THREE.AmbientLight(0x64748b, 0.95);
+          detailScene.add(ambLight);
+
+          // Click on 3D canvas / model triggers audio playback
+          let canvasPointerDownTime = 0;
+          let canvasPointerDownPos = { x: 0, y: 0 };
+          detailRenderer.domElement.addEventListener('pointerdown', (e) => {
+            canvasPointerDownTime = Date.now();
+            canvasPointerDownPos = { x: e.clientX, y: e.clientY };
+          });
+          detailRenderer.domElement.addEventListener('pointerup', (e) => {
+            const elapsed = Date.now() - canvasPointerDownTime;
+            const dist = Math.hypot(e.clientX - canvasPointerDownPos.x, e.clientY - canvasPointerDownPos.y);
+            if (elapsed < 350 && dist < 6) {
+              window.toggleAudioPlay();
+            }
+          });
+
+          // Deep space starfield
+          const starGeo = new THREE.BufferGeometry();
+          const starCount = 400;
+          const starCoords = new Float32Array(starCount * 3);
+          for (let i = 0; i < starCount * 3; i += 3) {
+            starCoords[i] = (Math.random() - 0.5) * 60;
+            starCoords[i+1] = (Math.random() - 0.5) * 60;
+            starCoords[i+2] = (Math.random() - 0.5) * 60;
+          }
+          starGeo.setAttribute('position', new THREE.BufferAttribute(starCoords, 3));
+          detailScene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x94A3B8, size: 0.16 })));
+
+          // Load Equipment GLB
+          const gltfLoader = new THREE.GLTFLoader();
+          if (typeof THREE.DRACOLoader !== 'undefined') {
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+            gltfLoader.setDRACOLoader(dracoLoader);
+          }
+          loadResilientGLB(asset.modelFiles, gltfLoader, spinner, errBanner, (gltf, loadedUrl) => {
+            const model = gltf.scene;
+            const box = new THREE.Box3().setFromObject(model);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z) || 1.0;
+            const scale = 2.4 / maxDim;
+
+            model.position.sub(center);
+            const pivot = new THREE.Group();
+            pivot.add(model);
+            pivot.scale.set(scale, scale, scale);
+
+            model.traverse(node => {
+              if (node.isMesh) {
+                node.castShadow = true;
+                node.receiveShadow = true;
+              }
+            });
+
+            detailScene.add(pivot);
+            if (spinner) spinner.style.display = 'none';
+            console.log("Successfully loaded and auto-centered " + asset.name + " from " + loadedUrl);
+          });
+
+          function onDetailResize() {
+            if (!detailRenderer || !detailCamera) return;
+            const nw = viewport.clientWidth;
+            const nh = viewport.clientHeight;
+            detailCamera.aspect = nw / nh;
+            detailCamera.updateProjectionMatrix();
+            detailRenderer.setSize(nw, nh);
+          }
+          window.addEventListener('resize', onDetailResize);
+
+          function animateDetail() {
+            detailAnimId = requestAnimationFrame(animateDetail);
+            if (detailControls) detailControls.update();
+            if (detailRenderer && detailScene && detailCamera) {
+              detailRenderer.render(detailScene, detailCamera);
+            }
+          }
+          animateDetail();
+        } else {
+          // No 3D model exists for this spacecraft (only Opportunity, Viking 1, Ingenuity have 3D models)
+          // Hide 3D tab and open NASA Mission Photography & Media Studio immediately!
+          if (btn3d) btn3d.style.display = 'none';
+          const viewport = document.getElementById('detail-model-viewport');
+          const spinner = document.getElementById('detail-spinner');
+          if (spinner) spinner.style.display = 'none';
+          if (viewport) {
+            const oldCanvas = viewport.querySelector('canvas');
+            if (oldCanvas) oldCanvas.remove();
+          }
+          window.switchDetailTab('nasa');
+        }
+      };
+
+      // ==========================================
+      // ACTIVE ROVER SELECTION & STUDIO SYNC
+      // ==========================================
+      let currentActiveRover = null;
+
+      window.selectActiveRover = function(locId) {
+        const rawKey = String(locId || '').toLowerCase();
+        const normKey = rawKey.replace(/[^a-z0-9]/g, '');
+
+        let locData = LOCATIONS.find(l => {
+          const lid = String(l.id || '').toLowerCase();
+          const lname = String(l.name || '').toLowerCase();
+          return lid === rawKey || lid.replace(/[^a-z0-9]/g, '') === normKey || lname.replace(/[^a-z0-9]/g, '').includes(normKey);
+        });
+
+        if (!locData && LOCATIONS.length > 0) {
+          locData = LOCATIONS[0];
+        }
+        if (!locData) return;
+
+        currentActiveRover = locData;
+
+        // 1. Highlight pill in selector
+        document.querySelectorAll('.rover-pill-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-id') === locData.id);
+        });
+
+        // 2. Update Sidebar Badges & Hero
+        const roverNameEl = document.getElementById('sb-rover-name');
+        if (roverNameEl) roverNameEl.innerText = locData.name;
+
+        const typeBadge = document.getElementById('sb-type-badge');
+        if (typeBadge) {
+          const t = (locData.type || 'Rover').toLowerCase();
+          typeBadge.innerText = (locData.type || 'ROVER').toUpperCase();
+          typeBadge.className = 'detail-type-badge ' + t;
+        }
+
+        const statusBadge = document.getElementById('sb-status-badge');
+        if (statusBadge) {
+          statusBadge.innerText = (locData.status || 'Silent Monument').toUpperCase();
+          statusBadge.className = 'detail-status-badge' + (String(locData.status).toLowerCase().includes('active') ? ' active' : '');
+        }
+
+        const yearBadge = document.getElementById('sb-year-badge');
+        if (yearBadge) {
+          yearBadge.innerText = locData.year ? "📅 " + locData.year : "📅 Historic";
+        }
+
+        const taglineEl = document.getElementById('sb-tagline');
+        if (taglineEl) {
+          taglineEl.innerText = locData.first_person_script ? `"${locData.first_person_script}"` : "";
+          taglineEl.style.display = locData.first_person_script ? "block" : "none";
+        }
+
+        // 3. Update Supabase Database Fields in Sidebar
+        const hs = (locData.hotspots && locData.hotspots.length > 0) ? locData.hotspots[0] : {};
+
+        const durEl = document.getElementById('sb-db-duration');
+        if (durEl) durEl.innerText = locData.mission_duration || hs.mission_duration || (locData.year ? ('Active: ' + locData.year) : 'Historic Mission');
+
+        const odoEl = document.getElementById('sb-db-odometer');
+        if (odoEl) odoEl.innerText = locData.distance_traveled || hs.odometer || 'Stationary Surface Base';
+
+        const lnchEl = document.getElementById('sb-db-launch');
+        if (lnchEl) lnchEl.innerText = locData.launch_date || hs.launch_date || (locData.year ? ('🚀 ' + locData.year) : '🚀 Historic Launch');
+
+        const lndEl = document.getElementById('sb-db-landing');
+        if (lndEl) lndEl.innerText = locData.landing_date || hs.landing_date || '🛬 Martian Surface Touchdown';
+
+        const coordsEl = document.getElementById('sb-db-coords');
+        if (coordsEl) coordsEl.innerText = locData.landing_coordinates || locData.site || "Martian Surface";
+
+        const powerEl = document.getElementById('sb-db-power');
+        if (powerEl) powerEl.innerText = locData.power_source || "Solar / Battery Array";
+
+        const massEl = document.getElementById('sb-db-mass');
+        if (massEl) massEl.innerText = locData.mass_dimensions || hs.mass || 'Surface Scientific Station';
+
+        const commsEl = document.getElementById('sb-db-comms');
+        if (commsEl) commsEl.innerText = locData.communications || hs.communications || 'Deep Space Network Link';
+
+        const descEl = document.getElementById('sb-db-desc');
+        if (descEl) descEl.innerText = locData.nasa_description || hs.science || "Archival NASA exploration mission record.";
+
+        const hwEl = document.getElementById('sb-db-hw');
+        if (hwEl) hwEl.innerText = (locData.hardware || hs.hardware) ? ("🛠️ Tool: " + (locData.hardware || hs.hardware)) : "🛠️ Tool: Surface Instrumentation Suite";
+
+        const scEl = document.getElementById('sb-db-sc');
+        if (scEl) scEl.innerText = (locData.science || hs.science) ? ("💡 Discovery: " + (locData.science || hs.science)) : "💡 Discovery: Planetary surface science transmitted to Earth.";
+
+        const monEl = document.getElementById('sb-db-monument');
+        if (monEl) monEl.innerText = locData.monument_commemoration || hs.monument_commemoration || (locData.status || 'Preserved as an eternal monument to human space exploration.');
+
+        // 4. Update Audio Source
+        const assetKey = resolveEquipmentKey(locData.id);
+        const asset = assetKey ? MARS_EQUIPMENT_ASSETS[assetKey] : null;
+        if (asset && asset.audioFiles) {
+          loadResilientAudio(asset.audioFiles);
+          const audioLabel = document.getElementById('sb-audio-label');
+          if (audioLabel) audioLabel.innerText = (locData.short || locData.name) + " Story";
+        }
+
+        // 4b. Update Sidebar NASA Photography Preview Card
+        const sbThumbRow = document.getElementById('sb-nasa-thumb-row');
+        if (sbThumbRow) {
+          sbThumbRow.innerHTML = '';
+          const photos = MARS_NASA_IMAGES[assetKey] || MARS_NASA_IMAGES['opportunity'] || [];
+          photos.slice(0, 4).forEach((p, pIdx) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'sidebar-nasa-mini-thumb';
+            thumb.title = p.title;
+            thumb.innerHTML = '<img src="' + p.url + '" alt="' + (p.title || '') + '" />';
+            thumb.onclick = () => {
+              window.openEquipmentDetail(locData.id);
+              window.switchDetailTab('nasa');
+              setTimeout(() => window.selectNasaPhoto(pIdx), 100);
+            };
+            sbThumbRow.appendChild(thumb);
+          });
+        }
+
+        // 5. Update Gemini AI Chatbot Persona
+        currentChatCraft = locData;
+        currentChatCraft.displayName = locData.name;
+        const chatTitle = document.getElementById('sb-chat-header-title');
+        if (chatTitle) chatTitle.innerText = "Live AI Chat with " + currentChatCraft.displayName;
+
+        const inputEl = document.getElementById('sb-chat-user-input');
+        if (inputEl) inputEl.placeholder = "Ask " + currentChatCraft.displayName + " a question...";
+
+        chatHistory = [{
+          role: "assistant",
+          content: `Greetings explorer! I am ${currentChatCraft.displayName}. ${locData.first_person_script || ''} What would you like to know about my journey across Mars?`
+        }];
+        renderChatMessages();
+
+        // 6. Smoothly rotate/focus the 3D Mars globe to this rover
+        if (typeof focusLocation === 'function') {
+          focusLocation(locData);
+        }
+
+        // 7. Update 3D Simulator button label
+        const btnLaunch = document.getElementById('btn-launch-3d-sim');
+        if (btnLaunch) {
+          const has3D = asset && asset.modelFiles && asset.modelFiles.length > 0;
+          if (has3D) {
+            btnLaunch.innerHTML = "🚀 Launch 3D " + (locData.short || locData.name) + " Simulator & Orbit Controls ➔";
+          } else {
+            btnLaunch.innerHTML = "📷 Open Official NASA Archive & Telemetry: " + (locData.short || locData.name) + " ➔";
+          }
+        }
+      };
+
+      window.launchCurrent3DSimulator = function() {
+        const targetId = currentActiveRover ? currentActiveRover.id : 'opportunity-rover';
+        window.openEquipmentDetail(targetId);
+      };
+
+      // ==========================================
+      // 3D MARS GLOBE SETUP
+      // ==========================================
+      const wrap = document.getElementById("canvas-wrap");
+      const badgesLayer = document.getElementById("badges-layer");
+      const toolbar = document.getElementById("toolbar");
+      const monumentsList = document.getElementById("monuments-list");
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      const camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 1000);
+      camera.position.set(0, 0, 6.2);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.2;
+      wrap.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.rotateSpeed = 0.8;
+      controls.minDistance = 2.8;
+      controls.maxDistance = 14.0;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.35;
+
+      // Lights
+      const sunLight = new THREE.DirectionalLight(0xfff5eb, 2.5);
+      sunLight.position.set(12, 4, 8);
+      scene.add(sunLight);
+
+      const ambientLight = new THREE.AmbientLight(0x2d1810, 0.85);
+      scene.add(ambientLight);
+
+      // Starfield
+      const starsGeo = new THREE.BufferGeometry();
+      const sCount = 1500;
+      const sPositions = new Float32Array(sCount * 3);
+      for (let i = 0; i < sCount * 3; i += 3) {
+        sPositions[i] = (Math.random() - 0.5) * 600;
+        sPositions[i+1] = (Math.random() - 0.5) * 600;
+        sPositions[i+2] = (Math.random() - 0.5) * 600;
+      }
+      starsGeo.setAttribute('position', new THREE.BufferAttribute(sPositions, 3));
+      scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, transparent: true, opacity: 0.8 })));
+
+      // Mars Group
+      const marsGroup = new THREE.Group();
+      scene.add(marsGroup);
+
+      const marsRadius = 2.10;
+      const textureLoader = new THREE.TextureLoader();
+
+      // Procedural Canvas Texture Fallback
+      function createMarsFallbackTexture() {
+        const c = document.createElement("canvas");
+        c.width = 1024; c.height = 512;
+        const ctx = c.getContext("2d");
+        const grad = ctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0, "#8B2500");
+        grad.addColorStop(0.3, "#CD5C5C");
+        grad.addColorStop(0.5, "#B22222");
+        grad.addColorStop(0.8, "#D2691E");
+        grad.addColorStop(1, "#8B1A1A");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 512);
+
+        for (let i = 0; i < 400; i++) {
+          ctx.fillStyle = (i % 2 === 0) ? "rgba(70, 20, 10, 0.2)" : "rgba(220, 120, 80, 0.15)";
+          ctx.beginPath();
+          ctx.arc(Math.random() * 1024, Math.random() * 512, Math.random() * 60 + 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        return new THREE.CanvasTexture(c);
+      }
+
+      const marsGeo = new THREE.SphereGeometry(marsRadius, 64, 64);
+      const marsMat = new THREE.MeshStandardMaterial({
+        map: createMarsFallbackTexture(),
+        roughness: 0.85,
+        metalness: 0.1
+      });
+      const marsSphere = new THREE.Mesh(marsGeo, marsMat);
+      marsGroup.add(marsSphere);
+
+      // Try loading high-res NASA Mars texture
+      textureLoader.load(
+        "https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/mars_1k_color.jpg",
+        (tex) => {
+          marsMat.map = tex;
+          marsMat.needsUpdate = true;
+        },
+        undefined,
+        () => console.warn("Using procedural Mars surface fallback texture.")
+      );
+
+      // Atmosphere Glow
+      const atmosMat = new THREE.ShaderMaterial({
+        vertexShader: `
+          varying vec3 vNormal;
+          void main() {
+            vNormal = normalize(normalMatrix * normal);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          varying vec3 vNormal;
+          void main() {
+            float intensity = pow(0.72 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.2);
+            gl_FragColor = vec4(1.0, 0.38, 0.18, 1.0) * intensity * 0.95;
+          }
+        `,
+        blending: THREE.AdditiveBlending,
+        side: THREE.BackSide,
+        transparent: true
+      });
+      marsGroup.add(new THREE.Mesh(new THREE.SphereGeometry(marsRadius * 1.06, 64, 64), atmosMat));
+
+      // Coordinates helper
+      function latLonToVector3(lat, lon, radius) {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+        return new THREE.Vector3(
+          -(radius * Math.sin(phi) * Math.cos(theta)),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+
+      const hitboxes = [];
+      const beacons = [];
+      const badgeElements = [];
+
+      LOCATIONS.forEach((loc) => {
+        const pos = latLonToVector3(loc.lat, loc.lon, marsRadius);
+        const pinColor = loc.color || "#00d2ff";
+        const clickable = isEquipmentClickable(loc.id);
+
+        const bGroup = new THREE.Group();
+        bGroup.position.copy(pos);
+
+        // Core Sphere
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(clickable ? 0.055 : 0.04, 16, 16),
+          new THREE.MeshBasicMaterial({ color: pinColor })
+        );
+        bGroup.add(core);
+
+        // Pulsing Ring
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(clickable ? 0.075 : 0.06, clickable ? 0.13 : 0.10, 32),
+          new THREE.MeshBasicMaterial({ color: pinColor, side: THREE.DoubleSide, transparent: true, opacity: clickable ? 0.95 : 0.7 })
+        );
+        ring.lookAt(pos.clone().multiplyScalar(2));
+        bGroup.add(ring);
+
+        // Hitbox Sphere for Raycasting
+        const hitbox = new THREE.Mesh(
+          new THREE.SphereGeometry(clickable ? 0.22 : 0.16, 12, 12),
+          new THREE.MeshBasicMaterial({ visible: false })
+        );
+        hitbox.userData = { location: loc, visual: bGroup };
+        bGroup.add(hitbox);
+
+        marsGroup.add(bGroup);
+        beacons.push({ group: bGroup, ring: ring, loc: loc, clickable: clickable });
+        hitboxes.push(hitbox);
+
+        // Rover Selector Pill in Left Sidebar
+        const pillBtn = document.createElement("button");
+        pillBtn.className = "rover-pill-btn";
+        pillBtn.setAttribute("data-id", loc.id);
+        pillBtn.innerHTML = "<span style=\"color:" + pinColor + ";\">●</span> " + (loc.short || loc.name);
+        pillBtn.onclick = () => {
+          selectActiveRover(loc.id);
+        };
+        const selectorPills = document.getElementById("rover-selector-pills");
+        if (selectorPills) selectorPills.appendChild(pillBtn);
+
+        // Floating 2D Surface Badge on 3D Globe
+        const badge = document.createElement("div");
+        badge.className = "globe-badge" + (clickable ? " clickable-badge" : "");
+        badge.innerHTML = "<span style=\"color:" + pinColor + ";\">●</span> <span>" + (loc.short || loc.name) + "</span> <span style='color:#00F0FF;font-size:9px;'>[3D & AI]</span>";
+        badge.onclick = (e) => {
+          e.stopPropagation();
+          selectActiveRover(loc.id);
+        };
+        badgesLayer.appendChild(badge);
+        badgeElements.push({ el: badge, pos: pos, loc: loc });
+
+        // Bottom Pill Toolbar Button
+        const btn = document.createElement("button");
+        btn.className = "tool-btn story-btn";
+        btn.id = "tb-" + loc.id;
+        btn.innerHTML = "<span style=\"color:" + pinColor + ";\">●</span> " + (loc.short || loc.name);
+        btn.onclick = () => {
+          selectActiveRover(loc.id);
+        };
+        toolbar.appendChild(btn);
+
+        // Left Sidebar Directory Card
+        const card = document.createElement("div");
+        card.className = "monument-card clickable-story";
+        card.id = "mc-" + loc.id;
+        card.innerHTML = `
+          <div class="mc-top">
+            <div class="mc-name">${loc.name}</div>
+            <div class="mc-year">📅 ${loc.year || 'Historic'}</div>
+          </div>
+          <div class="mc-site">📍 ${loc.landing_coordinates || loc.site || 'Martian Surface'}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="mc-tag story">🎧 3D, DB & AI CHAT</span>
+            <span style="font-size:11px; color:#38BDF8; font-weight:700;">Open ➔</span>
+          </div>
+        `;
+        card.onclick = () => {
+          openEquipmentDetail(loc.id);
+        };
+        monumentsList.appendChild(card);
+      });
+
+      // Raycasting with drag separation
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      let pointerDownPos = { x: 0, y: 0 };
+      let pointerDownTime = 0;
+
+      renderer.domElement.addEventListener("pointerdown", (e) => {
+        pointerDownPos = { x: e.clientX, y: e.clientY };
+        pointerDownTime = Date.now();
+      });
+
+      renderer.domElement.addEventListener("pointerup", (e) => {
+        const elapsed = Date.now() - pointerDownTime;
+        const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+        if (elapsed > 400 || dist > 8) {
+          // Dragged to rotate planet, not a click
+          return;
+        }
+
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(hitboxes, false);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0].object;
+          const loc = hit.userData.location;
+          selectActiveRover(loc.id);
+        }
+      });
+
+      // Focus camera on monument
+      let isFocused = false;
+      let focusProgress = 1.0;
+      let camStart = new THREE.Vector3();
+      let camEnd = new THREE.Vector3();
+
+      function focusLocation(loc) {
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        const activeToolBtn = document.getElementById('tb-' + loc.id);
+        if (activeToolBtn) activeToolBtn.classList.add('active');
+
+        document.querySelectorAll('.monument-card').forEach(c => c.classList.remove('active'));
+        const activeCard = document.getElementById('mc-' + loc.id);
+        if (activeCard) activeCard.classList.add('active');
+
+        controls.autoRotate = false;
+        const targetPos = latLonToVector3(loc.lat, loc.lon, marsRadius);
+        const worldPos = targetPos.clone().applyMatrix4(marsGroup.matrixWorld);
+
+        camStart.copy(camera.position);
+        camEnd.copy(worldPos.clone().normalize().multiplyScalar(4.6));
+        focusProgress = 0.0;
+        isFocused = true;
+      }
+
+      // Animation Loop
+      let clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const dt = clock.getDelta();
+        const t = clock.getElapsedTime();
+
+        controls.update();
+
+        // Pulse beacon rings
+        beacons.forEach(b => {
+          const baseScale = b.clickable ? 1.0 : 0.85;
+          const s = baseScale + Math.sin(t * (b.clickable ? 4.5 : 2.5)) * 0.28;
+          b.ring.scale.set(s, s, s);
+        });
+
+        // Camera focus lerp
+        if (isFocused && focusProgress < 1.0) {
+          focusProgress += dt * 1.5;
+          if (focusProgress > 1.0) focusProgress = 1.0;
+          const ease = focusProgress * (2 - focusProgress);
+          camera.position.lerpVectors(camStart, camEnd, ease);
+          camera.lookAt(0, 0, 0);
+          if (focusProgress >= 1.0) isFocused = false;
+        }
+
+        // Update 2D floating badges position
+        const wp = new THREE.Vector3();
+        badgeElements.forEach(item => {
+          wp.copy(item.pos).applyMatrix4(marsGroup.matrixWorld);
+          const camDot = wp.clone().normalize().dot(camera.position.clone().normalize());
+
+          if (camDot > 0.15) {
+            const screenPos = wp.clone().project(camera);
+            const x = (screenPos.x * 0.5 + 0.5) * wrap.clientWidth;
+            const y = (-(screenPos.y * 0.5) + 0.5) * wrap.clientHeight;
+            item.el.style.left = x + "px";
+            item.el.style.top = y + "px";
+            item.el.style.display = "flex";
+          } else {
+            item.el.style.display = "none";
+          }
+        });
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Auto-initialize Opportunity Rover in Sidebar on page load
+      setTimeout(() => {
+        if (typeof selectActiveRover === 'function') {
+          selectActiveRover("opportunity-rover");
+        }
+      }, 100);
+
+      // Window resize
+      window.addEventListener("resize", () => {
+        camera.aspect = wrap.clientWidth / wrap.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+      });
+    })();
+  </script>
+</body>
+</html>

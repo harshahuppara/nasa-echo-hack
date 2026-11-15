@@ -1,0 +1,41 @@
+# Environment secrets and API keys (CRITICAL: Do NOT remove)
+.env
+*.env
+.env.*
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# IDE / Editor configuration
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary / Scratch Files
+temp_*
+_temp_*
+temp/
+tmp/
+*.log
+scratch/
+scratch_*
+test_*
+patch_*
+artifacts.json
+solar_system_stage1.py
+
+# OS-specific files
+Thumbs.db
+.DS_Store
+desktop.ini

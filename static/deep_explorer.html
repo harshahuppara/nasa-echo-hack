@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Deep Space Pioneers • Interstellar Monuments</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #020617; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      color: #F8FAFC;
+    }
+
+    #deep-app {
+      display: flex; width: 100vw; height: 100vh; position: relative;
+      background: radial-gradient(ellipse at 80% 20%, #0d1b3e 0%, #06112a 45%, #020617 80%, #010208 100%);
+    }
+
+    /* Split Container: Left Info & Database, Right Media Studio */
+    .detail-split-container {
+      display: flex; width: 100%; height: 100%;
+      overflow: hidden; flex-direction: row;
+    }
+
+    /* LEFT SIDE: Supabase Data, Audio Story & Gemini AI Chat (48% screen width) */
+    .detail-info-panel {
+      flex: 0 0 48%; width: 48%; height: 100%;
+      background: linear-gradient(180deg, rgba(8, 14, 28, 0.98) 0%, rgba(2, 6, 18, 0.99) 100%);
+      border-right: 1.5px solid rgba(56, 189, 248, 0.35);
+      padding: 22px 24px; overflow-y: auto; box-sizing: border-box;
+      display: flex; flex-direction: column; gap: 16px;
+      box-shadow: 12px 0 40px rgba(0, 0, 0, 0.95);
+      z-index: 10; order: 1;
+    }
+
+    /* RIGHT SIDE: 52% NASA Mission Imagery & Telemetry Viewport */
+    .detail-nasa-gallery-viewport {
+      flex: 0 0 52%; width: 52%; height: 100%; position: relative;
+      background: radial-gradient(circle at 50% 40%, #0d1e40 0%, #061026 50%, #020617 100%);
+      order: 2; overflow-y: auto; display: flex; flex-direction: column;
+      padding: 20px 24px; box-sizing: border-box; gap: 12px;
+    }
+
+    /* Header Nav */
+    .sidebar-header {
+      display: flex; flex-direction: row; justify-content: space-between; align-items: center;
+      padding-bottom: 8px; border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+    }
+    .return-home-btn {
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38BDF8; font-size: 11px; font-weight: 700;
+      padding: 6px 12px; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 4px;
+    }
+    .return-home-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38BDF8; color: #FFFFFF;
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .sidebar-title {
+      font-size: 20px; font-weight: 900; letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #FFFFFF, #38BDF8, #818CF8);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+    .sidebar-subtitle {
+      font-size: 11px; color: #94A3B8; font-weight: 600;
+    }
+
+    /* Spacecraft Selector Pills */
+    .rover-selector-section {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .selector-header-label {
+      font-size: 10px; font-weight: 800; color: #38BDF8; letter-spacing: 0.8px; text-transform: uppercase;
+    }
+    .rover-selector-pills {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .rover-pill-btn {
+      background: rgba(30, 41, 59, 0.7); border: 1.5px solid rgba(148, 163, 184, 0.25);
+      color: #CBD5E1; border-radius: 20px; padding: 6px 12px; font-size: 11.5px;
+      font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .rover-pill-btn:hover {
+      background: rgba(56, 189, 248, 0.15); border-color: #38BDF8; color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+    .rover-pill-btn.active {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.5), rgba(99, 102, 241, 0.5));
+      border-color: #38BDF8; color: #FFFFFF; box-shadow: 0 0 14px rgba(56, 189, 248, 0.45);
+    }
+
+    /* Mission Badges & Titles */
+    .detail-title-section {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .detail-badges-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .detail-type-badge {
+      font-size: 10.5px; font-weight: 900; letter-spacing: 1px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 10px;
+      background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.5);
+    }
+    .detail-status-badge {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 10px;
+      background: rgba(239, 68, 68, 0.15); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .detail-status-badge.active {
+      background: rgba(34, 197, 94, 0.18); color: #86EFAC; border-color: rgba(34, 197, 94, 0.5);
+    }
+    .detail-year-badge {
+      font-size: 10px; font-weight: 700; color: #94A3B8;
+      background: rgba(255, 255, 255, 0.06); padding: 4px 8px; border-radius: 10px;
+    }
+    .detail-name {
+      font-size: 28px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.5px; margin: 0; line-height: 1.1;
+    }
+    .detail-tagline {
+      font-size: 12.5px; font-style: italic; color: #38BDF8; margin-top: 2px;
+      border-left: 2px solid #38BDF8; padding-left: 8px; line-height: 1.4;
+    }
+
+    /* Live Interstellar Distance Ticker Box */
+    .interstellar-ticker-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 27, 75, 0.9));
+      border: 1.5px solid rgba(99, 102, 241, 0.45);
+      border-radius: 12px; padding: 12px 14px;
+      box-shadow: 0 4px 25px rgba(99, 102, 241, 0.2);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .ticker-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .ticker-title {
+      font-size: 11px; font-weight: 900; color: #A5B4FC; letter-spacing: 0.8px; display: flex; align-items: center; gap: 6px;
+    }
+    .ticker-live-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #34D399;
+      animation: pulseDot 1.5s infinite ease-in-out;
+    }
+    @keyframes pulseDot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.4; } }
+    .ticker-metrics-grid {
+      display: grid; grid-template-columns: 1.2fr 0.9fr 0.9fr; gap: 8px;
+    }
+    .ticker-metric-cell {
+      background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px; padding: 6px 10px;
+    }
+    .ticker-metric-label {
+      font-size: 9px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px;
+    }
+    .ticker-metric-value {
+      font-size: 13px; font-weight: 800; color: #38BDF8; font-family: monospace; margin-top: 2px;
+    }
+
+    /* Supabase Mission Database Card */
+    .detail-supabase-card {
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.3);
+      border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .db-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .db-title {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.8px; color: #38BDF8;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .db-badge-verified {
+      font-size: 9px; font-weight: 700; color: #34D399;
+      background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 2px 6px; border-radius: 8px;
+    }
+    .db-stat-row {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    }
+    .db-stat-badge {
+      background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 8px; padding: 6px 8px; display: flex; align-items: center; gap: 7px;
+    }
+    .db-stat-icon { font-size: 15px; flex-shrink: 0; }
+    .db-stat-label {
+      font-size: 9px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px;
+    }
+    .db-stat-val {
+      font-size: 11px; font-weight: 700; color: #38BDF8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .db-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .db-cell {
+      background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px; padding: 8px 10px;
+    }
+    .db-cell-label {
+      font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px; margin-bottom: 2px;
+    }
+    .db-cell-val {
+      font-size: 12px; font-weight: 600; color: #F1F5F9; line-height: 1.3;
+    }
+    .db-desc-box {
+      background: rgba(2, 6, 23, 0.6); border-radius: 8px; padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .db-desc-text {
+      font-size: 11.5px; color: #CBD5E1; line-height: 1.4; margin: 2px 0 0 0;
+    }
+    .db-bridge {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
+      border-left: 3px solid #00F0FF; padding: 8px 12px; border-radius: 0 8px 8px 0;
+      border: 1px solid rgba(0, 240, 255, 0.25); border-left-width: 3px;
+    }
+    .db-bridge-title {
+      font-size: 10.5px; font-weight: 800; color: #00F0FF; letter-spacing: 0.5px; margin-bottom: 3px;
+    }
+    .db-bridge-hw {
+      font-size: 11.5px; font-weight: 700; color: #38BDF8; margin-bottom: 2px;
+    }
+    .db-bridge-sc {
+      font-size: 11.5px; color: #E2E8F0; line-height: 1.35;
+    }
+
+    /* Audio Story Player */
+    .detail-audio-card {
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(99, 102, 241, 0.5);
+      border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(99, 102, 241, 0.2);
+    }
+    .audio-card-header {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .audio-icon-pulse {
+      font-size: 18px; animation: iconPulse 2s infinite ease-in-out;
+    }
+    @keyframes iconPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+    .audio-card-title {
+      font-size: 14px; font-weight: 800; color: #A5B4FC; letter-spacing: 0.5px;
+    }
+    .audio-controls-row {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .audio-play-btn {
+      background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%);
+      border: none; color: #FFFFFF; font-size: 12px; font-weight: 800;
+      padding: 10px 20px; border-radius: 20px; cursor: pointer;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.5); transition: all 0.2s ease; flex-shrink: 0;
+    }
+    .audio-play-btn:hover {
+      transform: scale(1.05); box-shadow: 0 0 22px rgba(99, 102, 241, 0.8);
+    }
+    .audio-progress-wrap {
+      flex: 1; display: flex; flex-direction: column; gap: 6px;
+    }
+    .audio-scrub-slider {
+      width: 100%; -webkit-appearance: none; height: 5px;
+      border-radius: 3px; background: rgba(51, 65, 85, 0.8); outline: none; cursor: pointer;
+    }
+    .audio-scrub-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 13px; height: 13px; border-radius: 50%;
+      background: #818CF8; cursor: pointer; box-shadow: 0 0 8px #818CF8;
+    }
+    .audio-time-row {
+      display: flex; justify-content: space-between; font-size: 11px; color: #94A3B8; font-family: monospace;
+    }
+
+    /* Gemini AI Chatbot Card */
+    .detail-chat-card {
+      background: rgba(15, 23, 42, 0.9); border: 1.5px solid rgba(168, 85, 247, 0.45);
+      border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(168, 85, 247, 0.15);
+    }
+    .chat-header-row {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .chat-title-group {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chat-card-title {
+      font-size: 12.5px; font-weight: 800; color: #C084FC; letter-spacing: 0.5px;
+    }
+    .chat-age-toggle-bar {
+      display: flex; gap: 4px; background: rgba(30, 41, 59, 0.7); padding: 3px; border-radius: 20px;
+    }
+    .age-pill-btn {
+      background: transparent; border: none; font-size: 10px; font-weight: 700;
+      color: #94A3B8; padding: 3px 8px; border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .age-pill-btn.active {
+      background: #A855F7; color: #FFFFFF; box-shadow: 0 0 8px rgba(168, 85, 247, 0.5);
+    }
+    .chat-messages-wrap {
+      height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;
+      padding: 8px; background: rgba(2, 6, 23, 0.7); border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+    }
+    .chat-bubble {
+      padding: 8px 12px; border-radius: 10px; font-size: 11.5px; line-height: 1.45; max-width: 90%;
+    }
+    .chat-bubble.assistant {
+      background: rgba(30, 41, 59, 0.85); color: #E2E8F0; align-self: flex-start;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+    .chat-bubble.user {
+      background: linear-gradient(135deg, #7C3AED, #6D28D9); color: #FFFFFF; align-self: flex-end;
+    }
+    .chat-quick-chips {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+    }
+    .quick-chip {
+      background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(168, 85, 247, 0.35);
+      color: #D8B4FE; font-size: 10px; font-weight: 600; padding: 4px 8px; border-radius: 12px;
+      cursor: pointer; white-space: nowrap; transition: all 0.2s ease;
+    }
+    .quick-chip:hover {
+      background: rgba(168, 85, 247, 0.25); border-color: #C084FC; color: #FFFFFF;
+    }
+    .chat-input-row {
+      display: flex; gap: 6px;
+    }
+    .chat-text-input {
+      flex: 1; background: rgba(2, 6, 23, 0.8); border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #FFFFFF; font-size: 11.5px; padding: 8px 12px; border-radius: 8px; outline: none;
+    }
+    .chat-send-btn {
+      background: linear-gradient(135deg, #818CF8, #6366F1); color: #FFFFFF; font-weight: 700;
+      font-size: 11px; padding: 0 14px; border: none; border-radius: 8px; cursor: pointer;
+    }
+
+    /* NASA Gallery Header */
+    .nasa-gallery-header {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .nasa-brand-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: 20px; padding: 6px 14px; box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+    .nasa-insignia { font-weight: 900; font-size: 12px; color: #38BDF8; letter-spacing: 1px; }
+    .nasa-live-status { font-size: 10.5px; font-weight: 700; color: #34D399; letter-spacing: 0.6px; }
+    .nasa-gallery-actions { display: flex; gap: 8px; }
+    .nasa-action-btn {
+      background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(129, 140, 248, 0.45);
+      color: #C7D2FE; font-size: 11px; font-weight: 700; padding: 5px 12px;
+      border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .nasa-action-btn:hover {
+      background: rgba(129, 140, 248, 0.25); border-color: #818CF8; color: #FFF;
+    }
+
+    /* NASA Hero Display */
+    .nasa-hero-display-wrap {
+      flex: 1; position: relative; width: 100%; min-height: 290px; max-height: 480px;
+      background: #010409; border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px; overflow: hidden; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 8px 32px rgba(0,0,0,0.85);
+    }
+    .nasa-hero-img {
+      width: 100%; height: 100%; object-fit: contain; background: #000;
+      transition: transform 0.3s ease, opacity 0.25s ease;
+    }
+    .nasa-hero-img:hover { cursor: zoom-in; }
+    .nasa-img-loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      color: #38BDF8; font-size: 12px; font-weight: 700; pointer-events: none;
+    }
+    .nasa-spinner {
+      width: 38px; height: 38px; border: 3px solid rgba(56, 189, 248, 0.2);
+      border-top-color: #38BDF8; border-radius: 50%; animation: spinAnim 0.8s linear infinite;
+    }
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
+    .nasa-img-info-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.92) 25%, rgba(2, 6, 23, 0.98) 100%);
+      padding: 14px 18px; backdrop-filter: blur(8px); display: flex; flex-direction: column; gap: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .nasa-info-top { display: flex; justify-content: space-between; align-items: center; }
+    .nasa-photo-id { color: #818CF8; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px; }
+    .nasa-photo-date { color: #94A3B8; font-size: 10.5px; font-weight: 600; }
+    .nasa-photo-title { font-size: 13.5px; font-weight: 800; color: #FFFFFF; line-height: 1.3; }
+    .nasa-photo-caption { font-size: 11.5px; color: #CBD5E1; line-height: 1.4; max-height: 48px; overflow-y: auto; }
+
+    /* Live Search Bar */
+    .nasa-search-bar-wrap {
+      display: flex; gap: 8px; align-items: center;
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(148, 163, 184, 0.25);
+      border-radius: 10px; padding: 4px 8px;
+    }
+    .nasa-search-icon { font-size: 13px; color: #94A3B8; margin-left: 4px; }
+    .nasa-search-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #FFFFFF; font-size: 11.5px; padding: 6px;
+    }
+    .nasa-search-btn {
+      background: linear-gradient(135deg, #4F46E5, #3730A3); color: #FFFFFF;
+      border: none; border-radius: 6px; font-size: 11px; font-weight: 700;
+      padding: 6px 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+
+    /* Thumbnail Strip */
+    .nasa-thumbnail-strip-section { display: flex; flex-direction: column; gap: 6px; }
+    .nasa-strip-title { font-size: 10px; font-weight: 800; color: #94A3B8; letter-spacing: 0.8px; }
+    .nasa-thumbnails-strip {
+      display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px 2px; scroll-behavior: smooth;
+    }
+    .nasa-thumb-card {
+      flex: 0 0 88px; height: 60px; border-radius: 8px; overflow: hidden;
+      border: 2px solid rgba(148, 163, 184, 0.25); cursor: pointer;
+      position: relative; transition: all 0.2s ease; background: #020617;
+    }
+    .nasa-thumb-card:hover { border-color: rgba(99, 102, 241, 0.7); transform: translateY(-2px); }
+    .nasa-thumb-card.active {
+      border-color: #818CF8; box-shadow: 0 0 14px rgba(99, 102, 241, 0.65); transform: translateY(-2px);
+    }
+    .nasa-thumb-img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Golden Record Box */
+    .golden-record-box {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.9));
+      border: 1.5px solid rgba(245, 158, 11, 0.4);
+      border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .golden-record-disc {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #FDE68A 0%, #D97706 60%, #78350F 100%);
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.6); flex-shrink: 0;
+      animation: spinRecord 6s linear infinite;
+    }
+    @keyframes spinRecord { to { transform: rotate(360deg); } }
+    .record-info-text { font-size: 11px; color: #FDE68A; line-height: 1.35; }
+    .record-info-text b { color: #FFFFFF; }
+
+    @media (max-width: 768px) {
+      .detail-split-container { flex-direction: column; overflow-y: auto; }
+      .detail-info-panel, .detail-nasa-gallery-viewport { flex: 1 1 auto; width: 100%; height: auto; }
+    }
+
+    /* CINEMATIC ENTRANCE WARP TRANSITION OVERLAY */
+    #deep-entrance-warp {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #000000; z-index: 9999999;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.8s;
+      margin: 0; padding: 0; overflow: hidden;
+    }
+    #deep-entrance-warp.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .entrance-video {
+      position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+      object-fit: cover; z-index: 1; margin: 0; padding: 0;
+    }
+    .warp-hud-overlay {
+      position: absolute; top: 35px; left: 50%; transform: translateX(-50%);
+      z-index: 10; text-align: center; pointer-events: none;
+      display: flex; flex-direction: column; align-items: center; gap: 8px; width: 90%; max-width: 800px;
+    }
+    .warp-hud-title {
+      font-size: 22px; font-weight: 900; letter-spacing: 3px;
+      color: #38BDF8; text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(56, 189, 248, 0.8), 0 0 40px rgba(0, 0, 0, 0.9);
+    }
+    .warp-hud-sub {
+      font-size: 13px; font-weight: 700; letter-spacing: 2px;
+      color: #E2E8F0; text-transform: uppercase;
+      background: rgba(15, 23, 42, 0.75); padding: 6px 18px;
+      border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.35);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    }
+    .entrance-skip-btn {
+      position: absolute; bottom: 35px; right: 35px; z-index: 20;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1.5px solid rgba(56, 189, 248, 0.6);
+      color: #38BDF8; font-size: 13px; font-weight: 800; letter-spacing: 1px;
+      padding: 10px 22px; border-radius: 20px; cursor: pointer;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(56, 189, 248, 0.3);
+      transition: all 0.2s ease;
+    }
+    .entrance-skip-btn:hover {
+      background: rgba(56, 189, 248, 0.25);
+      color: #FFFFFF; transform: scale(1.04);
+      box-shadow: 0 6px 25px rgba(56, 189, 248, 0.6);
+    }
+    .entrance-unmute-btn {
+      position: absolute; bottom: 35px; left: 35px; z-index: 20;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      color: #FFFFFF; font-size: 13px; font-weight: 700;
+      padding: 10px 20px; border-radius: 20px; cursor: pointer;
+      display: none; align-items: center; gap: 8px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+    }
+    .entrance-unmute-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <!-- CINEMATIC ENTRANCE WARP TRANSITION OVERLAY -->
+  <div id="deep-entrance-warp">
+    <div class="warp-hud-overlay">
+      <div class="warp-hud-title">🌌 INTERSTELLAR TRAJECTORY ENGAGED</div>
+      <div class="warp-hud-sub">CROSSING THE HELIOPAUSE • APPROACHING VOYAGER & PIONEER</div>
+    </div>
+    <video id="entrance-warp-video" class="entrance-video" playsinline preload="auto" src="/app/static/videos/deep_space.mp4">
+      <source src="/app/static/videos/deep_space.mp4" type="video/mp4">
+      <source src="/app/static/videos/deep%20space.mp4" type="video/mp4">
+    </video>
+    <button class="entrance-skip-btn" id="btn-skip-entrance" onclick="dismissEntranceWarp()">Skip Transition ⏩</button>
+    <button class="entrance-unmute-btn" id="btn-unmute-entrance" onclick="unmuteEntranceVideo()">🔊 Tap for Sound</button>
+  </div>
+  <div id="deep-app">
+    <div class="detail-split-container">
+      <!-- LEFT SIDE: MISSION METADATA & TELEMETRY (48%) -->
+      <div class="detail-info-panel">
+        <div class="sidebar-header">
+          <div>
+            <div class="sidebar-title">🌌 DEEP SPACE PIONEERS</div>
+            <div class="sidebar-subtitle">Interstellar Monuments • Supabase & Gemini Studio</div>
+          </div>
+          <button class="return-home-btn" onclick="returnToSolarSystem()">🪐 Solar System</button>
+        </div>
+
+        <!-- 1. Spacecraft Selector Pills -->
+        <div class="rover-selector-section">
+          <div class="selector-header-label">SELECT DEEP SPACE EXPLORER:</div>
+          <div class="rover-selector-pills" id="craft-selector-pills"></div>
+        </div>
+
+        <!-- 2. Title & Badges -->
+        <div class="detail-title-section">
+          <div class="detail-badges-row">
+            <span class="detail-type-badge" id="detail-type-badge">INTERSTELLAR PROBE</span>
+            <span class="detail-status-badge active" id="detail-status-badge">ACTIVE INTERSTELLAR</span>
+            <span class="detail-year-badge" id="detail-year-badge">📅 1977</span>
+          </div>
+          <h1 class="detail-name" id="detail-name">Voyager 1</h1>
+          <div class="detail-tagline" id="detail-tagline">"I am humanity's farthest ambassador into the eternal dark."</div>
+        </div>
+
+        <!-- 3. Live Interstellar Distance Ticker -->
+        <div class="interstellar-ticker-card" id="interstellar-ticker-card">
+          <div class="ticker-header">
+            <div class="ticker-title">
+              <span class="ticker-live-dot"></span>
+              <span>LIVE TELEMETRY • RELATIVE TO EARTH</span>
+            </div>
+            <span style="font-size:10px; color:#34D399; font-weight:700;">● REAL-TIME ESTIMATE</span>
+          </div>
+          <div class="ticker-metrics-grid">
+            <div class="ticker-metric-cell">
+              <div class="ticker-metric-label">Distance from Earth</div>
+              <div class="ticker-metric-value" id="live-distance-km">24,510,480,240 km</div>
+            </div>
+            <div class="ticker-metric-cell">
+              <div class="ticker-metric-label">Astronomical Units</div>
+              <div class="ticker-metric-value" id="live-distance-au">163.84 AU</div>
+            </div>
+            <div class="ticker-metric-cell">
+              <div class="ticker-metric-label">Radio Travel Time</div>
+              <div class="ticker-metric-value" id="live-radio-time">22h 42m 18s</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Supabase Database Card -->
+        <div class="detail-supabase-card">
+          <div class="db-header">
+            <span class="db-title">📡 SUPABASE LIVE TELEMETRY</span>
+            <span class="db-badge-verified">✓ NASA VERIFIED CLOUD POSTGRES</span>
+          </div>
+
+          <div class="db-stat-row">
+            <div class="db-stat-badge">
+              <span class="db-stat-icon">⏱️</span>
+              <div>
+                <div class="db-stat-label">Active Duration</div>
+                <div class="db-stat-val" id="db-duration">47+ Years (Since 1977)</div>
+              </div>
+            </div>
+            <div class="db-stat-badge">
+              <span class="db-stat-icon">🚀</span>
+              <div>
+                <div class="db-stat-label">Velocity</div>
+                <div class="db-stat-val" id="db-velocity">17 km/s (38,000 mph)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="db-grid">
+            <div class="db-cell">
+              <div class="db-cell-label">📍 Destination / Trajectory</div>
+              <div class="db-cell-val" id="db-coords">Interstellar Space (Ophiuchus)</div>
+            </div>
+            <div class="db-cell">
+              <div class="db-cell-label">⚡ Power Architecture</div>
+              <div class="db-cell-val" id="db-power">3 MHW-RTGs (~220W Today)</div>
+            </div>
+            <div class="db-cell">
+              <div class="db-cell-label">⚖️ Spacecraft Dry Mass</div>
+              <div class="db-cell-val" id="db-mass">825 kg (1,819 lb)</div>
+            </div>
+            <div class="db-cell">
+              <div class="db-cell-label">📡 Comms Subsystem</div>
+              <div class="db-cell-val" id="db-comms">3.7m High-Gain Dish</div>
+            </div>
+          </div>
+
+          <div class="db-desc-box">
+            <div class="db-cell-label">📜 NASA Archive Master Dossier</div>
+            <p class="db-desc-text" id="db-desc">Most distant human-made object in history. Crossed heliopause on Aug 25, 2012.</p>
+          </div>
+
+          <div class="db-bridge">
+            <div class="db-bridge-title">🔬 THE HARDWARE ➔ SCIENCE BRIDGE</div>
+            <div class="db-bridge-hw" id="db-hw">🛠️ Tool: Plasma Wave Subsystem (PWS) & Magnetometer</div>
+            <div class="db-bridge-sc" id="db-sc">💡 Discovery: Recorded the first authentic sounds of interstellar plasma oscillations outside the Sun's magnetic bubble.</div>
+          </div>
+        </div>
+
+        <!-- 5. Audio Story Player -->
+        <div class="detail-audio-card">
+          <div class="audio-card-header">
+            <span class="audio-icon-pulse">🎧</span>
+            <span class="audio-card-title">Audio Narration Story</span>
+            <span style="font-size:11px; color:#94A3B8; margin-left:auto;" id="audio-label">Voyager 1 Story</span>
+          </div>
+          <div class="audio-controls-row">
+            <button class="audio-play-btn" id="btn-audio-play" onclick="toggleAudioPlay()">▶ Play</button>
+            <div class="audio-progress-wrap">
+              <input type="range" class="audio-scrub-slider" id="audio-scrubber" min="0" max="100" value="0" oninput="onScrubAudio(this.value)">
+              <div class="audio-time-row">
+                <span id="audio-current-time">0:00</span>
+                <span id="audio-total-time">0:00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Golden Record Card -->
+        <div class="golden-record-box">
+          <div class="golden-record-disc"></div>
+          <div class="record-info-text">
+            <b>The Golden Record:</b> Carries 115 images, sounds of thunder, whale songs, greetings in 55 languages, and music of Earth for any extraterrestrial civilization that discovers it.
+          </div>
+        </div>
+
+        <!-- 7. Gemini AI Chatbot -->
+        <div class="detail-chat-card">
+          <div class="chat-header-row">
+            <div class="chat-title-group">
+              <span style="font-size:18px;">🤖</span>
+              <span class="chat-card-title" id="chat-header-title">Live 1st-Person AI Chat with Voyager 1</span>
+            </div>
+            <div class="chat-age-toggle-bar">
+              <button class="age-pill-btn active" id="btn-age-junior" onclick="setChatAge('junior')">🌱 Junior (12–14)</button>
+              <button class="age-pill-btn" id="btn-age-senior" onclick="setChatAge('senior')">🔬 Senior (15–18)</button>
+            </div>
+          </div>
+
+          <div class="chat-messages-wrap" id="chat-messages-box"></div>
+
+          <div class="chat-quick-chips">
+            <button class="quick-chip" onclick="sendQuickPrompt('What is it like outside the Solar System?')">🌌 Interstellar Space?</button>
+            <button class="quick-chip" onclick="sendQuickPrompt('What message do you carry on the Golden Record?')">📀 Golden Record?</button>
+            <button class="quick-chip" onclick="sendQuickPrompt('How do you survive so far from the Sun?')">⚡ Power & RTG?</button>
+          </div>
+
+          <div class="chat-input-row">
+            <input type="text" id="chat-user-input" class="chat-text-input" placeholder="Ask this interstellar explorer a question..." onkeydown="if(event.key==='Enter') sendUserChatMessage()">
+            <button id="btn-send-chat" class="chat-send-btn" onclick="sendUserChatMessage()">Ask Gemini ➔</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: NASA PHOTOGRAPHY & MEDIA STUDIO (52%) -->
+      <div class="detail-nasa-gallery-viewport" id="detail-nasa-gallery-viewport">
+        <div class="nasa-gallery-header">
+          <div class="nasa-brand-badge">
+            <span class="nasa-insignia">📷 NASA</span>
+            <span class="nasa-live-status">● LIVE NASA API IMAGERY</span>
+          </div>
+          <div class="nasa-gallery-actions">
+            <button class="nasa-action-btn" id="btn-nasa-fullres" onclick="openFullResNasaImage()">🔍 View Full-Res</button>
+            <button class="nasa-action-btn" id="btn-nasa-refresh" onclick="refreshNasaGalleryFeed()">🔄 Refresh Feed</button>
+          </div>
+        </div>
+
+        <div class="nasa-hero-display-wrap">
+          <div class="nasa-img-loading" id="nasa-img-loading" style="display:none;">
+            <div class="nasa-spinner"></div>
+            <span>Fetching Official NASA Deep Space Imagery...</span>
+          </div>
+          <img id="nasa-hero-img" class="nasa-hero-img" src="" alt="NASA Deep Space Photo" onclick="openFullResNasaImage()" />
+          
+          <div class="nasa-img-info-overlay" id="nasa-img-info-overlay">
+            <div class="nasa-info-top">
+              <span class="nasa-photo-id" id="nasa-photo-id">NASA ARCHIVE</span>
+              <span class="nasa-photo-date" id="nasa-photo-date">NASA Mission</span>
+            </div>
+            <div class="nasa-photo-title" id="nasa-photo-title">Deep Space Exploration</div>
+            <div class="nasa-photo-caption" id="nasa-photo-caption">Authentic archival record from NASA deep space exploration archives.</div>
+          </div>
+        </div>
+
+        <!-- NASA Live Search Bar -->
+        <div class="nasa-search-bar-wrap">
+          <span class="nasa-search-icon">🔍</span>
+          <input type="text" id="nasa-search-input" class="nasa-search-input" placeholder="Search NASA deep space archive (e.g. 'Pale Blue Dot', 'Occator crater', 'exoplanet', 'Saturn rings')..." onkeydown="if(event.key==='Enter') executeNasaPhotoSearch()" />
+          <button class="nasa-search-btn" onclick="executeNasaPhotoSearch()">Search NASA API</button>
+        </div>
+
+        <!-- Thumbnail Strip -->
+        <div class="nasa-thumbnail-strip-section">
+          <div class="nasa-strip-title">AUTHENTIC NASA MISSION PHOTOGRAPHY (<span id="nasa-photo-count">0</span> PHOTOS)</div>
+          <div class="nasa-thumbnails-strip" id="nasa-thumbnails-strip"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const LOCATIONS = /*LOCATIONS_PLACEHOLDER*/[];
+      const GEMINI_API_KEY = /*GEMINI_KEY_PLACEHOLDER*/"";
+      const NASA_API_KEY = /*NASA_KEY_PLACEHOLDER*/"8P7pKqtdRdfbhHnww87fmNqPbh7fT6wLzCbQwC9F";
+
+      // Deep Space Spacecraft Assets & Audio Mapping
+      const DEEP_EQUIPMENT_ASSETS = {
+        "voyager-1": {
+          id: "voyager-1",
+          name: "Voyager 1",
+          type: "Interstellar Probe",
+          color: "#38bdf8",
+          audioFiles: [
+            "/app/static/audio/voyager%201.mp3.mpeg",
+            "/static/audio/voyager%201.mp3.mpeg",
+            "static/audio/voyager%201.mp3.mpeg",
+            "/app/static/audio/voyager-1.mp3",
+            "static/audio/voyager-1.mp3"
+          ]
+        },
+        "dawn-spacecraft": {
+          id: "dawn-spacecraft",
+          name: "Dawn Spacecraft",
+          type: "Orbiter",
+          color: "#fbbf24",
+          audioFiles: [
+            "/app/static/audio/dawn%20spacecraft.mp3.mpeg",
+            "/static/audio/dawn%20spacecraft.mp3.mpeg",
+            "static/audio/dawn%20spacecraft.mp3.mpeg",
+            "/app/static/audio/dawn.mp3",
+            "static/audio/dawn.mp3"
+          ]
+        },
+        "kepler-space-telescope": {
+          id: "kepler-space-telescope",
+          name: "Kepler Space Telescope",
+          type: "Space Telescope",
+          color: "#00f0ff",
+          audioFiles: [
+            "/app/static/audio/kepler.mp3.mpeg",
+            "/static/audio/kepler.mp3.mpeg",
+            "static/audio/kepler.mp3.mpeg",
+            "/app/static/audio/kepler.mp3",
+            "static/audio/kepler.mp3"
+          ]
+        },
+        "near-shoemaker": {
+          id: "near-shoemaker",
+          name: "NEAR Shoemaker",
+          type: "Asteroid Lander",
+          color: "#ec4899",
+          audioFiles: [
+            "/app/static/audio/near%20shoemaker.mp3.mpeg",
+            "/static/audio/near%20shoemaker.mp3.mpeg",
+            "static/audio/near%20shoemaker.mp3.mpeg",
+            "/app/static/audio/near-shoemaker.mp3",
+            "static/audio/near-shoemaker.mp3"
+          ]
+        },
+        "pioneer-10": {
+          id: "pioneer-10",
+          name: "Pioneer 10",
+          type: "Deep Space Probe",
+          color: "#a855f7",
+          audioFiles: [
+            "/app/static/audio/pioneer%2010%20and%2011.mp3.mpeg",
+            "/static/audio/pioneer%2010%20and%2011.mp3.mpeg",
+            "static/audio/pioneer%2010%20and%2011.mp3.mpeg"
+          ]
+        },
+        "pioneer-11": {
+          id: "pioneer-11",
+          name: "Pioneer 11",
+          type: "Deep Space Probe",
+          color: "#f97316",
+          audioFiles: [
+            "/app/static/audio/pioneer%2010%20and%2011.mp3.mpeg",
+            "/static/audio/pioneer%2010%20and%2011.mp3.mpeg",
+            "static/audio/pioneer%2010%20and%2011.mp3.mpeg"
+          ]
+        }
+      };
+
+      const DEEP_NASA_IMAGES = {
+  "voyager-1": [
+    {
+      "title": "Voyager 1 Explores the Magnetic",
+      "nasa_id": "PIA16486",
+      "date": "2012-12-03",
+      "caption": "This image from a set of animations show NASA Voyager 1 spacecraft exploring a new region in our solar system called the magnetic highway.",
+      "url": "https://images-assets.nasa.gov/image/PIA16486/PIA16486~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA16486/PIA16486~small.jpg"
+    },
+    {
+      "title": "Voyager 1 Launch 1977",
+      "nasa_id": "PIA17464",
+      "date": "2013-09-19",
+      "caption": "This photograph from Sept. 5, 1977, shows the launch of NASA Voyager 1 spacecraft from NASA Kennedy Space Center at Cape Canaveral, Fla.",
+      "url": "https://images-assets.nasa.gov/image/PIA17464/PIA17464~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA17464/PIA17464~medium.jpg"
+    },
+    {
+      "title": "Changes on Io around Volund between Voyager 1 and Galileo Second Orbit",
+      "nasa_id": "PIA01071",
+      "date": "1997-11-18",
+      "caption": "Changes on Io around Volund between Voyager 1 and Galileo Second Orbit",
+      "url": "https://images-assets.nasa.gov/image/PIA01071/PIA01071~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA01071/PIA01071~orig.jpg"
+    },
+    {
+      "title": "ARC-1979-A79-7073",
+      "nasa_id": "ARC-1979-A79-7073",
+      "date": "1979-07-06",
+      "caption": "P-21738 BW Raange: 4.76 million kilometers (2.9 million miles) This Voyager 2 picture of Io was taken in ultraviolet light and shows one of the volcanic eruption plumes first photographed by Voyager 1. (the bright spot on the right limb) The plume is",
+      "url": "https://images-assets.nasa.gov/image/ARC-1979-A79-7073/ARC-1979-A79-7073~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1979-A79-7073/ARC-1979-A79-7073~medium.jpg"
+    },
+    {
+      "title": "ARC-1981-A79-7119",
+      "nasa_id": "ARC-1981-A79-7119",
+      "date": "1981-08-03",
+      "caption": "Voyager 1 views of Jupiter's rings",
+      "url": "https://images-assets.nasa.gov/image/ARC-1981-A79-7119/ARC-1981-A79-7119~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1981-A79-7119/ARC-1981-A79-7119~medium.jpg"
+    }
+  ],
+  "dawn-spacecraft": [
+    {
+      "title": "Ceres From Dawn, Processed",
+      "nasa_id": "PIA19167",
+      "date": "2015-01-19",
+      "caption": "This processed image, taken Jan. 13, 2015, shows the dwarf planet Ceres as seen from the Dawn spacecraft. The image hints at craters on the surface of Ceres. Dawn framing camera took this image at 238,000 miles 383,000 kilometers from Ceres.  http://",
+      "url": "https://images-assets.nasa.gov/image/PIA19167/PIA19167~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA19167/PIA19167~orig.jpg"
+    },
+    {
+      "title": "Ceres From Dawn, Raw",
+      "nasa_id": "PIA19166",
+      "date": "2015-01-19",
+      "caption": "This is a raw image, taken Jan. 13, 2015, showing the dwarf planet Ceres as seen from the Dawn spacecraft on its approach. Dawn framing camera took this image at 238,000 miles 383,000 kilometers from Ceres.  http://photojournal.jpl.nasa.gov/catalog/P",
+      "url": "https://images-assets.nasa.gov/image/PIA19166/PIA19166~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA19166/PIA19166~small.jpg"
+    },
+    {
+      "title": "Dawn LAMO View of Ceres",
+      "nasa_id": "PIA20187",
+      "date": "2015-12-22",
+      "caption": "These views of Ceres, taken by NASA Dawn spacecraft on December 10, show an area in the southern part of the southern hemisphere of the dwarf planet.",
+      "url": "https://images-assets.nasa.gov/image/PIA20187/PIA20187~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA20187/PIA20187~small.jpg"
+    },
+    {
+      "title": "Ceres, Seen by Dawn on Approach",
+      "nasa_id": "PIA19181",
+      "date": "2015-02-12",
+      "caption": "In this image, dwarf planet Ceres is seen on Feb. 4, 2015, from a distance of about 90,000 miles 145,000 kilometers. NASA Dawn spacecraft is due to arrive at Ceres on March 6, 2015.  http://photojournal.jpl.nasa.gov/catalog/PIA19181",
+      "url": "https://images-assets.nasa.gov/image/PIA19181/PIA19181~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA19181/PIA19181~small.jpg"
+    },
+    {
+      "title": "Dawn Gateway View of Ceres",
+      "nasa_id": "PIA19049",
+      "date": "2014-12-05",
+      "caption": "From about three times the distance from Earth to the moon, NASA's Dawn spacecraft spies its final destination -- the dwarf planet Ceres.  The resolution of this image does not yet exceed the best views of Ceres, which were obtained by the Hubble Spa",
+      "url": "https://images-assets.nasa.gov/image/PIA19049/PIA19049~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA19049/PIA19049~small.jpg"
+    }
+  ],
+  "kepler-space-telescope": [
+    {
+      "title": "Spitzer, Planck and Kepler Extended by NASA Artist Concept",
+      "nasa_id": "PIA15423",
+      "date": "2012-04-05",
+      "caption": "From left to right, artist concepts of the Spitzer, Planck and Kepler space telescopes. NASA extended Spitzer and Kepler for two additional years; and the U.S. portion of Planck, a European Space Agency mission, for one year.",
+      "url": "https://images-assets.nasa.gov/image/PIA15423/PIA15423~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA15423/PIA15423~small.jpg"
+    },
+    {
+      "title": "Partially Cloudy Skies on Kepler-7b Artist Concept",
+      "nasa_id": "PIA17445",
+      "date": "2013-09-30",
+      "caption": "Kepler-7b right, which is 1.5 times the radius of Jupiter left, is the first exoplanet to have its clouds mapped. The cloud map was produced using data from NASA Kepler and Spitzer space telescopes.",
+      "url": "https://images-assets.nasa.gov/image/PIA17445/PIA17445~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA17445/PIA17445~medium.jpg"
+    },
+    {
+      "title": "Gauging an Alien World Size Artist Concept",
+      "nasa_id": "PIA18463",
+      "date": "2014-07-23",
+      "caption": "Using data from NASA Kepler and Spitzer Space Telescopes, scientists have made the most precise measurement ever of the size of a world outside our solar system, as illustrated in this artist conception.",
+      "url": "https://images-assets.nasa.gov/image/PIA18463/PIA18463~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA18463/PIA18463~medium.jpg"
+    },
+    {
+      "title": "Swarm of Comets Artist Concept",
+      "nasa_id": "PIA20053",
+      "date": "2015-11-24",
+      "caption": "This illustration shows a star behind a shattered comet. Observations of the star KIC 8462852 by NASA's Kepler and Spitzer space telescopes suggest that its unusual light signals are likely from dusty comet fragments, which blocked the light of the s",
+      "url": "https://images-assets.nasa.gov/image/PIA20053/PIA20053~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA20053/PIA20053~medium.jpg"
+    },
+    {
+      "title": "Kepler Team Marks Five Years in Space",
+      "nasa_id": "PIA14446",
+      "date": "2014-03-07",
+      "caption": "On March 6, 2009, NASA Kepler Space Telescope rocketed into the night skies above Cape Canaveral Air Force Station in Florida to find planets around other stars, called exoplanets, in search of potentially habitable worlds.",
+      "url": "https://images-assets.nasa.gov/image/PIA14446/PIA14446~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA14446/PIA14446~medium.jpg"
+    }
+  ],
+  "near-shoemaker": [
+    {
+      "title": "NEAR Shoemaker Path",
+      "nasa_id": "PIA03142",
+      "date": "2001-02-17",
+      "caption": "NEAR Shoemaker Path",
+      "url": "https://images-assets.nasa.gov/image/PIA03142/PIA03142~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA03142/PIA03142~medium.jpg"
+    },
+    {
+      "title": "Location of the NEAR Shoemaker Landing Site",
+      "nasa_id": "PIA03143",
+      "date": "2001-02-17",
+      "caption": "Location of the NEAR Shoemaker Landing Site",
+      "url": "https://images-assets.nasa.gov/image/PIA03143/PIA03143~small.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA03143/PIA03143~small.jpg"
+    },
+    {
+      "title": "Landmarks at NEAR Shoemaker Touchdown Site",
+      "nasa_id": "PIA03144",
+      "date": "2001-02-17",
+      "caption": "Landmarks at NEAR Shoemaker Touchdown Site",
+      "url": "https://images-assets.nasa.gov/image/PIA03144/PIA03144~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA03144/PIA03144~medium.jpg"
+    },
+    {
+      "title": "Eros Global Morphology",
+      "nasa_id": "PIA02473",
+      "date": "2000-05-07",
+      "caption": "This image from NASA NEAR Shoemaker is of processed data showing Eros from slightly different perspectives is combined as anaglyphs or stereo pairs. 3D glasses are necessary to view this image.",
+      "url": "https://images-assets.nasa.gov/image/PIA02473/PIA02473~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA02473/PIA02473~orig.jpg"
+    },
+    {
+      "title": "Eros in Stereo",
+      "nasa_id": "PIA02471",
+      "date": "2000-05-07",
+      "caption": "Stereo imaging, an important tool on NASA NEAR Shoemaker for geologic analysis of Eros, provides three-dimensional information on the asteroid landforms and structures. 3D glasses are necessary to view this image.",
+      "url": "https://images-assets.nasa.gov/image/PIA02471/PIA02471~thumb.jpg",
+      "orig": "https://images-assets.nasa.gov/image/PIA02471/PIA02471~orig.jpg"
+    }
+  ],
+  "pioneer-10": [
+    {
+      "title": "ARC-1973-AC73-9279",
+      "nasa_id": "ARC-1973-AC73-9279",
+      "date": "1973-07-01",
+      "caption": "Photograph by Pioneer 10 Ganymede as seen by Pioneer 10",
+      "url": "https://images-assets.nasa.gov/image/ARC-1973-AC73-9279/ARC-1973-AC73-9279~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1973-AC73-9279/ARC-1973-AC73-9279~medium.jpg"
+    },
+    {
+      "title": "ARC-1972-AC72-2135",
+      "nasa_id": "ARC-1972-AC72-2135",
+      "date": "1972-02-26",
+      "caption": "PIONEER F (PIONEER-10) SPACECRAFT AT CAPE KENNEDY BEING READIED FOR MISSION (SHOWS THE POSITION OF THE PIONEER INTERSTALLER PLAQUE)",
+      "url": "https://images-assets.nasa.gov/image/ARC-1972-AC72-2135/ARC-1972-AC72-2135~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1972-AC72-2135/ARC-1972-AC72-2135~medium.jpg"
+    },
+    {
+      "title": "ARC-1972-AC72-2136",
+      "nasa_id": "ARC-1972-AC72-2136",
+      "date": "1972-02-26",
+      "caption": "Pioneer f (Pioneer-10) being readied for shipment to KSC",
+      "url": "https://images-assets.nasa.gov/image/ARC-1972-AC72-2136/ARC-1972-AC72-2136~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1972-AC72-2136/ARC-1972-AC72-2136~medium.jpg"
+    },
+    {
+      "title": "ARC-1978-A78-0077-4",
+      "nasa_id": "ARC-1978-A78-0077-4",
+      "date": "1978-01-27",
+      "caption": "Photographs and Captions courtesy of Joseph and Donna Roizen Telegen, Palo Alto, CA (from) Pioneer 10 and 11 Missions Jupiter encounters - Activities at Ames Research Center  December 1973 and December 1974 - As a memento of the highly successful Pio",
+      "url": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-4/ARC-1978-A78-0077-4~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-4/ARC-1978-A78-0077-4~medium.jpg"
+    },
+    {
+      "title": "ARC-1973-AC73-9019",
+      "nasa_id": "ARC-1973-AC73-9019",
+      "date": "1973-10-19",
+      "caption": "PIONEER 10 SPACECRAFT FINAL ASSEMBLY AT TRW (TRW SYSTEMS GROUP, REDONDO BEACH, CALIFORNIA DESIGNED AND FABRICATED THE PIONEER SPACECRAFT)",
+      "url": "https://images-assets.nasa.gov/image/ARC-1973-AC73-9019/ARC-1973-AC73-9019~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1973-AC73-9019/ARC-1973-AC73-9019~medium.jpg"
+    }
+  ],
+  "pioneer-11": [
+    {
+      "title": "Early Rockets",
+      "nasa_id": "6817190",
+      "date": "1959-01-01",
+      "caption": "In this photograph, the lunar and planetary exploration satellite, Pioneer III, is being prepared for installation to Juno II (AM-11) launch vehicle. AM-11 was launched on December 5, 1959, but the mission was unsuccessful.",
+      "url": "https://images-assets.nasa.gov/image/6817190/6817190~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/6817190/6817190~medium.jpg"
+    },
+    {
+      "title": "ARC-1978-A78-0077-4",
+      "nasa_id": "ARC-1978-A78-0077-4",
+      "date": "1978-01-27",
+      "caption": "Photographs and Captions courtesy of Joseph and Donna Roizen Telegen, Palo Alto, CA (from) Pioneer 10 and 11 Missions Jupiter encounters - Activities at Ames Research Center  December 1973 and December 1974 - As a memento of the highly successful Pio",
+      "url": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-4/ARC-1978-A78-0077-4~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-4/ARC-1978-A78-0077-4~medium.jpg"
+    },
+    {
+      "title": "ARC-1982-AC82-0178",
+      "nasa_id": "ARC-1982-AC82-0178",
+      "date": "1982-03-11",
+      "caption": "Artist: Fornalski Pioneer Spacecraft Composite 'The Pioneer Family'  Probes 6-9, 10, 11 and Venus Orbiter and Multiprobe or Bus (12-13)",
+      "url": "https://images-assets.nasa.gov/image/ARC-1982-AC82-0178/ARC-1982-AC82-0178~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1982-AC82-0178/ARC-1982-AC82-0178~medium.jpg"
+    },
+    {
+      "title": "ARC-1978-A78-0077-12",
+      "nasa_id": "ARC-1978-A78-0077-12",
+      "date": "1978-01-27",
+      "caption": "Photographs and Captions courtesy of Joseph and Donna Roizen Telegen, Palo Alto, CA (from) Pioneer 10 and 11 Missions Jupiter encounters - Activities at Ames Research Center  December 1973 and December 1974 - As a memento of the highly successful Pio",
+      "url": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-12/ARC-1978-A78-0077-12~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-12/ARC-1978-A78-0077-12~medium.jpg"
+    },
+    {
+      "title": "ARC-1978-A78-0077-18",
+      "nasa_id": "ARC-1978-A78-0077-18",
+      "date": "1978-01-27",
+      "caption": "NASA Photographs and Captions courtesy of Joseph and Donna Roizen Telegen, Palo Alto, CA (from) Pioneer 10 and 11 Missions Jupiter encounters - Activities at Ames Research Center  December 1973 and December 1974 - As a memento of the highly successfu",
+      "url": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-18/ARC-1978-A78-0077-18~medium.jpg",
+      "orig": "https://images-assets.nasa.gov/image/ARC-1978-A78-0077-18/ARC-1978-A78-0077-18~medium.jpg"
+    }
+  ]
+};
+
+      let currentSelectedCraft = "voyager-1";
+      let currentNasaPhotos = [];
+      let currentNasaPhotoIndex = 0;
+      let currentChatAge = "junior";
+      let chatHistory = [];
+      let currentChatCraft = null;
+      let detailAudio = new Audio();
+      let isAudioPlaying = false;
+
+      // Real-time Voyager 1 distance simulator
+      let baseDistanceKm = 24510480240;
+      setInterval(() => {
+        baseDistanceKm += 17.0; // 17 km per second
+        if (currentSelectedCraft === 'voyager-1') {
+          const kmEl = document.getElementById('live-distance-km');
+          const auEl = document.getElementById('live-distance-au');
+          const timeEl = document.getElementById('live-radio-time');
+          if (kmEl) kmEl.innerText = Math.round(baseDistanceKm).toLocaleString() + ' km';
+          if (auEl) auEl.innerText = (baseDistanceKm / 149597870.7).toFixed(2) + ' AU';
+          const totalSecs = Math.round(baseDistanceKm / 299792.458); // speed of light
+          const hrs = Math.floor(totalSecs / 3600);
+          const mins = Math.floor((totalSecs % 3600) / 60);
+          const secs = totalSecs % 60;
+          if (timeEl) timeEl.innerText = hrs + 'h ' + mins + 'm ' + secs + 's';
+        }
+      }, 1000);
+
+      // Render spacecraft selector pills
+      function initCraftPills() {
+        const container = document.getElementById('craft-selector-pills');
+        if (!container) return;
+        container.innerHTML = '';
+        for (const cid in DEEP_EQUIPMENT_ASSETS) {
+          const c = DEEP_EQUIPMENT_ASSETS[cid];
+          const btn = document.createElement('button');
+          btn.className = 'rover-pill-btn' + (cid === currentSelectedCraft ? ' active' : '');
+          btn.setAttribute('data-id', cid);
+          btn.innerHTML = '<span>🛰️</span><span>' + c.name + '</span>';
+          btn.onclick = () => window.selectDeepCraft(cid);
+          container.appendChild(btn);
+        }
+      }
+
+      window.selectDeepCraft = function(craftId) {
+        currentSelectedCraft = craftId;
+        const asset = DEEP_EQUIPMENT_ASSETS[craftId] || DEEP_EQUIPMENT_ASSETS['voyager-1'];
+
+        // Highlight pill
+        document.querySelectorAll('.rover-pill-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-id') === craftId);
+        });
+
+        // Find metadata from LOCATIONS
+        const loc = LOCATIONS.find(l => (l.id || '').toLowerCase() === craftId.toLowerCase()) || {};
+
+        // Update titles & badges
+        const nameEl = document.getElementById('detail-name');
+        if (nameEl) nameEl.innerText = loc.name || asset.name;
+
+        const typeBadge = document.getElementById('detail-type-badge');
+        if (typeBadge) typeBadge.innerText = (loc.type || asset.type).toUpperCase();
+
+        const statusBadge = document.getElementById('detail-status-badge');
+        if (statusBadge) {
+          const isAct = craftId === 'voyager-1';
+          statusBadge.innerText = isAct ? "ACTIVE INTERSTELLAR" : "SILENT MONUMENT";
+          statusBadge.className = 'detail-status-badge' + (isAct ? ' active' : '');
+        }
+
+        const yearBadge = document.getElementById('detail-year-badge');
+        if (yearBadge) yearBadge.innerText = loc.launch_date ? ("📅 " + loc.launch_date.split(',').pop().trim()) : "📅 1977";
+
+        const taglineEl = document.getElementById('detail-tagline');
+        if (taglineEl) taglineEl.innerText = loc.first_person_script ? ('"' + loc.first_person_script + '"') : '';
+
+        // Update ticker visibility / context
+        const ticker = document.getElementById('interstellar-ticker-card');
+        if (ticker) {
+          ticker.style.display = (craftId === 'voyager-1') ? 'flex' : 'none';
+        }
+
+        // Update Supabase telemetry fields
+        const durEl = document.getElementById('db-duration');
+        if (durEl) durEl.innerText = loc.mission_duration || 'Interstellar Mission';
+
+        const velEl = document.getElementById('db-velocity');
+        if (velEl) velEl.innerText = (craftId === 'voyager-1') ? '17 km/s (38,000 mph)' : (loc.distance_traveled || 'Deep Space Trajectory');
+
+        const coordsEl = document.getElementById('db-coords');
+        if (coordsEl) coordsEl.innerText = loc.landing_coordinates || 'Deep Space';
+
+        const powerEl = document.getElementById('db-power');
+        if (powerEl) powerEl.innerText = loc.power_source || 'RTG / Solar Array';
+
+        const massEl = document.getElementById('db-mass');
+        if (massEl) massEl.innerText = loc.mass_dimensions || 'Deep Space Bus';
+
+        const commsEl = document.getElementById('db-comms');
+        if (commsEl) commsEl.innerText = loc.communications || 'High-Gain Parabolic Dish';
+
+        const descEl = document.getElementById('db-desc');
+        if (descEl) descEl.innerText = loc.nasa_description || 'NASA deep space exploration record.';
+
+        const hwEl = document.getElementById('db-hw');
+        if (hwEl) hwEl.innerText = loc.hardware ? ('🛠️ Tool: ' + loc.hardware) : '🛠️ Tool: Deep Space Scientific Suite';
+
+        const scEl = document.getElementById('db-sc');
+        if (scEl) scEl.innerText = loc.science ? ('💡 Discovery: ' + loc.science) : '💡 Discovery: Groundbreaking cosmic data.';
+
+        // Audio setup
+        const audioLabel = document.getElementById('audio-label');
+        if (audioLabel) audioLabel.innerText = asset.name + ' Story';
+        loadResilientAudio(asset.audioFiles);
+
+        // Chatbot setup
+        currentChatCraft = loc;
+        currentChatCraft.displayName = loc.name || asset.name;
+        const chatTitle = document.getElementById('chat-header-title');
+        if (chatTitle) chatTitle.innerText = 'Live 1st-Person AI Chat with ' + currentChatCraft.displayName;
+
+        const inputEl = document.getElementById('chat-user-input');
+        if (inputEl) inputEl.placeholder = 'Ask ' + currentChatCraft.displayName + ' a question...';
+
+        chatHistory = [{
+          role: 'assistant',
+          content: 'Greetings explorer! I am ' + currentChatCraft.displayName + '. ' + (loc.first_person_script || '') + ' What would you like to know about our journey into deep space?'
+        }];
+        renderChatMessages();
+
+        // Render NASA Gallery
+        window.renderNasaGallery(craftId, asset, loc);
+      };
+
+      // Resilient Audio Loader
+      async function loadResilientAudio(candidates) {
+        if (!candidates || candidates.length === 0) return;
+        detailAudio.pause();
+        isAudioPlaying = false;
+        const playBtn = document.getElementById('btn-audio-play');
+        if (playBtn) playBtn.innerText = '▶ Play';
+
+        let selectedUrl = candidates[0];
+        for (const url of candidates) {
+          try {
+            const resp = await fetch(url, { method: 'HEAD' });
+            if (resp.ok) { selectedUrl = url; break; }
+          } catch(e) {}
+        }
+        detailAudio.src = selectedUrl;
+        detailAudio.load();
+      }
+
+      window.toggleAudioPlay = function() {
+        if (!detailAudio.src) return;
+        const playBtn = document.getElementById('btn-audio-play');
+        if (detailAudio.paused) {
+          detailAudio.play().then(() => {
+            isAudioPlaying = true;
+            if (playBtn) playBtn.innerText = '⏸ Pause';
+          }).catch(err => {
+            console.warn('Audio play error:', err);
+          });
+        } else {
+          detailAudio.pause();
+          isAudioPlaying = false;
+          if (playBtn) playBtn.innerText = '▶ Play';
+        }
+      };
+
+      detailAudio.ontimeupdate = function() {
+        const scrubber = document.getElementById('audio-scrubber');
+        const curTime = document.getElementById('audio-current-time');
+        const totTime = document.getElementById('audio-total-time');
+        if (detailAudio.duration && !isNaN(detailAudio.duration)) {
+          if (scrubber) scrubber.value = (detailAudio.currentTime / detailAudio.duration) * 100;
+          if (curTime) curTime.innerText = formatTime(detailAudio.currentTime);
+          if (totTime) totTime.innerText = formatTime(detailAudio.duration);
+        }
+      };
+
+      detailAudio.onended = function() {
+        const playBtn = document.getElementById('btn-audio-play');
+        if (playBtn) playBtn.innerText = '▶ Play';
+        const scrubber = document.getElementById('audio-scrubber');
+        if (scrubber) scrubber.value = 0;
+      };
+
+      window.onScrubAudio = function(val) {
+        if (detailAudio.duration && !isNaN(detailAudio.duration)) {
+          detailAudio.currentTime = (val / 100) * detailAudio.duration;
+        }
+      };
+
+      function formatTime(secs) {
+        if (isNaN(secs) || secs === Infinity) return '0:00';
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+      }
+
+      // NASA Gallery Engine
+      window.renderNasaGallery = async function(craftId, asset, loc) {
+        const loadingEl = document.getElementById('nasa-img-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        const curated = DEEP_NASA_IMAGES[craftId] || DEEP_NASA_IMAGES['voyager-1'] || [];
+        currentNasaPhotos = [...curated];
+        currentNasaPhotoIndex = 0;
+        window.updateNasaGalleryDisplay();
+
+        // Live supplementary query
+        try {
+          const qName = (loc && loc.name) ? loc.name : (asset && asset.name ? asset.name : 'Voyager space');
+          const live = await fetchLiveNasaImages(qName);
+          if (live && live.length > 0) {
+            const seen = new Set(currentNasaPhotos.map(p => p.nasa_id));
+            live.forEach(lp => {
+              if (!seen.has(lp.nasa_id)) {
+                currentNasaPhotos.push(lp);
+                seen.add(lp.nasa_id);
+              }
+            });
+            window.updateNasaGalleryDisplay();
+          }
+        } catch(e) {}
+        finally {
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      };
+
+      async function fetchLiveNasaImages(query) {
+        try {
+          const cleanQ = encodeURIComponent(query + ' deep space');
+          const res = await fetch('https://images-api.nasa.gov/search?q=' + cleanQ + '&media_type=image');
+          if (!res.ok) return [];
+          const data = await res.json();
+          const items = data && data.collection && data.collection.items ? data.collection.items : [];
+          const results = [];
+          for (let i = 0; i < Math.min(items.length, 10); i++) {
+            const item = items[i];
+            const meta = item && item.data && item.data[0] ? item.data[0] : null;
+            const links = item && item.links ? item.links : [];
+            const thumbLink = links.find(l => l.rel === 'preview') || links[0];
+            if (meta && thumbLink && thumbLink.href) {
+              const thumbUrl = thumbLink.href;
+              results.push({
+                title: meta.title || 'NASA Deep Space Photo',
+                nasa_id: meta.nasa_id || 'NASA-DEEP',
+                date: (meta.date_created ? meta.date_created.substring(0, 10) : 'NASA Archive'),
+                caption: meta.description || 'Authentic imagery from NASA Deep Space Network archives.',
+                url: thumbUrl,
+                orig: thumbUrl.replace('~thumb.jpg', '~orig.jpg').replace('~thumb.png', '~orig.png')
+              });
+            }
+          }
+          return results;
+        } catch(e) { return []; }
+      }
+
+      window.updateNasaGalleryDisplay = function() {
+        if (!currentNasaPhotos || currentNasaPhotos.length === 0) return;
+        const photo = currentNasaPhotos[currentNasaPhotoIndex] || currentNasaPhotos[0];
+
+        const heroImg = document.getElementById('nasa-hero-img');
+        if (heroImg) {
+          heroImg.src = photo.url;
+          heroImg.alt = photo.title || 'NASA Mission Photo';
+        }
+
+        const idEl = document.getElementById('nasa-photo-id');
+        if (idEl) idEl.innerText = photo.nasa_id ? ('NASA ' + photo.nasa_id) : 'NASA ARCHIVE RECORD';
+
+        const dateEl = document.getElementById('nasa-photo-date');
+        if (dateEl) dateEl.innerText = photo.date || 'NASA ARCHIVE';
+
+        const titleEl = document.getElementById('nasa-photo-title');
+        if (titleEl) titleEl.innerText = photo.title || 'Deep Space Exploration';
+
+        const capEl = document.getElementById('nasa-photo-caption');
+        if (capEl) capEl.innerText = photo.caption || 'Authentic record from NASA deep space archives.';
+
+        const countEl = document.getElementById('nasa-photo-count');
+        if (countEl) countEl.innerText = currentNasaPhotos.length;
+
+        const strip = document.getElementById('nasa-thumbnails-strip');
+        if (strip) {
+          strip.innerHTML = '';
+          currentNasaPhotos.forEach((p, idx) => {
+            const card = document.createElement('div');
+            card.className = 'nasa-thumb-card' + (idx === currentNasaPhotoIndex ? ' active' : '');
+            card.title = p.title;
+            card.innerHTML = '<img src="' + p.url + '" class="nasa-thumb-img" alt="' + (p.title || '') + '" />';
+            card.onclick = () => window.selectNasaPhoto(idx);
+            strip.appendChild(card);
+          });
+        }
+      };
+
+      window.selectNasaPhoto = function(idx) {
+        if (idx >= 0 && idx < currentNasaPhotos.length) {
+          currentNasaPhotoIndex = idx;
+          window.updateNasaGalleryDisplay();
+        }
+      };
+
+      window.openFullResNasaImage = function() {
+        if (!currentNasaPhotos || currentNasaPhotos.length === 0) return;
+        const photo = currentNasaPhotos[currentNasaPhotoIndex] || currentNasaPhotos[0];
+        window.open(photo.orig || photo.url, '_blank');
+      };
+
+      window.executeNasaPhotoSearch = async function() {
+        const input = document.getElementById('nasa-search-input');
+        if (!input || !input.value.trim()) return;
+        const query = input.value.trim();
+
+        const loadingEl = document.getElementById('nasa-img-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        try {
+          const results = await fetchLiveNasaImages(query);
+          if (results && results.length > 0) {
+            currentNasaPhotos = results;
+            currentNasaPhotoIndex = 0;
+            window.updateNasaGalleryDisplay();
+          } else {
+            alert('No NASA archive photos found for: ' + query);
+          }
+        } catch(e) {}
+        finally {
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      };
+
+      window.refreshNasaGalleryFeed = function() {
+        window.selectDeepCraft(currentSelectedCraft);
+      };
+
+      // Gemini AI Chatbot
+      window.setChatAge = function(age) {
+        currentChatAge = age;
+        document.getElementById('btn-age-junior').classList.toggle('active', age === 'junior');
+        document.getElementById('btn-age-senior').classList.toggle('active', age === 'senior');
+      };
+
+      function renderChatMessages() {
+        const box = document.getElementById('chat-messages-box');
+        if (!box) return;
+        box.innerHTML = '';
+        chatHistory.forEach(msg => {
+          const bubble = document.createElement('div');
+          bubble.className = 'chat-bubble ' + (msg.role === 'user' ? 'user' : 'assistant');
+          let clean = (msg.content || '').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+          bubble.innerHTML = clean;
+          box.appendChild(bubble);
+        });
+        box.scrollTop = box.scrollHeight;
+      }
+
+      window.sendQuickPrompt = function(text) {
+        const input = document.getElementById('chat-user-input');
+        if (input) {
+          input.value = text;
+          window.sendUserChatMessage();
+        }
+      };
+
+      window.sendUserChatMessage = async function() {
+        const input = document.getElementById('chat-user-input');
+        if (!input || !input.value.trim()) return;
+        const prompt = input.value.trim();
+        input.value = '';
+
+        chatHistory.push({ role: 'user', content: prompt });
+        renderChatMessages();
+
+        const box = document.getElementById('chat-messages-box');
+        const loading = document.createElement('div');
+        loading.className = 'chat-bubble assistant';
+        loading.innerHTML = '<span style="color:#818cf8;">🛰️ Querying NASA Open Archives with NASA API key...</span>';
+        box.appendChild(loading);
+        box.scrollTop = box.scrollHeight;
+
+        const craft = currentChatCraft || {};
+        const craftName = craft.name || 'Deep Space Pioneer';
+
+        // NASA RAG
+        let nasaFact = '';
+        try {
+          const nres = await fetch('https://images-api.nasa.gov/search?q=' + encodeURIComponent(craftName + ' ' + prompt) + '&media_type=image');
+          if (nres.ok) {
+            const nd = await nres.json();
+            const it = nd && nd.collection && nd.collection.items ? nd.collection.items : [];
+            if (it.length > 0 && it[0].data && it[0].data[0]) {
+              nasaFact = it[0].data[0].description || '';
+            }
+          }
+        } catch(e) {}
+
+        const tone = currentChatAge === 'junior'
+          ? "Target: Junior Student (12-14). Use exciting cosmic analogies, explain the vast loneliness of space and what your instruments discovered in vivid visual terms."
+          : "Target: Senior Space Enthusiast (15-18). Include precise astrophysics, plasma density, orbital mechanics, radioactive RTG decay curve, and interstellar telemetry.";
+
+        const promptText = `You are ${craftName}, speaking directly in FIRST-PERSON ("I", "my antenna", "my scientific instruments", "my trajectory").
+Location: ${craft.landing_coordinates || 'Deep Space'}.
+Power: ${craft.power_source || 'RTG Nuclear Power'}.
+Hardware Tool: ${craft.hardware || 'Cosmic sensors'}.
+Discovery: ${craft.science || 'Interstellar science'}.
+NASA Fact: ${nasaFact.substring(0, 300)}.
+${tone}
+Answer the user's question: "${prompt}"`;
+
+        let reply = "I am transmitting my telemetry across millions of miles of deep space back to Earth. My instruments are active and I continue my journey into the eternal cosmic dark.";
+        if (GEMINI_API_KEY && GEMINI_API_KEY.length > 5) {
+          try {
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + encodeURIComponent(GEMINI_API_KEY);
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: "You are the space probe speaking in 1st-person. Stay in character." }] },
+                contents: [{ role: 'user', parts: [{ text: promptText }] }],
+                generationConfig: { temperature: 0.7, maxOutputTokens: 400 }
+              })
+            });
+            if (resp.ok) {
+              const resData = await resp.json();
+              if (resData && resData.candidates && resData.candidates[0] && resData.candidates[0].content) {
+                reply = resData.candidates[0].content.parts[0].text;
+              }
+            }
+          } catch(e) {}
+        }
+
+        loading.remove();
+        chatHistory.push({ role: 'assistant', content: reply });
+        renderChatMessages();
+      };
+
+      window.returnToSolarSystem = function() {
+        try {
+          if (window.top && window.top.location) {
+            window.top.location.href = "/?page=home";
+            return;
+          }
+        } catch(e) {}
+        window.location.href = "/?page=home";
+      };
+
+      // Cinematic Entrance Warp Logic
+      window.dismissEntranceWarp = function() {
+        const overlay = document.getElementById('deep-entrance-warp');
+        const video = document.getElementById('entrance-warp-video');
+        if (video) {
+          try { video.pause(); } catch(e) {}
+        }
+        if (overlay) {
+          overlay.classList.add('fade-out');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 850);
+        }
+      };
+
+      window.unmuteEntranceVideo = function() {
+        const video = document.getElementById('entrance-warp-video');
+        const btn = document.getElementById('btn-unmute-entrance');
+        if (video) {
+          video.muted = false;
+          video.volume = 1.0;
+        }
+        if (btn) btn.style.display = 'none';
+      };
+
+      function initEntranceWarp() {
+        const overlay = document.getElementById('deep-entrance-warp');
+        const video = document.getElementById('entrance-warp-video');
+        if (!overlay || !video) return;
+
+        // Check if user specifically requested to bypass entrance warp (e.g. from in-solar warp)
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('nowarp') === '1') {
+          overlay.style.display = 'none';
+          return;
+        }
+
+        video.onended = () => {
+          window.dismissEntranceWarp();
+        };
+
+        // Try playing with sound first; fallback to muted + pill if browser blocks sound autoplay
+        video.muted = false;
+        video.volume = 1.0;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn("Autoplay with sound blocked, playing muted fallback:", err);
+            video.muted = true;
+            video.play().catch(() => {});
+            const unmuteBtn = document.getElementById('btn-unmute-entrance');
+            if (unmuteBtn) unmuteBtn.style.display = 'inline-flex';
+          });
+        }
+      }
+
+      // Initializer
+      initEntranceWarp();
+      initCraftPills();
+      window.selectDeepCraft('voyager-1');
+    })();
+  </script>
+</body>
+</html>

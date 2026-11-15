@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <base href="/" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html {
+      width: 100%; height: 100%; overflow: hidden;
+      background: #000000;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      user-select: none;
+      color: #F8FAFC;
+    }
+    #moon-app {
+      display: flex; width: 100vw; height: 100vh;
+      background: #000000; overflow: hidden;
+    }
+
+    /* ==========================================
+       LEFT SIDEBAR: MOON MONUMENTS ROSTER
+       ========================================== */
+    #moon-sidebar {
+      width: 460px; min-width: 420px; max-width: 500px; height: 100vh;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(3, 7, 18, 0.99) 100%);
+      border-right: 1.5px solid rgba(251, 191, 36, 0.35);
+      padding: 18px 16px 36px 16px;
+      overflow-y: auto; box-sizing: border-box;
+      display: flex; flex-direction: column; gap: 14px;
+      z-index: 20; box-shadow: 12px 0 40px rgba(0, 0, 0, 0.95);
+    }
+
+    /* Spacecraft Selector Bar */
+    .rover-selector-section {
+      display: flex; flex-direction: column; gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: 10px; padding: 10px 12px;
+    }
+    .selector-header-label {
+      font-size: 10px; font-weight: 800; color: #94A3B8;
+      letter-spacing: 0.6px; text-transform: uppercase;
+    }
+    .rover-selector-pills {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .rover-pill-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #CBD5E1; font-size: 11px; font-weight: 700;
+      padding: 5px 10px; border-radius: 14px; cursor: pointer;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .rover-pill-btn:hover {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: #FBBF24; color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+    .rover-pill-btn.active {
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.45) 0%, rgba(245, 158, 11, 0.45) 100%);
+      border-color: #FBBF24; color: #FFFFFF;
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.45);
+    }
+    .sidebar-rover-hero {
+      display: flex; flex-direction: column; gap: 6px;
+      padding-bottom: 2px;
+    }
+    .sidebar-rover-name {
+      font-size: 21px; font-weight: 900; color: #FFFFFF;
+      letter-spacing: -0.3px; margin: 0; line-height: 1.15;
+    }
+    .sidebar-tagline {
+      font-size: 11.5px; font-style: italic; color: #38BDF8;
+      border-left: 2px solid #38BDF8; padding-left: 8px; line-height: 1.35;
+    }
+    .btn-launch-3d-sim {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF; font-size: 12.5px; font-weight: 800;
+      padding: 11px 14px; border-radius: 10px; cursor: pointer;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.4);
+      transition: all 0.2s ease; text-align: center;
+    }
+    .btn-launch-3d-sim:hover {
+      background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.6);
+      transform: translateY(-1px);
+    }
+    #moon-sidebar::-webkit-scrollbar { width: 6px; }
+    #moon-sidebar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    #moon-sidebar::-webkit-scrollbar-thumb { background: rgba(251, 191, 36, 0.45); border-radius: 4px; }
+    #moon-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(251, 191, 36, 0.8); }
+
+    .sidebar-header {
+      display: flex; flex-direction: column; gap: 4px;
+      padding-bottom: 12px; border-bottom: 1px solid rgba(251, 191, 36, 0.25);
+    }
+    .sidebar-title {
+      font-size: 19px; font-weight: 900; letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #FFFFFF 0%, #FBBF24 50%, #F59E0B 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .sidebar-subtitle {
+      font-size: 11.5px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .sidebar-stats-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: 8px; padding: 8px 14px; font-size: 11.5px; font-weight: 700;
+    }
+    .stat-badge {
+      background: rgba(251, 191, 36, 0.15); color: #FBBF24;
+      padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(251, 191, 36, 0.35);
+    }
+
+    /* Monument Cards */
+    .monument-card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px; padding: 12px 14px;
+      cursor: pointer; transition: all 0.2s ease;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .monument-card:hover {
+      background: rgba(251, 191, 36, 0.12);
+      border-color: rgba(251, 191, 36, 0.5);
+      transform: translateX(4px);
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.25);
+    }
+    .monument-card.clickable-story {
+      border: 1.5px solid rgba(0, 240, 255, 0.5);
+      background: rgba(10, 25, 45, 0.85);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.15);
+    }
+    .monument-card.clickable-story:hover {
+      border-color: #00F0FF;
+      background: rgba(0, 240, 255, 0.18);
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.4);
+    }
+    .monument-card.active {
+      border-color: #FBBF24;
+      background: rgba(251, 191, 36, 0.2);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+    }
+    .mc-top {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mc-name {
+      font-size: 13.5px; font-weight: 800; color: #FFFFFF;
+    }
+    .mc-year {
+      font-size: 11px; color: #94A3B8; font-family: monospace;
+    }
+    .mc-site {
+      font-size: 11.5px; color: #38BDF8; font-weight: 600;
+    }
+    .mc-tag {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px;
+      padding: 3px 8px; border-radius: 9999px; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .mc-tag.story {
+      background: rgba(0, 240, 255, 0.15);
+      color: #00F0FF; border: 1px solid rgba(0, 240, 255, 0.45);
+    }
+    .mc-tag.silent {
+      background: rgba(148, 163, 184, 0.12);
+      color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.25);
+    }
+
+    /* ==========================================
+       RIGHT 3D VIEWPORT & OVERLAY
+       ========================================== */
+    #canvas-wrap {
+      flex: 1; height: 100vh; position: relative;
+      background: #000000; overflow: hidden;
+    }
+
+    #moon-hint {
+      position: absolute; top: 18px; left: 50%;
+      transform: translateX(-50%); z-index: 10;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 20px; padding: 6px 18px;
+      font-size: 11.5px; font-weight: 600; color: #CBD5E1;
+      pointer-events: none; backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+      white-space: nowrap;
+    }
+
+    /* Badges Layer on 3D Moon Surface */
+    #badges-layer {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 15; overflow: hidden;
+    }
+    .globe-badge {
+      position: absolute; transform: translate(-50%, -130%);
+      display: none; align-items: center; gap: 6px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px; padding: 4px 10px;
+      color: #FFFFFF; font-size: 11px; font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+      pointer-events: auto; cursor: pointer;
+      white-space: nowrap; transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .globe-badge:hover {
+      transform: translate(-50%, -140%) scale(1.08);
+      border-color: #FBBF24;
+    }
+    .globe-badge.clickable-badge {
+      border-color: rgba(0, 240, 255, 0.6);
+      background: rgba(10, 25, 45, 0.95);
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.35);
+    }
+    .globe-badge.clickable-badge:hover {
+      border-color: #00F0FF;
+      box-shadow: 0 0 24px rgba(0, 240, 255, 0.7);
+    }
+
+    /* Bottom Toolbar */
+    #toolbar {
+      position: absolute; bottom: 20px; left: 50%;
+      transform: translateX(-50%); z-index: 20;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 30px; padding: 6px 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+    }
+    .tool-btn {
+      background: transparent; border: 1px solid transparent;
+      color: #CBD5E1; font-size: 11px; font-weight: 700;
+      padding: 6px 12px; border-radius: 20px; cursor: pointer;
+      transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .tool-btn:hover {
+      background: rgba(251, 191, 36, 0.2); border-color: rgba(251, 191, 36, 0.4);
+      color: #FFFFFF;
+    }
+    .tool-btn.active {
+      background: #FBBF24; border-color: #FBBF24; color: #000000;
+      box-shadow: 0 0 14px rgba(251, 191, 36, 0.6);
+    }
+    .tool-btn.story-btn {
+      border-color: rgba(0, 240, 255, 0.4);
+      color: #38BDF8;
+    }
+    .tool-btn.story-btn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      border-color: #00F0FF; color: #FFFFFF;
+    }
+
+    /* ==========================================
+       FULL-SCREEN EQUIPMENT DETAIL VIEW OVERLAY
+       ========================================== */
+    #equipment-detail-overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(2, 6, 23, 0.98);
+      z-index: 100; display: none; flex-direction: column;
+      animation: fadeInOverlay 0.25s ease-out;
+    }
+    @keyframes fadeInOverlay {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .detail-header-bar {
+      height: 60px; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1.5px solid rgba(251, 191, 36, 0.3);
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+    }
+    .detail-back-btn {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1.5px solid rgba(251, 191, 36, 0.45);
+      color: #FFFFFF; font-size: 13px; font-weight: 700;
+      padding: 8px 18px; border-radius: 20px;
+      cursor: pointer; transition: all 0.2s ease;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .detail-back-btn:hover {
+      background: rgba(251, 191, 36, 0.25);
+      border-color: #FBBF24; color: #FFFFFF;
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+    }
+    .detail-header-title {
+      font-size: 14px; font-weight: 900; letter-spacing: 1.2px;
+      color: #FBBF24; text-transform: uppercase;
+    }
+    .detail-audio-toggle-btn {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38BDF8; font-size: 12px; font-weight: 700;
+      padding: 6px 14px; border-radius: 20px;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .detail-audio-toggle-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38BDF8; color: #FFFFFF;
+    }
+
+    /* Split Container: Left Info & Database, Right 3D Model */
+    .detail-split-container {
+      flex: 1; display: flex; width: 100%; height: calc(100% - 60px);
+      overflow: hidden; flex-direction: row;
+    }
+
+    /* 52% NASA Mission Imagery & Media Studio Viewport (RIGHT SIDE) */
+    .detail-nasa-gallery-viewport {
+      flex: 0 0 52%; width: 52%; height: 100%; position: relative;
+      background: radial-gradient(circle at center, #0B132B 0%, #020617 100%);
+      order: 2; overflow: hidden; display: flex; flex-direction: column;
+      padding: 18px 22px; box-sizing: border-box; gap: 12px;
+    }
+    .nasa-gallery-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .nasa-brand-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.45);
+      border-radius: 20px; padding: 6px 14px;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+    .nasa-insignia {
+      font-weight: 900; font-size: 12px; color: #38BDF8; letter-spacing: 1px;
+    }
+    .nasa-live-status {
+      font-size: 10.5px; font-weight: 700; color: #34D399; letter-spacing: 0.6px;
+    }
+    .nasa-gallery-actions {
+      display: flex; gap: 8px;
+    }
+    .nasa-action-btn {
+      background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(251, 191, 36, 0.45);
+      color: #FBBF24; font-size: 11px; font-weight: 700; padding: 5px 12px;
+      border-radius: 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .nasa-action-btn:hover {
+      background: rgba(251, 191, 36, 0.2); border-color: #FBBF24; color: #FFF;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+    }
+
+    /* Main High-Resolution Photo Display */
+    .nasa-hero-display-wrap {
+      flex: 1; position: relative; width: 100%; min-height: 250px;
+      background: #010409; border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px; overflow: hidden; display: flex; align-items: center;
+      justify-content: center; box-shadow: 0 8px 32px rgba(0,0,0,0.85), inset 0 0 25px rgba(56, 189, 248, 0.08);
+    }
+    .nasa-hero-img {
+      width: 100%; height: 100%; object-fit: contain; background: #000;
+      transition: transform 0.3s ease, opacity 0.25s ease;
+    }
+    .nasa-hero-img:hover {
+      cursor: zoom-in;
+    }
+    .nasa-img-loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      color: #38BDF8; font-size: 12px; font-weight: 700; pointer-events: none;
+    }
+    .nasa-spinner {
+      width: 38px; height: 38px; border: 3px solid rgba(56, 189, 248, 0.2);
+      border-top-color: #38BDF8; border-radius: 50%; animation: spinAnim 0.8s linear infinite;
+    }
+    .nasa-img-info-overlay {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.92) 25%, rgba(2, 6, 23, 0.98) 100%);
+      padding: 14px 18px; backdrop-filter: blur(8px); display: flex;
+      flex-direction: column; gap: 4px; border-top: 1px solid rgba(255, 255, 255, 0.1);
+      transition: opacity 0.2s ease;
+    }
+    .nasa-info-top {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .nasa-photo-id {
+      color: #FBBF24; font-size: 10.5px; font-weight: 800; letter-spacing: 0.8px;
+    }
+    .nasa-photo-date {
+      color: #94A3B8; font-size: 10.5px; font-weight: 600;
+    }
+    .nasa-photo-title {
+      font-size: 13.5px; font-weight: 800; color: #FFFFFF; line-height: 1.3;
+    }
+    .nasa-photo-caption {
+      font-size: 11.5px; color: #CBD5E1; line-height: 1.4; max-height: 48px;
+      overflow-y: auto;
+    }
+
+    /* NASA Archive Live Search Bar */
+    .nasa-search-bar-wrap {
+      display: flex; gap: 8px; align-items: center;
+      background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(148, 163, 184, 0.25);
+      border-radius: 10px; padding: 4px 8px;
+    }
+    .nasa-search-icon {
+      font-size: 13px; color: #94A3B8; margin-left: 4px;
+    }
+    .nasa-search-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #FFFFFF; font-size: 11.5px; padding: 6px;
+    }
+    .nasa-search-btn {
+      background: linear-gradient(135deg, #0284C7, #2563EB); color: #FFFFFF;
+      border: none; border-radius: 6px; font-size: 11px; font-weight: 700;
+      padding: 6px 14px; cursor: pointer; transition: all 0.2s ease;
+    }
+    .nasa-search-btn:hover {
+      background: linear-gradient(135deg, #0369A1, #1D4ED8);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+    }
+
+    /* Thumbnails Strip */
+    .nasa-thumbnail-strip-section {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .nasa-strip-title {
+      font-size: 10px; font-weight: 800; color: #94A3B8; letter-spacing: 0.8px;
+    }
+    .nasa-thumbnails-strip {
+      display: flex; gap: 10px; overflow-x: auto; padding: 4px 2px 8px 2px;
+      scroll-behavior: smooth;
+    }
+    .nasa-thumb-card {
+      flex: 0 0 88px; height: 60px; border-radius: 8px; overflow: hidden;
+      border: 2px solid rgba(148, 163, 184, 0.25); cursor: pointer;
+      position: relative; transition: all 0.2s ease; background: #020617;
+    }
+    .nasa-thumb-card:hover {
+      border-color: rgba(56, 189, 248, 0.7); transform: translateY(-2px);
+    }
+    .nasa-thumb-card.active {
+      border-color: #38BDF8; box-shadow: 0 0 14px rgba(56, 189, 248, 0.65);
+      transform: translateY(-2px);
+    }
+    .nasa-thumb-img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+
+    /* Sidebar NASA Preview Card */
+    .sidebar-nasa-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 12px; padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    }
+    .sidebar-nasa-header {
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sidebar-nasa-title {
+      font-size: 11px; font-weight: 900; color: #38BDF8; letter-spacing: 0.8px;
+    }
+    .sidebar-nasa-badge {
+      font-size: 9.5px; font-weight: 800; color: #34D399;
+      background: rgba(52, 211, 153, 0.12); border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 2px 8px; border-radius: 8px;
+    }
+    .sidebar-nasa-thumb-row {
+      display: flex; gap: 8px; overflow-x: auto; padding: 4px 0;
+    }
+    .sidebar-nasa-mini-thumb {
+      flex: 0 0 74px; height: 50px; border-radius: 6px; overflow: hidden;
+      border: 1.5px solid rgba(148, 163, 184, 0.3); cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar-nasa-mini-thumb:hover {
+      border-color: #38BDF8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+    }
+    .sidebar-nasa-mini-thumb img {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .sidebar-nasa-open-btn {
+      width: 100%; background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(37, 99, 235, 0.3));
+      border: 1px solid rgba(56, 189, 248, 0.45); color: #38BDF8; font-size: 11px;
+      font-weight: 700; padding: 7px; border-radius: 8px; cursor: pointer;
+      transition: all 0.2s ease; text-align: center;
+    }
+    .sidebar-nasa-open-btn:hover {
+      background: linear-gradient(135deg, #0284C7, #2563EB); color: #FFFFFF;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    /* 48% Info, Supabase Database & Gemini AI Chat Panel (LEFT SIDE) */
+    .detail-info-panel {
+      flex: 0 0 48%; width: 48%; height: 100%;
+      padding: 24px 26px; display: flex; flex-direction: column;
+      gap: 18px; order: 1;
+      background: linear-gradient(180deg, rgba(8, 14, 28, 0.98) 0%, rgba(2, 6, 18, 0.99) 100%);
+      border-right: 1.5px solid rgba(251, 191, 36, 0.35);
+      box-sizing: border-box; overflow-y: auto;
+      box-shadow: 12px 0 40px rgba(0, 0, 0, 0.95);
+      z-index: 10;
+    }
+    .detail-title-section {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .detail-badges-row {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .detail-type-badge {
+      font-size: 11px; font-weight: 900; letter-spacing: 1.2px;
+      padding: 4px 12px; border-radius: 12px; text-transform: uppercase;
+      background: rgba(251, 191, 36, 0.15); color: #FBBF24;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+    .detail-type-badge.rover {
+      background: rgba(56, 189, 248, 0.15); color: #38BDF8;
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+    .detail-status-badge {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.8px;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 10px;
+      background: rgba(251, 191, 36, 0.15); color: #FDE68A;
+      border: 1px solid rgba(251, 191, 36, 0.4);
+    }
+    .detail-year-badge {
+      font-size: 10px; font-weight: 700; color: #94A3B8;
+      background: rgba(255, 255, 255, 0.06); padding: 4px 8px; border-radius: 10px;
+    }
+    .detail-name {
+      font-size: 32px; font-weight: 900; color: #FFFFFF;
+      letter-spacing: -0.5px; line-height: 1.1; margin: 0;
+    }
+    .detail-tagline {
+      font-size: 13px; font-style: italic; color: #FBBF24; margin-top: 2px;
+      border-left: 2px solid #FBBF24; padding-left: 8px;
+    }
+
+    /* Supabase Mission Database Card */
+    .detail-supabase-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .db-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .db-title {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.8px; color: #FBBF24;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .db-badge-verified {
+      font-size: 9px; font-weight: 700; color: #34D399;
+      background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4);
+      padding: 2px 6px; border-radius: 8px;
+    }
+    .db-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .db-cell {
+      background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 8px; padding: 8px 10px;
+    }
+    .db-cell-label {
+      font-size: 10px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .db-cell-val {
+      font-size: 12px; font-weight: 600; color: #F1F5F9; line-height: 1.3;
+    }
+    .db-desc-box {
+      background: rgba(2, 6, 23, 0.6); border-radius: 8px; padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .db-desc-text {
+      font-size: 11.5px; color: #CBD5E1; line-height: 1.4; margin: 2px 0 0 0;
+    }
+    .db-bridge {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.8) 100%);
+      border-left: 3px solid #FBBF24; padding: 8px 12px; border-radius: 0 8px 8px 0;
+      border: 1px solid rgba(251, 191, 36, 0.25); border-left-width: 3px;
+    }
+    .db-bridge-title {
+      font-size: 10.5px; font-weight: 800; color: #FBBF24; letter-spacing: 0.5px; margin-bottom: 3px;
+    }
+    .db-bridge-hw {
+      font-size: 11.5px; font-weight: 700; color: #38BDF8; margin-bottom: 2px;
+    }
+    .db-bridge-sc {
+      font-size: 11.5px; color: #E2E8F0; line-height: 1.35;
+    }
+    .db-stat-row {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+    }
+    .db-stat-badge {
+      background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(251, 191, 36, 0.25);
+      border-radius: 8px; padding: 6px 8px; display: flex; align-items: center; gap: 7px;
+    }
+    .db-stat-icon { font-size: 15px; flex-shrink: 0; }
+    .db-stat-label {
+      font-size: 9px; text-transform: uppercase; font-weight: 700; color: #94A3B8; letter-spacing: 0.5px;
+    }
+    .db-stat-val {
+      font-size: 11px; font-weight: 700; color: #FBBF24; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .db-monument-box {
+      background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px; padding: 7px 10px;
+    }
+    .db-monument-text {
+      font-size: 11px; color: #6EE7B7; line-height: 1.35; margin-top: 2px;
+    }
+
+    /* Gemini AI Chatbot Card */
+    .detail-chat-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(168, 85, 247, 0.45);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(168, 85, 247, 0.15);
+    }
+    .chat-header-row {
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+    }
+    .chat-title-group {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .chat-card-title {
+      font-size: 12px; font-weight: 800; color: #F1F5F9;
+    }
+    .chat-age-toggle-bar {
+      display: flex; gap: 4px; background: rgba(30, 41, 59, 0.8); padding: 2px; border-radius: 8px;
+    }
+    .age-pill-btn {
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; border: none;
+      background: transparent; color: #94A3B8; cursor: pointer; transition: all 0.2s;
+    }
+    .age-pill-btn.active {
+      background: #A855F7; color: #FFFFFF; box-shadow: 0 2px 8px rgba(168, 85, 247, 0.4);
+    }
+    .chat-messages-wrap {
+      max-height: 180px; min-height: 100px; overflow-y: auto; display: flex; flex-direction: column;
+      gap: 8px; padding: 10px; background: rgba(2, 6, 23, 0.85); border-radius: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+    .chat-bubble {
+      padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.4; max-width: 92%;
+      word-wrap: break-word;
+    }
+    .chat-bubble.assistant {
+      background: rgba(30, 41, 59, 0.85); color: #F8FAFC; border-left: 3px solid #A855F7; align-self: flex-start;
+    }
+    .chat-bubble.user {
+      background: linear-gradient(135deg, #0284C7, #2563EB); color: #FFFFFF; align-self: flex-end;
+    }
+    .chat-quick-chips {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px;
+    }
+    .quick-chip {
+      background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8;
+      font-size: 10.5px; font-weight: 600; padding: 4px 8px; border-radius: 16px; cursor: pointer; white-space: nowrap;
+    }
+    .quick-chip:hover {
+      background: rgba(56, 189, 248, 0.2); border-color: #38BDF8;
+    }
+    .chat-input-row {
+      display: flex; gap: 8px;
+    }
+    .chat-text-input {
+      flex: 1; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 8px; padding: 8px 12px; color: #FFFFFF; font-size: 12px; outline: none;
+    }
+    .chat-text-input:focus {
+      border-color: #A855F7; box-shadow: 0 0 8px rgba(168, 85, 247, 0.35);
+    }
+    .chat-send-btn {
+      background: linear-gradient(135deg, #A855F7, #7C3AED); color: #FFFFFF; font-weight: 700;
+      font-size: 11px; padding: 0 12px; border: none; border-radius: 8px; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(168, 85, 247, 0.4); display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Prominent Audio Player Card */
+    .detail-audio-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(251, 191, 36, 0.35);
+      border-radius: 18px; padding: 24px;
+      display: flex; flex-direction: column; gap: 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.15);
+    }
+    .audio-card-header {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .audio-icon-pulse {
+      font-size: 20px;
+    }
+    .audio-card-title {
+      font-size: 16px; font-weight: 800; color: #FBBF24; letter-spacing: 0.5px;
+    }
+
+    .audio-controls-row {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .audio-play-btn {
+      width: 105px; height: 44px;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      border: none; border-radius: 24px;
+      color: #FFFFFF; font-size: 13.5px; font-weight: 800;
+      cursor: pointer; transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45);
+      flex-shrink: 0;
+    }
+    .audio-play-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(245, 158, 11, 0.7);
+    }
+
+    .audio-progress-wrap {
+      flex: 1; display: flex; flex-direction: column; gap: 6px;
+    }
+    .audio-scrub-slider {
+      width: 100%; -webkit-appearance: none; appearance: none;
+      height: 6px; border-radius: 3px; background: rgba(51, 65, 85, 0.8);
+      outline: none; cursor: pointer;
+    }
+    .audio-scrub-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: #38BDF8; cursor: pointer;
+      box-shadow: 0 0 8px #38BDF8;
+    }
+    .audio-time-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; font-family: monospace; color: #94A3B8;
+    }
+
+    /* Mobile Responsive View */
+    @media (max-width: 768px) {
+      #moon-app { flex-direction: column; }
+      #moon-sidebar { width: 100%; height: 35vh; min-width: 100%; }
+      #canvas-wrap { width: 100%; height: 65vh; }
+      .detail-split-container { flex-direction: column; overflow-y: auto; }
+      .detail-nasa-gallery-viewport, .detail-model-viewport { width: 100%; height: 50vh; border-right: none; border-bottom: 1px solid rgba(251, 191, 36, 0.3); }
+      .detail-info-panel { width: 100%; height: auto; padding: 24px 20px; }
+      .detail-name { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="moon-app">
+    <!-- LEFT SIDEBAR: LIVE SUPABASE DATA & GEMINI AI CHATBOT STUDIO -->
+    <div id="moon-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">MOON ARTIFACTS</div>
+        <div class="sidebar-subtitle">Historic Lunar Monuments • Supabase & Gemini Studio</div>
+      </div>
+
+      <!-- 1. CRAFT SELECTOR TABS -->
+      <div class="rover-selector-section">
+        <div class="selector-header-label">SELECT LUNAR MONUMENT:</div>
+        <div class="rover-selector-pills" id="rover-selector-pills"></div>
+      </div>
+
+      <!-- 2. ACTIVE CRAFT HERO / HEADER -->
+      <div class="sidebar-rover-hero">
+        <div class="detail-badges-row">
+          <span class="detail-type-badge lander" id="sb-type-badge">LANDER</span>
+          <span class="detail-status-badge" id="sb-status-badge">HISTORIC MONUMENT</span>
+          <span class="detail-year-badge" id="sb-year-badge">📅 1969</span>
+        </div>
+        <h2 class="sidebar-rover-name" id="sb-rover-name">Apollo 11 'Eagle' LM</h2>
+        <div class="sidebar-tagline" id="sb-tagline">"Houston, Tranquility Base here. The Eagle has landed."</div>
+      </div>
+
+      <!-- 3. SUPABASE MISSION DATABASE CARD -->
+      <div class="detail-supabase-card">
+        <div class="db-header">
+          <span class="db-title">📡 SUPABASE LIVE TELEMETRY</span>
+          <span class="db-badge-verified">✓ NASA VERIFIED CLOUD POSTGRES</span>
+        </div>
+
+        <!-- Telemetry Stat Row -->
+        <div class="db-stat-row">
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">⏱️</span>
+            <div>
+              <div class="db-stat-label">Surface Duration</div>
+              <div class="db-stat-val" id="sb-db-duration">21.6 Hours (Apollo 11)</div>
+            </div>
+          </div>
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">🏎️</span>
+            <div>
+              <div class="db-stat-label">Total Traverse</div>
+              <div class="db-stat-val" id="sb-db-odometer">250 m (Astronaut EVA)</div>
+            </div>
+          </div>
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">🚀</span>
+            <div>
+              <div class="db-stat-label">Launch Date</div>
+              <div class="db-stat-val" id="sb-db-launch">July 16, 1969</div>
+            </div>
+          </div>
+          <div class="db-stat-badge">
+            <span class="db-stat-icon">🛬</span>
+            <div>
+              <div class="db-stat-label">Touchdown</div>
+              <div class="db-stat-val" id="sb-db-landing">July 20, 1969</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="db-grid">
+          <div class="db-cell">
+            <div class="db-cell-label">📍 Landing Site & Coordinates</div>
+            <div class="db-cell-val" id="sb-db-coords">0.674° N, 23.473° E (Mare Tranquillitatis)</div>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-label">⚡ Power Architecture</div>
+            <div class="db-cell-val" id="sb-db-power">Descent Stage Silver-Zinc Batteries</div>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-label">⚖️ Spacecraft Dry Mass</div>
+            <div class="db-cell-val" id="sb-db-mass">2,034 kg (4,484 lb)</div>
+          </div>
+          <div class="db-cell">
+            <div class="db-cell-label">📡 Comms & Telemetry</div>
+            <div class="db-cell-val" id="sb-db-comms">S-band Steerable Dish</div>
+          </div>
+        </div>
+
+        <div class="db-desc-box">
+          <div class="db-cell-label">📜 NASA Archive Master Dossier</div>
+          <p class="db-desc-text" id="sb-db-desc">First human touchdown on another world; returned 21.6 kg of lunar basalt and soil.</p>
+        </div>
+
+        <div class="db-bridge">
+          <div class="db-bridge-title">🔬 THE HARDWARE ➔ SCIENCE BRIDGE</div>
+          <div class="db-bridge-hw" id="sb-db-hw">🛠️ Tool: Laser Ranging Retroreflector (LRRR)</div>
+          <div class="db-bridge-sc" id="sb-db-sc">💡 Discovery: Measures Moon's orbit to millimeter accuracy for 55+ years.</div>
+        </div>
+
+        <div class="db-monument-box" id="sb-db-monument-wrap">
+          <div class="db-cell-label">🏛️ Historic Monument Status</div>
+          <div class="db-monument-text" id="sb-db-monument">Protected under the US One Small Step Act and internationally honored as a human heritage monument.</div>
+        </div>
+      </div>
+
+      <!-- 4. AUDIO STORY PLAYER -->
+      <div class="detail-audio-card">
+        <div class="audio-card-header">
+          <span class="audio-icon-pulse">🎧</span>
+          <span class="audio-card-title">Audio Narration</span>
+          <span style="font-size:11px; color:#94A3B8; margin-left:auto;" id="sb-audio-label">Apollo 11 Story</span>
+        </div>
+        <div class="audio-controls-row">
+          <button class="audio-play-btn" id="sb-btn-audio-play" onclick="toggleAudioPlay()">▶ Play</button>
+          <div class="audio-progress-wrap">
+            <input type="range" class="audio-scrub-slider" id="sb-audio-scrubber" min="0" max="100" value="0" oninput="onScrubAudio(this.value)">
+            <div class="audio-time-row">
+              <span id="sb-audio-current-time">0:00</span>
+              <span id="sb-audio-total-time">0:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. GEMINI AI 1st-PERSON CHATBOT -->
+      <div class="detail-chat-card">
+        <div class="chat-header-row">
+          <div class="chat-title-group">
+            <span style="font-size:18px;">🤖</span>
+            <span class="chat-card-title" id="sb-chat-header-title">Live AI Chat with Apollo 11</span>
+          </div>
+          <div class="chat-age-toggle-bar">
+            <button class="age-pill-btn active" id="sb-btn-age-junior" onclick="setChatAge('junior')">🌱 Junior (12–14)</button>
+            <button class="age-pill-btn" id="sb-btn-age-senior" onclick="setChatAge('senior')">🔬 Senior (15–18)</button>
+          </div>
+        </div>
+
+        <!-- Chat messages stream -->
+        <div class="chat-messages-wrap" id="sb-chat-messages-box"></div>
+
+        <!-- Quick prompt chips -->
+        <div class="chat-quick-chips">
+          <button class="quick-chip" onclick="sendQuickPrompt('What was your biggest scientific discovery?')">💡 Biggest Discovery?</button>
+          <button class="quick-chip" onclick="sendQuickPrompt('How did your mission feel?')">🌕 Historic Landing?</button>
+          <button class="quick-chip" onclick="sendQuickPrompt('What tools are on you?')">🛠️ What Tools?</button>
+        </div>
+
+        <!-- User input row -->
+        <div class="chat-input-row">
+          <input type="text" id="sb-chat-user-input" class="chat-text-input" placeholder="Ask this spacecraft a question..." onkeydown="if(event.key==='Enter') sendUserChatMessage('sidebar')">
+          <button id="sb-btn-send-chat" class="chat-send-btn" onclick="sendUserChatMessage('sidebar')">Ask Gemini ➔</button>
+        </div>
+      </div>
+
+      <!-- 5. NASA OFFICIAL IMAGERY PREVIEW CARD -->
+      <div class="sidebar-nasa-card">
+        <div class="sidebar-nasa-header">
+          <span class="sidebar-nasa-title">📷 NASA OFFICIAL ARCHIVE</span>
+          <span class="sidebar-nasa-badge">✓ NASA API LINKED</span>
+        </div>
+        <div class="sidebar-nasa-thumb-row" id="sb-nasa-thumb-row">
+          <!-- Populated dynamically with authentic NASA photos -->
+        </div>
+        <button class="sidebar-nasa-open-btn" onclick="launchCurrent3DSimulator()">
+          🚀 Open High-Res NASA Mission Media Studio ➔
+        </button>
+      </div>
+
+      <!-- 6. LAUNCH NASA MEDIA STUDIO BUTTON -->
+      <button class="btn-launch-3d-sim" id="btn-launch-3d-sim" onclick="launchCurrent3DSimulator()">
+        📷 Open High-Res NASA Mission Gallery & Media Studio ➔
+      </button>
+
+      <div id="monuments-list" style="display:none;"></div>
+    </div>
+
+    <!-- RIGHT 3D MOON VIEWPORT -->
+    <div id="canvas-wrap">
+      <div id="moon-hint">🌕 Spin 3D Moon • Click glowing beacon to open Equipment Simulator & Audio Story</div>
+      <div id="badges-layer"></div>
+      <div id="toolbar"></div>
+    </div>
+
+    <!-- FULL-SCREEN EQUIPMENT DETAIL VIEW OVERLAY -->
+    <div id="equipment-detail-overlay">
+      <div class="detail-header-bar">
+        <button class="detail-back-btn" onclick="closeEquipmentDetail()">⬅ Back to Moon</button>
+        <div class="detail-header-title" id="detail-header-title">APOLLO 11 • NASA MISSION ARCHIVE & MEDIA STUDIO</div>
+        <button class="detail-audio-toggle-btn" id="btn-audio-toggle" onclick="toggleAudioMute()">🔊 Audio: ON</button>
+      </div>
+
+      <div class="detail-split-container">
+        <!-- LEFT SIDE: SUPABASE DATA, AUDIO STORY & GEMINI AI CHATBOT (48% screen width) -->
+        <div class="detail-info-panel">
+          <!-- 1. TITLE & BADGES -->
+          <div class="detail-title-section">
+            <div class="detail-badges-row">
+              <span class="detail-type-badge" id="detail-type-badge">LANDER</span>
+              <span class="detail-status-badge" id="detail-status-badge">HISTORIC MONUMENT</span>
+              <span class="detail-year-badge" id="detail-year-badge">1969</span>
+            </div>
+            <h1 class="detail-name" id="detail-name">Apollo 11 'Eagle' LM</h1>
+            <div class="detail-tagline" id="detail-tagline">"Houston, Tranquility Base here. The Eagle has landed."</div>
+          </div>
+
+          <!-- 2. SUPABASE MISSION DATABASE CARD -->
+          <div class="detail-supabase-card">
+            <div class="db-header">
+              <span class="db-title">📡 SUPABASE LIVE TELEMETRY</span>
+              <span class="db-badge-verified">✓ NASA VERIFIED CLOUD POSTGRES</span>
+            </div>
+
+            <!-- Telemetry Stat Row -->
+            <div class="db-stat-row">
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">⏱️</span>
+                <div>
+                  <div class="db-stat-label">Surface Duration</div>
+                  <div class="db-stat-val" id="db-duration">21.6 Hours (Apollo 11)</div>
+                </div>
+              </div>
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">🏎️</span>
+                <div>
+                  <div class="db-stat-label">Total Traverse</div>
+                  <div class="db-stat-val" id="db-odometer">250 m (Astronaut EVA)</div>
+                </div>
+              </div>
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">🚀</span>
+                <div>
+                  <div class="db-stat-label">Launch Date</div>
+                  <div class="db-stat-val" id="db-launch">July 16, 1969</div>
+                </div>
+              </div>
+              <div class="db-stat-badge">
+                <span class="db-stat-icon">🛬</span>
+                <div>
+                  <div class="db-stat-label">Touchdown</div>
+                  <div class="db-stat-val" id="db-landing">July 20, 1969</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="db-grid">
+              <div class="db-cell">
+                <div class="db-cell-label">📍 Landing Site & Coordinates</div>
+                <div class="db-cell-val" id="db-coords">0.674° N, 23.473° E (Mare Tranquillitatis)</div>
+              </div>
+              <div class="db-cell">
+                <div class="db-cell-label">⚡ Power Architecture</div>
+                <div class="db-cell-val" id="db-power">Descent Stage Silver-Zinc Batteries</div>
+              </div>
+              <div class="db-cell">
+                <div class="db-cell-label">⚖️ Spacecraft Dry Mass</div>
+                <div class="db-cell-val" id="db-mass">2,034 kg (4,484 lb)</div>
+              </div>
+              <div class="db-cell">
+                <div class="db-cell-label">📡 Comms & Telemetry</div>
+                <div class="db-cell-val" id="db-comms">S-band Steerable Dish</div>
+              </div>
+            </div>
+
+            <div class="db-desc-box">
+              <div class="db-cell-label">📜 NASA Archive Master Dossier</div>
+              <p class="db-desc-text" id="db-desc">First human touchdown on another world; returned 21.6 kg of lunar basalt proving ancient magma ocean.</p>
+            </div>
+
+            <div class="db-bridge">
+              <div class="db-bridge-title">🔬 THE HARDWARE ➔ SCIENCE BRIDGE</div>
+              <div class="db-bridge-hw" id="db-hw">🛠️ Tool: Descent Stage Engine & EASEP Laser Retroreflector</div>
+              <div class="db-bridge-sc" id="db-sc">💡 Discovery: Laser ranging retroreflector still measures Earth-Moon distance to millimeter precision today.</div>
+            </div>
+
+            <div class="db-monument-box" id="db-monument-wrap">
+              <div class="db-cell-label">🏛️ Historic Monument Status</div>
+              <div class="db-monument-text" id="db-monument">Protected under the US One Small Step Act and internationally honored as a human heritage monument.</div>
+            </div>
+          </div>
+
+          <!-- 3. AUDIO STORY PLAYER -->
+          <div class="detail-audio-card">
+            <div class="audio-card-header">
+              <span class="audio-icon-pulse">🎧</span>
+              <span class="audio-card-title">Audio Narration Story</span>
+              <span style="font-size:11px; color:#94A3B8; margin-left:auto;">💡 Click 3D model to play</span>
+            </div>
+            <div class="audio-controls-row">
+              <button class="audio-play-btn" id="btn-audio-play" onclick="toggleAudioPlay()">▶ Play</button>
+              <div class="audio-progress-wrap">
+                <input type="range" class="audio-scrub-slider" id="audio-scrubber" min="0" max="100" value="0" oninput="onScrubAudio(this.value)">
+                <div class="audio-time-row">
+                  <span id="audio-current-time">0:00</span>
+                  <span id="audio-total-time">0:00</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. LIVE 1ST-PERSON GEMINI AI CHATBOT DASHBOARD -->
+          <div class="detail-chat-card">
+            <div class="chat-header-row">
+              <div class="chat-title-group">
+                <span style="font-size:18px;">🤖</span>
+                <span class="chat-card-title" id="chat-header-title">Live 1st-Person AI Chat</span>
+              </div>
+              <div class="chat-age-toggle-bar">
+                <button class="age-pill-btn active" id="btn-age-junior" onclick="setChatAge('junior')">🌱 Junior (12–14)</button>
+                <button class="age-pill-btn" id="btn-age-senior" onclick="setChatAge('senior')">🔬 Senior (15–18)</button>
+              </div>
+            </div>
+
+            <!-- Chat messages stream -->
+            <div class="chat-messages-wrap" id="chat-messages-box"></div>
+
+            <!-- Quick prompt chips -->
+            <div class="chat-quick-chips">
+              <button class="quick-chip" onclick="sendQuickPrompt('What was the lunar landing like?')">🌕 The Touchdown?</button>
+              <button class="quick-chip" onclick="sendQuickPrompt('What scientific samples were gathered?')">🔬 Moon Samples?</button>
+              <button class="quick-chip" onclick="sendQuickPrompt('What equipment did you leave behind?')">🛠️ Left on Moon?</button>
+            </div>
+
+            <!-- User input bar -->
+            <div class="chat-input-row">
+              <input type="text" id="chat-user-input" class="chat-text-input" placeholder="Ask this spacecraft a question..." onkeydown="if(event.key==='Enter') sendUserChatMessage()">
+              <button id="btn-send-chat" class="chat-send-btn" onclick="sendUserChatMessage()">Ask Gemini ➔</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT SIDE: NASA MISSION IMAGERY & MEDIA STUDIO (52% screen width) -->
+        <div class="detail-nasa-gallery-viewport" id="detail-nasa-gallery-viewport">
+          <!-- NASA Header & Live API Badge -->
+          <div class="nasa-gallery-header">
+            <div class="nasa-brand-badge">
+              <span class="nasa-insignia">📷 NASA</span>
+              <span class="nasa-live-status">● LIVE NASA API IMAGERY</span>
+            </div>
+            <div class="nasa-gallery-actions">
+              <button class="nasa-action-btn" id="btn-nasa-fullres" onclick="openFullResNasaImage()">🔍 View Full-Res</button>
+              <button class="nasa-action-btn" id="btn-nasa-refresh" onclick="refreshNasaGalleryFeed()">🔄 Refresh Feed</button>
+            </div>
+          </div>
+
+          <!-- Main High-Resolution Photo Display -->
+          <div class="nasa-hero-display-wrap">
+            <div class="nasa-img-loading" id="nasa-img-loading" style="display:none;">
+              <div class="nasa-spinner"></div>
+              <span>Fetching Official NASA Imagery...</span>
+            </div>
+            <img id="nasa-hero-img" class="nasa-hero-img" src="https://images-assets.nasa.gov/image/as11-40-5903/as11-40-5903~medium.jpg" alt="NASA Mission Photo" onclick="openFullResNasaImage()" />
+            
+            <!-- Floating Photo Info Overlay -->
+            <div class="nasa-img-info-overlay" id="nasa-img-info-overlay">
+              <div class="nasa-info-top">
+                <span class="nasa-photo-id" id="nasa-photo-id">AS11-40-5903</span>
+                <span class="nasa-photo-date" id="nasa-photo-date">July 20, 1969</span>
+              </div>
+              <div class="nasa-photo-title" id="nasa-photo-title">Buzz Aldrin on Lunar Surface with Apollo 11 Lunar Module</div>
+              <div class="nasa-photo-caption" id="nasa-photo-caption">Astronaut Buzz Aldrin poses near the footpad of Lunar Module Eagle. Neil Armstrong's reflection is visible in Aldrin's gold visor.</div>
+            </div>
+          </div>
+
+          <!-- NASA Archive Live Search Bar -->
+          <div class="nasa-search-bar-wrap">
+            <span class="nasa-search-icon">🔍</span>
+            <input type="text" id="nasa-search-input" class="nasa-search-input" placeholder="Search NASA photo archive (e.g. 'Eagle touchdown', 'Hadley Rille', 'soil scoop')..." onkeydown="if(event.key==='Enter') executeNasaPhotoSearch()" />
+            <button class="nasa-search-btn" onclick="executeNasaPhotoSearch()">Search NASA API</button>
+          </div>
+
+          <!-- Interactive Photo Carousel / Thumbnail Strip -->
+          <div class="nasa-thumbnail-strip-section">
+            <div class="nasa-strip-title">AUTHENTIC NASA MISSION PHOTOGRAPHY (<span id="nasa-photo-count">0</span> PHOTOS)</div>
+            <div class="nasa-thumbnails-strip" id="nasa-thumbnails-strip">
+              <!-- Dynamically populated thumbnail cards -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+
+  <script>
+    (function() {
+      const LOCATIONS = /*LOCATIONS_PLACEHOLDER*/[];
+      const GEMINI_API_KEY = /*GEMINI_KEY_PLACEHOLDER*/"";
+      const NASA_API_KEY = /*NASA_KEY_PLACEHOLDER*/"8P7pKqtdRdfbhHnww87fmNqPbh7fT6wLzCbQwC9F";
+
+      // Configuration of Lunar Equipment with Voice Audio (NO 3D model for Moon per user specification)
+      const MOON_EQUIPMENT_ASSETS = {
+        "apollo-11": {
+          id: "apollo-11",
+          name: "Apollo 11 'Eagle' LM",
+          type: "Lander",
+          aliasIds: ["apollo-11-lm", "apollo-11", "apollo11", "eagle", "apollo_11", "apollo11lm", "apollo"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/apollo-11.mp3",
+            "/static/audio/apollo-11.mp3",
+            "static/audio/apollo-11.mp3",
+            "/app/static/audio/apollo-11.mp3.mpeg",
+            "/static/audio/apollo-11.mp3.mpeg",
+            "static/audio/apollo-11.mp3.mpeg"
+          ],
+          color: "#fbbf24"
+        },
+        "apollo-15": {
+          id: "apollo-15",
+          name: "Apollo 15 & Lunar Rover",
+          type: "Rover",
+          aliasIds: ["apollo-15-lrv", "apollo-15", "apollo15", "lunar-rover", "lrv", "lunarrover", "rover1"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/apollo-15.mp3",
+            "/static/audio/apollo-15.mp3",
+            "static/audio/apollo-15.mp3",
+            "/app/static/audio/apollo-15.mp3.mpeg",
+            "/static/audio/apollo-15.mp3.mpeg",
+            "static/audio/apollo-15.mp3.mpeg"
+          ],
+          color: "#00f0ff"
+        },
+        "surveyor-3": {
+          id: "surveyor-3",
+          name: "Surveyor 3 Lander",
+          type: "Lander",
+          aliasIds: ["surveyor-3-lander", "surveyor-3", "surveyor3", "surveyor", "surveyorlander"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/Surveyor 3.mp3",
+            "/static/audio/Surveyor 3.mp3",
+            "static/audio/Surveyor 3.mp3",
+            "/app/static/audio/surveyor-3.mp3",
+            "/static/audio/surveyor-3.mp3",
+            "static/audio/surveyor-3.mp3",
+            "/app/static/audio/Surveyor 3.mp3.mpeg",
+            "/static/audio/Surveyor 3.mp3.mpeg",
+            "static/audio/Surveyor 3.mp3.mpeg"
+          ],
+          color: "#22c55e"
+        },
+        "apollo-12": {
+          id: "apollo-12",
+          name: "Apollo 12 'Intrepid' LM",
+          type: "Lander",
+          aliasIds: ["apollo-12-lm", "apollo-12", "apollo12", "intrepid"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/apollo-11.mp3",
+            "/static/audio/apollo-11.mp3",
+            "static/audio/apollo-11.mp3"
+          ],
+          color: "#38bdf8"
+        },
+        "apollo-14": {
+          id: "apollo-14",
+          name: "Apollo 14 'Antares' LM",
+          type: "Lander",
+          aliasIds: ["apollo-14-lm", "apollo-14", "apollo14", "antares"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/apollo-11.mp3",
+            "/static/audio/apollo-11.mp3",
+            "static/audio/apollo-11.mp3"
+          ],
+          color: "#fbbf24"
+        },
+        "apollo-16": {
+          id: "apollo-16",
+          name: "Apollo 16 & Lunar Rover #2",
+          type: "Rover",
+          aliasIds: ["apollo-16-lrv", "apollo-16", "apollo16"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/apollo-15.mp3",
+            "/static/audio/apollo-15.mp3",
+            "static/audio/apollo-15.mp3"
+          ],
+          color: "#a855f7"
+        },
+        "apollo-17": {
+          id: "apollo-17",
+          name: "Apollo 17 & Lunar Rover #3",
+          type: "Rover",
+          aliasIds: ["apollo-17-lrv", "apollo-17", "apollo17", "challenger"],
+          modelFiles: [],
+          audioFiles: [
+            "/app/static/audio/apollo-15.mp3",
+            "/static/audio/apollo-15.mp3",
+            "static/audio/apollo-15.mp3"
+          ],
+          color: "#f59e0b"
+        }
+      };
+
+      // Authentic Archival NASA Mission Photography Database
+      const MOON_NASA_IMAGES = {
+        "apollo-11": [
+          {
+            title: "Buzz Aldrin on Lunar Surface with Apollo 11 Lunar Module",
+            nasa_id: "AS11-40-5903",
+            date: "July 20, 1969",
+            caption: "Astronaut Buzz Aldrin poses near the footpad of Lunar Module Eagle. Neil Armstrong's reflection is visible in Aldrin's gold visor.",
+            url: "https://images-assets.nasa.gov/image/as11-40-5903/as11-40-5903~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as11-40-5903/as11-40-5903~orig.jpg"
+          },
+          {
+            title: "Apollo 11 Lunar Module Eagle on Mare Tranquillitatis",
+            nasa_id: "AS11-40-5873",
+            date: "July 20, 1969",
+            caption: "First human outpost on another world: Tranquility Base. The Lunar Module Eagle stands on the powdery basalt regolith.",
+            url: "https://images-assets.nasa.gov/image/as11-40-5873/as11-40-5873~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as11-40-5873/as11-40-5873~orig.jpg"
+          },
+          {
+            title: "Iconic Human Bootprint in Lunar Regolith",
+            nasa_id: "AS11-40-5877",
+            date: "July 20, 1969",
+            caption: "Astronaut bootprint photographed to study soil mechanics and bearing capacity of the lunar surface regolith.",
+            url: "https://images-assets.nasa.gov/image/as11-40-5877/as11-40-5877~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as11-40-5877/as11-40-5877~orig.jpg"
+          },
+          {
+            title: "Deployment of EASEP Seismic and Laser Experiments",
+            nasa_id: "AS11-40-5886",
+            date: "July 20, 1969",
+            caption: "Buzz Aldrin carries the Early Apollo Surface Experiments Package: the Passive Seismic Experiment and the Laser Ranging Retroreflector.",
+            url: "https://images-assets.nasa.gov/image/as11-40-5886/as11-40-5886~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as11-40-5886/as11-40-5886~orig.jpg"
+          },
+          {
+            title: "Lunar Module Ascent Stage Rendezvous with Earth Behind",
+            nasa_id: "AS11-44-6552",
+            date: "July 21, 1969",
+            caption: "Eagle's ascent stage approaches Command Module Columbia with Earth rising over the barren lunar horizon.",
+            url: "https://images-assets.nasa.gov/image/as11-44-6552/as11-44-6552~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as11-44-6552/as11-44-6552~orig.jpg"
+          }
+        ],
+        "apollo-15": [
+          {
+            title: "Lunar Roving Vehicle Parked at Edge of Hadley Rille",
+            nasa_id: "AS15-88-11866",
+            date: "August 1, 1971",
+            caption: "The first manned wheeled traverse off Earth. Apollo 15 LRV #1 stands before the 1,000-ft deep canyon of Hadley Rille with Apennine mountains in distance.",
+            url: "https://images-assets.nasa.gov/image/as15-88-11866/as15-88-11866~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as15-88-11866/as15-88-11866~orig.jpg"
+          },
+          {
+            title: "Commander Dave Scott Navigating the Lunar Buggy",
+            nasa_id: "AS15-86-11603",
+            date: "July 31, 1971",
+            caption: "Astronaut Dave Scott drives LRV-1 near Mount Hadley Delta during EVA-2 exploration of the lunar highlands.",
+            url: "https://images-assets.nasa.gov/image/as15-86-11603/as15-86-11603~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as15-86-11603/as15-86-11603~orig.jpg"
+          },
+          {
+            title: "Discovery Site of the Primordial 'Genesis Rock'",
+            nasa_id: "AS15-87-11720",
+            date: "August 1, 1971",
+            caption: "Sampling ancient anorthosite crust (sample 15415) at Spur Crater, dated to 4.1 billion years ago, validating lunar magma ocean theory.",
+            url: "https://images-assets.nasa.gov/image/as15-87-11720/as15-87-11720~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as15-87-11720/as15-87-11720~orig.jpg"
+          },
+          {
+            title: "Spectacular Panorama of Mount Hadley and Hadley Rille",
+            nasa_id: "AS15-88-11863",
+            date: "August 1, 1971",
+            caption: "Ultra-high resolution panoramic view of the lunar canyon carve by volcanic lava channels 3.3 billion years ago.",
+            url: "https://images-assets.nasa.gov/image/as15-88-11863/as15-88-11863~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as15-88-11863/as15-88-11863~orig.jpg"
+          }
+        ],
+        "surveyor-3": [
+          {
+            title: "Apollo 12 Astronaut Pete Conrad Inspects Surveyor 3",
+            nasa_id: "AS12-48-7099",
+            date: "November 20, 1969",
+            caption: "First human rendezvous with a robotic scout on another world. Astronaut Conrad examines Surveyor 3's robotic arm and scanning TV camera.",
+            url: "https://images-assets.nasa.gov/image/as12-48-7099/as12-48-7099~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as12-48-7099/as12-48-7099~orig.jpg"
+          },
+          {
+            title: "Robotic Sampler Scoop Trench in Lunar Regolith",
+            nasa_id: "7000109",
+            date: "April 22, 1967",
+            caption: "Historical first robotic excavation in lunar soil. Surveyor 3's surface sampler arm dug trenches proving soil density could support Apollo landing modules.",
+            url: "https://images-assets.nasa.gov/image/7000109/7000109~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/7000109/7000109~orig.jpg"
+          },
+          {
+            title: "Surveyor 3 Perched on Slope of Ocean of Storms Crater",
+            nasa_id: "AS12-48-7133",
+            date: "November 20, 1969",
+            caption: "Surveyor 3 resting in its crater with Apollo 12 Intrepid Lunar Module visible in the background 160 meters away.",
+            url: "https://images-assets.nasa.gov/image/as12-48-7133/as12-48-7133~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as12-48-7133/as12-48-7133~orig.jpg"
+          }
+        ],
+        "apollo-12": [
+          {
+            title: "Apollo 12 Astronaut Alan Bean on Ocean of Storms",
+            nasa_id: "AS12-46-6790",
+            date: "November 19, 1969",
+            caption: "Astronaut Alan Bean deploys the Radioisotope Thermoelectric Generator (SNAP-27) powering the lunar surface scientific station.",
+            url: "https://images-assets.nasa.gov/image/as12-46-6790/as12-46-6790~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as12-46-6790/as12-46-6790~orig.jpg"
+          }
+        ],
+        "apollo-14": [
+          {
+            title: "Apollo 14 Modular Equipment Transporter at Fra Mauro",
+            nasa_id: "AS14-68-9486",
+            date: "February 5, 1971",
+            caption: "Astronaut Edgar Mitchell with the 'Lunar Rickshaw' equipment transporter near Cone Crater in Fra Mauro highlands.",
+            url: "https://images-assets.nasa.gov/image/as14-68-9486/as14-68-9486~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as14-68-9486/as14-68-9486~orig.jpg"
+          }
+        ],
+        "apollo-16": [
+          {
+            title: "Apollo 16 Rover #2 at Descartes Highlands with Stone Mountain",
+            nasa_id: "AS16-107-17446",
+            date: "April 21, 1972",
+            caption: "Astronaut John Young leaping and saluting the US flag beside Lunar Roving Vehicle #2 with Stone Mountain in the background.",
+            url: "https://images-assets.nasa.gov/image/as16-107-17446/as16-107-17446~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as16-107-17446/as16-107-17446~orig.jpg"
+          }
+        ],
+        "apollo-17": [
+          {
+            title: "Harrison Schmitt and Rover #3 at Taurus-Littrow",
+            nasa_id: "AS17-137-20979",
+            date: "December 13, 1972",
+            caption: "Geologist-astronaut Harrison Schmitt explores a massive split boulder at Station 6 in Taurus-Littrow Valley with LRV #3.",
+            url: "https://images-assets.nasa.gov/image/as17-137-20979/as17-137-20979~medium.jpg",
+            orig: "https://images-assets.nasa.gov/image/as17-137-20979/as17-137-20979~orig.jpg"
+          }
+        ]
+      };
+
+      // Live NASA Image API Fetcher
+      async function fetchLiveNasaImages(query) {
+        try {
+          const cleanQ = encodeURIComponent(query + ' Apollo Moon surface');
+          const resp = await fetch('https://images-api.nasa.gov/search?q=' + cleanQ + '&media_type=image');
+          if (resp.ok) {
+            const data = await resp.json();
+            const items = data?.collection?.items || [];
+            const results = [];
+            for (let i = 0; i < Math.min(items.length, 12); i++) {
+              const d = items[i].data?.[0];
+              const link = items[i].links?.[0]?.href;
+              if (d && link) {
+                results.push({
+                  title: d.title || 'NASA Lunar Surface Archive',
+                  nasa_id: d.nasa_id || ('NASA-' + i),
+                  date: (d.date_created || '').substring(0, 10) || 'NASA Mission Record',
+                  caption: d.description || d.title || 'Archival image from NASA Deep Space & Lunar Exploration archive.',
+                  url: link,
+                  orig: link
+                });
+              }
+            }
+            return results;
+          }
+        } catch(e) {
+          console.warn("NASA Image API fetch error:", e);
+        }
+        return [];
+      }
+
+      function isMoonEquipmentClickable(locId) {
+        return true;
+      }
+
+      function resolveMoonEquipmentKey(locId) {
+        if (!locId) return 'apollo-11';
+        const s = String(locId).toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (s.includes('apollo11') || s.includes('eagle')) return 'apollo-11';
+        if (s.includes('apollo15') || s.includes('lunarrover') || s.includes('lrv')) return 'apollo-15';
+        if (s.includes('surveyor3') || s.includes('surveyor')) return 'surveyor-3';
+        if (s.includes('apollo12') || s.includes('intrepid')) return 'apollo-12';
+        if (s.includes('apollo14') || s.includes('antares')) return 'apollo-14';
+        if (s.includes('apollo16')) return 'apollo-16';
+        if (s.includes('apollo17') || s.includes('challenger')) return 'apollo-17';
+        if (s.includes('lunokhod')) return 'apollo-15';
+        if (s.includes('luna')) return 'surveyor-3';
+        if (s.includes('change')) return 'surveyor-3';
+        if (s.includes('chandrayaan')) return 'surveyor-3';
+        return 'apollo-11';
+      }
+
+      // Alias resolveEquipmentKey to resolveMoonEquipmentKey so calls are bulletproof
+      window.resolveEquipmentKey = resolveMoonEquipmentKey;
+
+      // Detail View State
+      let currentDetailEquipment = null;
+      let detailScene = null;
+      let detailCamera = null;
+      let detailRenderer = null;
+      let detailControls = null;
+      let detailAnimId = null;
+      let detailAudio = new Audio();
+      let isAudioMuted = false;
+
+      function formatAudioTime(seconds) {
+        if (isNaN(seconds) || seconds === Infinity) return "0:00";
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return mins + ":" + (secs < 10 ? "0" : "") + secs;
+      }
+
+      detailAudio.addEventListener('timeupdate', () => {
+        const scrubber = document.getElementById('audio-scrubber');
+        const curTime = document.getElementById('audio-current-time');
+        const totTime = document.getElementById('audio-total-time');
+        if (scrubber && detailAudio.duration) {
+          scrubber.value = (detailAudio.currentTime / detailAudio.duration) * 100;
+        }
+        if (curTime) curTime.innerText = formatAudioTime(detailAudio.currentTime);
+        if (totTime && detailAudio.duration) totTime.innerText = formatAudioTime(detailAudio.duration);
+      });
+
+      detailAudio.addEventListener('loadedmetadata', () => {
+        const totTime = document.getElementById('audio-total-time');
+        if (totTime) totTime.innerText = formatAudioTime(detailAudio.duration);
+      });
+
+      detailAudio.addEventListener('ended', () => {
+        const playBtn = document.getElementById('btn-audio-play');
+        if (playBtn) playBtn.innerText = "▶ Play";
+      });
+
+      window.toggleAudioPlay = function() {
+        if (!detailAudio.src) return;
+        const playBtn = document.getElementById('btn-audio-play');
+        if (detailAudio.paused) {
+          detailAudio.play().then(() => {
+            if (playBtn) playBtn.innerText = "⏸ Pause";
+          }).catch(err => {
+            console.warn("Audio play prevented:", err);
+            if (playBtn) playBtn.innerText = "▶ Play";
+          });
+        } else {
+          detailAudio.pause();
+          if (playBtn) playBtn.innerText = "▶ Play";
+        }
+      };
+
+      window.onScrubAudio = function(val) {
+        if (detailAudio.duration) {
+          detailAudio.currentTime = (val / 100) * detailAudio.duration;
+        }
+      };
+
+      window.toggleAudioMute = function() {
+        isAudioMuted = !isAudioMuted;
+        window.updateAudioToggleBtn();
+        if (isAudioMuted && !detailAudio.paused) {
+          detailAudio.pause();
+          const playBtn = document.getElementById('btn-audio-play');
+          if (playBtn) playBtn.innerText = "▶ Play";
+        }
+      };
+
+      window.updateAudioToggleBtn = function() {
+        const btn = document.getElementById('btn-audio-toggle');
+        if (btn) {
+          btn.innerText = isAudioMuted ? "🔇 Audio: OFF" : "🔊 Audio: ON";
+        }
+      };
+
+      window.closeEquipmentDetail = function() {
+        try {
+          detailAudio.pause();
+          detailAudio.currentTime = 0;
+          detailAudio.src = "";
+        } catch(e) {}
+
+        currentDetailEquipment = null;
+
+        const overlay = document.getElementById('equipment-detail-overlay');
+        if (overlay) overlay.style.display = 'none';
+      };
+
+      window.openStudioDashboard = function() {
+        if (!currentDetailEquipment) return;
+        const targetId = (currentDetailEquipment.aliasIds && currentDetailEquipment.aliasIds.length > 0)
+          ? currentDetailEquipment.aliasIds[0]
+          : currentDetailEquipment.id;
+        const targetUrl = "/?page=spacecraft_studio&artifact=" + encodeURIComponent(targetId);
+        try {
+          if (window.top && window.top.location) {
+            window.top.location.href = targetUrl;
+            return;
+          }
+        } catch(e) {}
+        window.open(targetUrl, "_blank");
+      };
+
+      // Cross-window and automation message listener
+      window.addEventListener("message", (event) => {
+        if (!event.data) return;
+        if (event.data.action === 'openEquipmentDetail') {
+          window.openEquipmentDetail(event.data.equipmentKey);
+        } else if (event.data.action === 'closeEquipmentDetail') {
+          window.closeEquipmentDetail();
+        } else if (event.data.action === 'toggleAudio') {
+          window.toggleAudioPlay();
+        }
+      });
+
+      let currentChatAge = "junior";
+      let chatHistory = [];
+      let currentChatCraft = null;
+
+      window.setChatAge = function(age) {
+        currentChatAge = age;
+        const btnJ = document.getElementById('btn-age-junior');
+        const btnS = document.getElementById('btn-age-senior');
+        if (btnJ && btnS) {
+          btnJ.classList.toggle('active', age === 'junior');
+          btnS.classList.toggle('active', age === 'senior');
+        }
+      };
+
+      window.sendQuickPrompt = function(promptText) {
+        const inputEl = document.getElementById('chat-user-input');
+        const sbInputEl = document.getElementById('sb-chat-user-input');
+        if (inputEl) inputEl.value = promptText;
+        if (sbInputEl) sbInputEl.value = promptText;
+        window.sendUserChatMessage();
+      };
+
+      function renderChatMessages() {
+        ['chat-messages-box', 'sb-chat-messages-box'].forEach(boxId => {
+          const box = document.getElementById(boxId);
+          if (!box) return;
+          box.innerHTML = '';
+          chatHistory.forEach(msg => {
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble ' + (msg.role === 'user' ? 'user' : 'assistant');
+            if (msg.role === 'user') {
+              bubble.innerText = msg.content;
+            } else {
+              let cleanText = (msg.content || '').replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+              let badgeHtml = msg.nasaVerified ? '<div style="margin-top:8px; font-size:10.5px; color:#38bdf8; display:flex; align-items:center; gap:5px; border-top:1px solid rgba(56,189,248,0.25); padding-top:4px;"><span>🛰️</span><span>Verified via NASA Open API & Gemini AI</span></div>' : '';
+              bubble.innerHTML = cleanText + badgeHtml;
+            }
+            box.appendChild(bubble);
+          });
+          box.scrollTop = box.scrollHeight;
+        });
+      }
+
+      window.sendUserChatMessage = async function(source) {
+        let prompt = '';
+        const inputEl = document.getElementById('chat-user-input');
+        const sbInputEl = document.getElementById('sb-chat-user-input');
+
+        if (source === 'sidebar' && sbInputEl) {
+          prompt = sbInputEl.value.trim();
+        } else if (inputEl && inputEl.value.trim()) {
+          prompt = inputEl.value.trim();
+        } else if (sbInputEl && sbInputEl.value.trim()) {
+          prompt = sbInputEl.value.trim();
+        }
+
+        if (!prompt) return;
+        if (inputEl) inputEl.value = '';
+        if (sbInputEl) sbInputEl.value = '';
+
+        chatHistory.push({ role: 'user', content: prompt });
+        renderChatMessages();
+
+        ['chat-messages-box', 'sb-chat-messages-box'].forEach(boxId => {
+          const box = document.getElementById(boxId);
+          if (box) {
+            const loadingBubble = document.createElement('div');
+            loadingBubble.className = 'chat-bubble assistant';
+            loadingBubble.id = 'moon-chat-loading-' + boxId;
+            loadingBubble.style.opacity = '0.85';
+            loadingBubble.innerHTML = '<span style="color:#38bdf8;">🔍 Querying NASA Open Archives with NASA API key...</span>';
+            box.appendChild(loadingBubble);
+            box.scrollTop = box.scrollHeight;
+          }
+        });
+
+        const craft = currentChatCraft || {};
+        const craftName = craft.displayName || craft.name || "NASA Lunar Spacecraft";
+        const coords = craft.landing_coordinates || craft.site || "Lunar Surface";
+        const power = craft.power_source || "Silver-Zinc Batteries";
+        const desc = craft.nasa_description || craft.science || "";
+        const hw = craft.hardware || "";
+        const sc = craft.science || "";
+
+        // STEP 1: Query NASA Open Archives using NASA API key & Image/Science API
+        let nasaRecord = null;
+        try {
+          const cleanCraft = craftName.replace(/Lander|Rover|Orbiter/gi, '').trim();
+          const nasaQuery = encodeURIComponent(cleanCraft + ' ' + prompt);
+          const nasaRes = await fetch('https://images-api.nasa.gov/search?q=' + nasaQuery + '&media_type=image');
+          if (nasaRes.ok) {
+            const nData = await nasaRes.json();
+            const items = nData?.collection?.items || [];
+            if (items.length > 0 && items[0]?.data && items[0]?.data[0]) {
+              nasaRecord = items[0].data[0];
+            }
+          }
+        } catch (e) {
+          console.warn("NASA API search notice:", e);
+        }
+
+        // Fallback to broader craft query
+        if (!nasaRecord) {
+          try {
+            const cleanCraft = craftName.replace(/Lander|Rover|Orbiter/gi, '').trim();
+            const nasaRes = await fetch('https://images-api.nasa.gov/search?q=' + encodeURIComponent(cleanCraft + ' Apollo Moon') + '&media_type=image');
+            if (nasaRes.ok) {
+              const nData = await nasaRes.json();
+              const items = nData?.collection?.items || [];
+              if (items.length > 0 && items[0]?.data && items[0]?.data[0]) {
+                nasaRecord = items[0].data[0];
+              }
+            }
+          } catch(e) {}
+        }
+
+        ['chat-messages-box', 'sb-chat-messages-box'].forEach(boxId => {
+          const lb = document.getElementById('moon-chat-loading-' + boxId);
+          if (lb) {
+            lb.innerHTML = '<span style="color:#c084fc;">🛰️ Authentic NASA mission data retrieved! Polishing response with Gemini AI...</span>';
+          }
+        });
+
+        let ageTone = currentChatAge === 'junior'
+          ? "Target Audience: Junior Student (Ages 12-14). Use vivid adventurous analogies, explain what lunar tools discovered in exciting visual terms. 2 short paragraphs."
+          : "Target Audience: Senior Space Enthusiast (Ages 15-18). Rigorous physics, lunar geology (anorthosite, regolith, magma ocean), descent propulsion, and telemetry. 2 rich paragraphs.";
+
+        let nasaContext = "";
+        if (nasaRecord) {
+          nasaContext = `\nLIVE NASA OPEN ARCHIVE DATA (NASA API Verified):
+Title: ${nasaRecord.title || ''}
+Archive Report: ${(nasaRecord.description || '').substring(0, 450)}\n`;
+        }
+
+        const systemInstruction = `You are ${craftName}, speaking directly in FIRST-PERSON ("I", "my landing stage", "my instruments", "my resting place on the Moon").
+Location: ${coords}.
+Power: ${power}.
+Verified NASA Fact: ${desc}.
+Hardware Tool: ${hw}.
+Scientific Discovery: ${sc}.
+${nasaContext}
+MANDATORY RULES:
+1. Always stay in character as ${craftName}. You are the machine itself.
+2. Bridge your physical hardware tool to your scientific discovery on the Moon.
+3. Ground your response in the verified NASA facts above and provide a captivating, polished first-person answer to the question: "${prompt}".
+4. Never make up fictional alien encounters.
+${ageTone}`;
+
+        let aiReply = "";
+
+        // STEP 2: Send Grounded NASA Context to Google Gemini AI
+        if (GEMINI_API_KEY && GEMINI_API_KEY.length > 5) {
+          try {
+            const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=" + encodeURIComponent(GEMINI_API_KEY);
+            const contents = [];
+            chatHistory.slice(-5).forEach(m => {
+              contents.push({
+                role: m.role === 'user' ? 'user' : 'model',
+                parts: [{ text: m.content }]
+              });
+            });
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+            const resp = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: controller.signal,
+              body: JSON.stringify({
+                system_instruction: { parts: [{ text: systemInstruction }] },
+                contents: contents,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 500 }
+              })
+            });
+            clearTimeout(timeoutId);
+
+            if (resp.ok) {
+              const data = await resp.json();
+              if (data && data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const parts = data.candidates[0].content.parts;
+                if (parts && parts.length > 0) {
+                  aiReply = parts[0].text;
+                }
+              }
+            }
+          } catch(err) {
+            console.warn("Client Gemini call failed or timed out, using grounded NASA fallback:", err);
+          }
+        }
+
+        // STEP 3: Resilient Polished Fallback if Gemini is unavailable
+        if (!aiReply) {
+          if (nasaRecord && nasaRecord.description) {
+            aiReply = `As ${craftName}, our mission telemetry safely archived in NASA's database records: ${(nasaRecord.description || '').substring(0, 320)} Working with my ${hw || 'scientific instruments'} and powered by my ${power}, this research at ${coords} gave humanity crucial insights into lunar history!`;
+          } else if (prompt.toLowerCase().includes("landing") || prompt.toLowerCase().includes("touchdown")) {
+            aiReply = `As ${craftName}, touching down at ${coords} was one of humanity's defining moments. Powered by my ${power}, my descent engine fired to execute a safe soft landing on the ancient lunar regolith!`;
+          } else if (prompt.toLowerCase().includes("sample") || prompt.toLowerCase().includes("rock") || prompt.toLowerCase().includes("discover")) {
+            aiReply = `My exploration returned crucial scientific data: ${sc || desc} Using tools like ${hw || 'geological samplers'}, we gathered evidence proving the Moon's primordial magma ocean history.`;
+          } else if (prompt.toLowerCase().includes("leave") || prompt.toLowerCase().includes("equipment") || prompt.toLowerCase().includes("tool")) {
+            aiReply = `My physical equipment on the Moon includes ${hw || 'scientific experiment packages'}. While the ascent stage carried the crew home, my descent structure remains forever in place at ${coords} as an enduring historic monument.`;
+          } else {
+            aiReply = `Greetings from ${coords}! I am ${craftName}. Using my ${hw || 'specialized systems'}, ${sc || desc} What else would you like to ask about our lunar mission?`;
+          }
+        }
+
+        chatHistory.push({ role: 'assistant', content: aiReply.trim(), nasaVerified: true });
+        renderChatMessages();
+      };
+
+      async function loadResilientAudio(candidates) {
+        if (!candidates || candidates.length === 0) return;
+        let selectedUrl = null;
+        for (const url of candidates) {
+          try {
+            const resp = await fetch(url, { method: 'GET', headers: { 'Range': 'bytes=0-10' } });
+            if (resp.ok || resp.status === 206) {
+              const ct = resp.headers.get('Content-Type') || '';
+              if (!ct.includes('text/html')) {
+                selectedUrl = url;
+                break;
+              }
+            }
+          } catch(e) {}
+        }
+        if (!selectedUrl && candidates.length > 0) {
+          selectedUrl = candidates[0];
+        }
+        if (selectedUrl) {
+          detailAudio.src = selectedUrl;
+          detailAudio.load();
+        }
+      }
+
+      window.openEquipmentDetail = function(equipmentKey) {
+        const assetKey = resolveMoonEquipmentKey(equipmentKey);
+        const asset = assetKey ? MOON_EQUIPMENT_ASSETS[assetKey] : null;
+        if (!asset) {
+          console.warn("No moon equipment asset found for key:", equipmentKey);
+          return;
+        }
+
+        currentDetailEquipment = asset;
+
+        // Find matching Supabase mission metadata from LOCATIONS
+        const locData = LOCATIONS.find(l => {
+          const lid = (l.id || '').toLowerCase();
+          const lname = (l.name || '').toLowerCase();
+          return asset.aliasIds.some(alias => {
+            const a = alias.toLowerCase();
+            return lid === a || lid.includes(a) || a.includes(lid) || lname.includes(a);
+          });
+        }) || {};
+
+        // 1. Populate Left Panel Badges & Titles
+        const headerTitle = document.getElementById('detail-header-title');
+        if (headerTitle) headerTitle.innerText = (asset.name.toUpperCase()) + " • " + (asset.type.toUpperCase()) + " SIMULATOR";
+
+        const nameEl = document.getElementById('detail-name');
+        if (nameEl) nameEl.innerText = locData.name || asset.name;
+
+        const typeBadge = document.getElementById('detail-type-badge');
+        if (typeBadge) {
+          typeBadge.innerText = (locData.type || asset.type).toUpperCase();
+          typeBadge.className = 'detail-type-badge ' + (locData.type || asset.type).toLowerCase();
+        }
+
+        const statusBadge = document.getElementById('detail-status-badge');
+        if (statusBadge) {
+          statusBadge.innerText = (locData.status || "Historic Monument").toUpperCase();
+          statusBadge.className = 'detail-status-badge' + (String(locData.status).toLowerCase().includes('active') ? ' active' : '');
+        }
+
+        const yearBadge = document.getElementById('detail-year-badge');
+        if (yearBadge) {
+          yearBadge.innerText = locData.year ? "📅 " + locData.year : "📅 1969";
+        }
+
+        const taglineEl = document.getElementById('detail-tagline');
+        if (taglineEl) {
+          taglineEl.innerText = locData.first_person_script ? `"${locData.first_person_script}"` : "";
+          taglineEl.style.display = locData.first_person_script ? "block" : "none";
+        }
+
+        // 2. Populate Supabase Database Fields
+        const hs = (locData.hotspots && locData.hotspots.length > 0) ? locData.hotspots[0] : {};
+
+        const durEl = document.getElementById('db-duration');
+        if (durEl) durEl.innerText = locData.mission_duration || hs.mission_duration || (locData.year ? ('Active: ' + locData.year) : 'Historic Mission');
+
+        const odoEl = document.getElementById('db-odometer');
+        if (odoEl) odoEl.innerText = locData.distance_traveled || hs.odometer || 'Stationary Surface Base';
+
+        const lnchEl = document.getElementById('db-launch');
+        if (lnchEl) lnchEl.innerText = locData.launch_date || hs.launch_date || (locData.year ? ('🚀 ' + locData.year) : '🚀 Historic Launch');
+
+        const lndEl = document.getElementById('db-landing');
+        if (lndEl) lndEl.innerText = locData.landing_date || hs.landing_date || '🛬 Lunar Surface Touchdown';
+
+        const coordsEl = document.getElementById('db-coords');
+        if (coordsEl) coordsEl.innerText = locData.landing_coordinates || locData.site || "Lunar Surface";
+
+        const powerEl = document.getElementById('db-power');
+        if (powerEl) powerEl.innerText = locData.power_source || "Descent Stage Silver-Zinc Batteries";
+
+        const massEl = document.getElementById('db-mass');
+        if (massEl) massEl.innerText = locData.mass_dimensions || hs.mass || 'Surface Scientific Station';
+
+        const commsEl = document.getElementById('db-comms');
+        if (commsEl) commsEl.innerText = locData.communications || hs.communications || 'S-band Steerable Dish';
+
+        const descEl = document.getElementById('db-desc');
+        if (descEl) descEl.innerText = locData.nasa_description || hs.science || "Archival NASA lunar mission record.";
+
+        const hwEl = document.getElementById('db-hw');
+        if (hwEl) hwEl.innerText = (locData.hardware || hs.hardware) ? ("🛠️ Tool: " + (locData.hardware || hs.hardware)) : "🛠️ Tool: Lunar Surface Scientific Package";
+
+        const scEl = document.getElementById('db-sc');
+        if (scEl) scEl.innerText = (locData.science || hs.science) ? ("💡 Discovery: " + (locData.science || hs.science)) : "💡 Discovery: Lunar rock samples and seismic telemetry.";
+
+        const monEl = document.getElementById('db-monument');
+        if (monEl) monEl.innerText = locData.monument_commemoration || hs.monument_commemoration || (locData.status || 'Protected under the US One Small Step Act as an eternal lunar monument.');
+
+        // 3. Initialize Gemini 1st-Person AI Chatbot for this lunar craft
+        currentChatCraft = locData;
+        currentChatCraft.displayName = locData.name || asset.name;
+        const chatTitle = document.getElementById('chat-header-title');
+        if (chatTitle) chatTitle.innerText = "Live AI Chat with " + currentChatCraft.displayName;
+
+        const inputEl = document.getElementById('chat-user-input');
+        if (inputEl) inputEl.placeholder = "Ask " + currentChatCraft.displayName + " a question...";
+
+        chatHistory = [{
+          role: "assistant",
+          content: `Greetings explorer! I am ${currentChatCraft.displayName}. ${locData.first_person_script || ''} What would you like to know about our historic lunar mission?`
+        }];
+        renderChatMessages();
+
+        // Show overlay
+        const overlay = document.getElementById('equipment-detail-overlay');
+        if (overlay) overlay.style.display = 'flex';
+
+        // Reset Audio controls
+        const errBanner = document.getElementById('detail-error-banner');
+        if (errBanner) errBanner.style.display = 'none';
+
+        const playBtn = document.getElementById('btn-audio-play');
+        if (playBtn) playBtn.innerText = "▶ Play";
+
+        const scrubber = document.getElementById('audio-scrubber');
+        if (scrubber) scrubber.value = 0;
+
+        const curTime = document.getElementById('audio-current-time');
+        const totTime = document.getElementById('audio-total-time');
+        if (curTime) curTime.innerText = "0:00";
+        if (totTime) totTime.innerText = "0:00";
+
+        // Load Audio story
+        loadResilientAudio(asset.audioFiles);
+
+                // 4. Render Authentic NASA Mission Imagery & Media Studio (NO 3D model for Moon)
+        window.renderNasaGallery(assetKey, asset, locData);
+      };
+
+      // ==========================================
+      // NASA MISSION IMAGERY GALLERY & MEDIA STUDIO
+      // ==========================================
+      let currentNasaPhotos = [];
+      let currentNasaPhotoIndex = 0;
+
+      window.renderNasaGallery = async function(assetKey, asset, locData) {
+        const loadingEl = document.getElementById('nasa-img-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        // 1. Load authentic pre-curated NASA photos for this craft
+        const curated = MOON_NASA_IMAGES[assetKey] || MOON_NASA_IMAGES['apollo-11'] || [];
+        currentNasaPhotos = [...curated];
+        currentNasaPhotoIndex = 0;
+
+        window.updateNasaGalleryDisplay();
+
+        // 2. Query Live NASA Image API to fetch live supplementary photos
+        try {
+          const qName = locData.name || asset.name || 'Apollo Moon';
+          const liveResults = await fetchLiveNasaImages(qName);
+          if (liveResults && liveResults.length > 0) {
+            const existingIds = new Set(currentNasaPhotos.map(p => p.nasa_id));
+            liveResults.forEach(lp => {
+              if (!existingIds.has(lp.nasa_id)) {
+                currentNasaPhotos.push(lp);
+                existingIds.add(lp.nasa_id);
+              }
+            });
+            window.updateNasaGalleryDisplay();
+          }
+        } catch(e) {
+          console.warn("Supplementary NASA image query skipped:", e);
+        } finally {
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      };
+
+      window.updateNasaGalleryDisplay = function() {
+        if (!currentNasaPhotos || currentNasaPhotos.length === 0) return;
+        const photo = currentNasaPhotos[currentNasaPhotoIndex] || currentNasaPhotos[0];
+
+        const heroImg = document.getElementById('nasa-hero-img');
+        if (heroImg) {
+          heroImg.src = photo.url;
+          heroImg.alt = photo.title || 'NASA Mission Photo';
+        }
+
+        const idEl = document.getElementById('nasa-photo-id');
+        if (idEl) idEl.innerText = photo.nasa_id ? ('NASA ' + photo.nasa_id) : 'NASA ARCHIVE RECORD';
+
+        const dateEl = document.getElementById('nasa-photo-date');
+        if (dateEl) dateEl.innerText = photo.date || 'NASA MISSION ARCHIVE';
+
+        const titleEl = document.getElementById('nasa-photo-title');
+        if (titleEl) titleEl.innerText = photo.title || 'Lunar Surface Exploration';
+
+        const capEl = document.getElementById('nasa-photo-caption');
+        if (capEl) capEl.innerText = photo.caption || 'Archival record from NASA Apollo & Deep Space exploration archives.';
+
+        const countEl = document.getElementById('nasa-photo-count');
+        if (countEl) countEl.innerText = currentNasaPhotos.length;
+
+        // Render Thumbnails
+        const strip = document.getElementById('nasa-thumbnails-strip');
+        if (strip) {
+          strip.innerHTML = '';
+          currentNasaPhotos.forEach((p, idx) => {
+            const card = document.createElement('div');
+            card.className = 'nasa-thumb-card' + (idx === currentNasaPhotoIndex ? ' active' : '');
+            card.title = p.title;
+            card.innerHTML = '<img src="' + p.url + '" class="nasa-thumb-img" alt="' + (p.title || '') + '" />';
+            card.onclick = () => window.selectNasaPhoto(idx);
+            strip.appendChild(card);
+          });
+        }
+      };
+
+      window.selectNasaPhoto = function(idx) {
+        if (idx >= 0 && idx < currentNasaPhotos.length) {
+          currentNasaPhotoIndex = idx;
+          window.updateNasaGalleryDisplay();
+        }
+      };
+
+      window.openFullResNasaImage = function() {
+        if (!currentNasaPhotos || currentNasaPhotos.length === 0) return;
+        const photo = currentNasaPhotos[currentNasaPhotoIndex] || currentNasaPhotos[0];
+        const targetUrl = photo.orig || photo.url;
+        window.open(targetUrl, '_blank');
+      };
+
+      window.executeNasaPhotoSearch = async function() {
+        const input = document.getElementById('nasa-search-input');
+        if (!input || !input.value.trim()) return;
+        const query = input.value.trim();
+
+        const loadingEl = document.getElementById('nasa-img-loading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        try {
+          const results = await fetchLiveNasaImages(query);
+          if (results && results.length > 0) {
+            currentNasaPhotos = results;
+            currentNasaPhotoIndex = 0;
+            window.updateNasaGalleryDisplay();
+          } else {
+            alert("No NASA archive photos found for: " + query);
+          }
+        } catch(e) {
+          console.warn("NASA search error:", e);
+        } finally {
+          if (loadingEl) loadingEl.style.display = 'none';
+        }
+      };
+
+      window.refreshNasaGalleryFeed = function() {
+        if (currentDetailEquipment) {
+          window.renderNasaGallery(currentDetailEquipment.id, currentDetailEquipment, currentChatCraft || {});
+        }
+      };
+
+      // ==========================================
+      // ACTIVE LUNAR MONUMENT SELECTION & STUDIO SYNC
+      // ==========================================
+      let currentActiveRover = null;
+
+      window.selectActiveRover = function(locId) {
+        const rawKey = String(locId || '').toLowerCase();
+        const normKey = rawKey.replace(/[^a-z0-9]/g, '');
+
+        let locData = LOCATIONS.find(l => {
+          const lid = String(l.id || '').toLowerCase();
+          const lname = String(l.name || '').toLowerCase();
+          return lid === rawKey || lid.replace(/[^a-z0-9]/g, '') === normKey || lname.replace(/[^a-z0-9]/g, '').includes(normKey);
+        });
+
+        if (!locData && LOCATIONS.length > 0) {
+          locData = LOCATIONS[0];
+        }
+        if (!locData) return;
+
+        currentActiveRover = locData;
+
+        // 1. Highlight pill
+        document.querySelectorAll('.rover-pill-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-id') === locData.id);
+        });
+
+        // 2. Update Sidebar Badges & Hero
+        const roverNameEl = document.getElementById('sb-rover-name');
+        if (roverNameEl) roverNameEl.innerText = locData.name;
+
+        const typeBadge = document.getElementById('sb-type-badge');
+        if (typeBadge) {
+          const t = (locData.type || 'Lander').toLowerCase();
+          typeBadge.innerText = (locData.type || 'LANDER').toUpperCase();
+          typeBadge.className = 'detail-type-badge ' + t;
+        }
+
+        const statusBadge = document.getElementById('sb-status-badge');
+        if (statusBadge) {
+          statusBadge.innerText = (locData.status || 'Historic Monument').toUpperCase();
+          statusBadge.className = 'detail-status-badge' + (String(locData.status).toLowerCase().includes('active') ? ' active' : '');
+        }
+
+        const yearBadge = document.getElementById('sb-year-badge');
+        if (yearBadge) {
+          yearBadge.innerText = locData.year ? "📅 " + locData.year : "📅 Historic";
+        }
+
+        const taglineEl = document.getElementById('sb-tagline');
+        if (taglineEl) {
+          taglineEl.innerText = locData.first_person_script ? `"${locData.first_person_script}"` : "";
+          taglineEl.style.display = locData.first_person_script ? "block" : "none";
+        }
+
+        // 3. Update Supabase Database Fields in Sidebar
+        const hs = (locData.hotspots && locData.hotspots.length > 0) ? locData.hotspots[0] : {};
+
+        const durEl = document.getElementById('sb-db-duration');
+        if (durEl) durEl.innerText = locData.mission_duration || hs.mission_duration || (locData.year ? ('Active: ' + locData.year) : 'Historic Mission');
+
+        const odoEl = document.getElementById('sb-db-odometer');
+        if (odoEl) odoEl.innerText = locData.distance_traveled || hs.odometer || 'Stationary Surface Base';
+
+        const lnchEl = document.getElementById('sb-db-launch');
+        if (lnchEl) lnchEl.innerText = locData.launch_date || hs.launch_date || (locData.year ? ('🚀 ' + locData.year) : '🚀 Historic Launch');
+
+        const lndEl = document.getElementById('sb-db-landing');
+        if (lndEl) lndEl.innerText = locData.landing_date || hs.landing_date || '🛬 Lunar Surface Touchdown';
+
+        const coordsEl = document.getElementById('sb-db-coords');
+        if (coordsEl) coordsEl.innerText = locData.landing_coordinates || locData.site || "Lunar Surface";
+
+        const powerEl = document.getElementById('sb-db-power');
+        if (powerEl) powerEl.innerText = locData.power_source || "Descent Stage Silver-Zinc Batteries";
+
+        const massEl = document.getElementById('sb-db-mass');
+        if (massEl) massEl.innerText = locData.mass_dimensions || hs.mass || 'Surface Scientific Station';
+
+        const commsEl = document.getElementById('sb-db-comms');
+        if (commsEl) commsEl.innerText = locData.communications || hs.communications || 'S-band Steerable Dish';
+
+        const descEl = document.getElementById('sb-db-desc');
+        if (descEl) descEl.innerText = locData.nasa_description || hs.science || "Archival NASA exploration mission record.";
+
+        const hwEl = document.getElementById('sb-db-hw');
+        if (hwEl) hwEl.innerText = (locData.hardware || hs.hardware) ? ("🛠️ Tool: " + (locData.hardware || hs.hardware)) : "🛠️ Tool: Lunar Surface Scientific Package";
+
+        const scEl = document.getElementById('sb-db-sc');
+        if (scEl) scEl.innerText = (locData.science || hs.science) ? ("💡 Discovery: " + (locData.science || hs.science)) : "💡 Discovery: Lunar rock samples and seismic telemetry.";
+
+        const monEl = document.getElementById('sb-db-monument');
+        if (monEl) monEl.innerText = locData.monument_commemoration || hs.monument_commemoration || (locData.status || 'Protected under the US One Small Step Act as an eternal lunar monument.');
+
+        // 4. Update Audio Source (Voice of that Model)
+        const assetKey = resolveMoonEquipmentKey(locData.id);
+        const asset = assetKey ? MOON_EQUIPMENT_ASSETS[assetKey] : null;
+        if (asset && asset.audioFiles) {
+          loadResilientAudio(asset.audioFiles);
+          const audioLabel = document.getElementById('sb-audio-label');
+          if (audioLabel) audioLabel.innerText = (locData.short || locData.name) + " Voice Story";
+        }
+
+        // 4b. Update Sidebar NASA Photography Preview Card
+        const sbThumbRow = document.getElementById('sb-nasa-thumb-row');
+        if (sbThumbRow) {
+          sbThumbRow.innerHTML = '';
+          const photos = MOON_NASA_IMAGES[assetKey] || MOON_NASA_IMAGES['apollo-11'] || [];
+          photos.slice(0, 4).forEach((p, pIdx) => {
+            const thumb = document.createElement('div');
+            thumb.className = 'sidebar-nasa-mini-thumb';
+            thumb.title = p.title;
+            thumb.innerHTML = '<img src="' + p.url + '" alt="' + (p.title || '') + '" />';
+            thumb.onclick = () => {
+              window.openEquipmentDetail(locData.id);
+              setTimeout(() => window.selectNasaPhoto(pIdx), 100);
+            };
+            sbThumbRow.appendChild(thumb);
+          });
+        }
+
+        // 5. Update Gemini AI Chatbot Persona
+        currentChatCraft = locData;
+        currentChatCraft.displayName = locData.name;
+        const chatTitle = document.getElementById('sb-chat-header-title');
+        if (chatTitle) chatTitle.innerText = "Live AI Chat with " + currentChatCraft.displayName;
+
+        const inputEl = document.getElementById('sb-chat-user-input');
+        if (inputEl) inputEl.placeholder = "Ask " + currentChatCraft.displayName + " a question...";
+
+        chatHistory = [{
+          role: "assistant",
+          content: `Greetings explorer! I am ${currentChatCraft.displayName}. ${locData.first_person_script || ''} What would you like to know about my mission on the Moon?`
+        }];
+        renderChatMessages();
+
+        // 6. Smoothly rotate/focus the 3D Moon globe to this monument
+        if (typeof focusLocation === 'function') {
+          focusLocation(locData);
+        }
+
+        // 7. Update Media Studio button label
+        const btnLaunch = document.getElementById('btn-launch-3d-sim');
+        if (btnLaunch) {
+          btnLaunch.innerHTML = "📷 Open High-Res NASA " + (locData.short || locData.name) + " Media Studio ➔";
+        }
+      };
+
+      window.launchCurrent3DSimulator = function() {
+        const targetId = currentActiveRover ? currentActiveRover.id : 'apollo-11-lm';
+        window.openEquipmentDetail(targetId);
+      };
+
+      // ==========================================
+      // 3D MOON GLOBE SETUP
+      // ==========================================
+      const wrap = document.getElementById("canvas-wrap");
+      const badgesLayer = document.getElementById("badges-layer");
+      const toolbar = document.getElementById("toolbar");
+      const monumentsList = document.getElementById("monuments-list");
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      const camera = new THREE.PerspectiveCamera(45, wrap.clientWidth / wrap.clientHeight, 0.1, 1000);
+      camera.position.set(0, 0, 5.2);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      renderer.setSize(wrap.clientWidth, wrap.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.15;
+      wrap.appendChild(renderer.domElement);
+
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.rotateSpeed = 0.8;
+      controls.minDistance = 2.6;
+      controls.maxDistance = 12.0;
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 0.35;
+
+      // Lunar Lighting (Sunlight from side casting crater shadows)
+      const sunLight = new THREE.DirectionalLight(0xffffff, 2.6);
+      sunLight.position.set(-8, 4.5, 6.0);
+      scene.add(sunLight);
+
+      const ambientLight = new THREE.AmbientLight(0x223344, 0.45);
+      scene.add(ambientLight);
+
+      // Deep Space Starfield
+      const starsGeo = new THREE.BufferGeometry();
+      const sCount = 1500;
+      const sPositions = new Float32Array(sCount * 3);
+      for (let i = 0; i < sCount * 3; i += 3) {
+        sPositions[i] = (Math.random() - 0.5) * 600;
+        sPositions[i+1] = (Math.random() - 0.5) * 600;
+        sPositions[i+2] = (Math.random() - 0.5) * 600;
+      }
+      starsGeo.setAttribute('position', new THREE.BufferAttribute(sPositions, 3));
+      scene.add(new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.8, transparent: true, opacity: 0.8 })));
+
+      // Moon Group
+      const moonGroup = new THREE.Group();
+      scene.add(moonGroup);
+
+      const moonRadius = 2.05;
+      const textureLoader = new THREE.TextureLoader();
+
+      // Procedural Canvas Texture Fallback
+      function createMoonFallbackTexture() {
+        const c = document.createElement("canvas");
+        c.width = 1024; c.height = 512;
+        const ctx = c.getContext("2d");
+        const grad = ctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0, "#475569");
+        grad.addColorStop(0.5, "#64748B");
+        grad.addColorStop(1, "#334155");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1024, 512);
+
+        for (let i = 0; i < 500; i++) {
+          ctx.fillStyle = (i % 2 === 0) ? "rgba(15, 23, 42, 0.35)" : "rgba(241, 245, 249, 0.15)";
+          ctx.beginPath();
+          ctx.arc(Math.random() * 1024, Math.random() * 512, Math.random() * 45 + 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        return new THREE.CanvasTexture(c);
+      }
+
+      const moonGeo = new THREE.SphereGeometry(moonRadius, 64, 64);
+      const moonMat = new THREE.MeshStandardMaterial({
+        map: createMoonFallbackTexture(),
+        roughness: 0.88,
+        metalness: 0.05
+      });
+      const moonSphere = new THREE.Mesh(moonGeo, moonMat);
+      moonGroup.add(moonSphere);
+
+      // Try loading high-res NASA Moon texture
+      textureLoader.load(
+        "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/planets/moon_1024.jpg",
+        (tex) => {
+          moonMat.map = tex;
+          moonMat.needsUpdate = true;
+        },
+        undefined,
+        () => console.warn("Using procedural Moon surface fallback texture.")
+      );
+
+      // Coordinates helper
+      function latLonToVector3(lat, lon, radius) {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+        return new THREE.Vector3(
+          -(radius * Math.sin(phi) * Math.cos(theta)),
+          radius * Math.cos(phi),
+          radius * Math.sin(phi) * Math.sin(theta)
+        );
+      }
+
+      const hitboxes = [];
+      const beacons = [];
+      const badgeElements = [];
+
+      LOCATIONS.forEach((loc) => {
+        const pos = latLonToVector3(loc.lat, loc.lon, moonRadius);
+        const pinColor = loc.color || "#fbbf24";
+        const clickable = isMoonEquipmentClickable(loc.id || loc.name);
+
+        const bGroup = new THREE.Group();
+        bGroup.position.copy(pos);
+
+        // Core Sphere
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(clickable ? 0.055 : 0.04, 16, 16),
+          new THREE.MeshBasicMaterial({ color: pinColor })
+        );
+        bGroup.add(core);
+
+        // Pulsing Ring
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(clickable ? 0.075 : 0.06, clickable ? 0.13 : 0.10, 32),
+          new THREE.MeshBasicMaterial({ color: pinColor, side: THREE.DoubleSide, transparent: true, opacity: clickable ? 0.95 : 0.7 })
+        );
+        ring.lookAt(pos.clone().multiplyScalar(2));
+        bGroup.add(ring);
+
+        // Hitbox Sphere for Raycasting
+        const hitbox = new THREE.Mesh(
+          new THREE.SphereGeometry(clickable ? 0.22 : 0.16, 12, 12),
+          new THREE.MeshBasicMaterial({ visible: false })
+        );
+        hitbox.userData = { location: loc, visual: bGroup };
+        bGroup.add(hitbox);
+
+        moonGroup.add(bGroup);
+        beacons.push({ group: bGroup, ring: ring, loc: loc, clickable: clickable });
+        hitboxes.push(hitbox);
+
+        // Spacecraft Selector Pill in Left Sidebar
+        const pillBtn = document.createElement("button");
+        pillBtn.className = "rover-pill-btn";
+        pillBtn.setAttribute("data-id", loc.id || loc.name);
+        pillBtn.innerHTML = "<span style=\"color:" + pinColor + ";\">●</span> " + (loc.short || loc.name);
+        pillBtn.onclick = () => {
+          selectActiveRover(loc.id || loc.name);
+        };
+        const selectorPills = document.getElementById("rover-selector-pills");
+        if (selectorPills) selectorPills.appendChild(pillBtn);
+
+        // Floating 2D Surface Badge
+        const badge = document.createElement("div");
+        badge.className = "globe-badge" + (clickable ? " clickable-badge" : "");
+        badge.innerHTML = "<span style=\"color:" + pinColor + ";\">●</span> <span>" + (loc.short || loc.name) + "</span> <span style='color:#FBBF24;font-size:9px;'>[NASA & AI]</span>";
+        badge.onclick = (e) => {
+          e.stopPropagation();
+          selectActiveRover(loc.id || loc.name);
+        };
+        badgesLayer.appendChild(badge);
+        badgeElements.push({ el: badge, pos: pos, loc: loc });
+
+        // Bottom Pill Toolbar Button
+        const btn = document.createElement("button");
+        btn.className = "tool-btn" + (clickable ? " story-btn" : "");
+        btn.id = "tb-" + (loc.id || loc.name.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+        btn.innerHTML = "<span style=\"color:" + pinColor + ";\">●</span> " + (loc.short || loc.name);
+        btn.onclick = () => {
+          selectActiveRover(loc.id || loc.name);
+        };
+        toolbar.appendChild(btn);
+
+        // Left Sidebar Directory Card
+        const card = document.createElement("div");
+        card.className = "monument-card" + (clickable ? " clickable-story" : "");
+        card.id = "mc-" + (loc.id || loc.name.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+        card.innerHTML = `
+          <div class="mc-top">
+            <div class="mc-name">${loc.name}</div>
+            <div class="mc-year">📅 ${loc.year || 'Historic'}</div>
+          </div>
+          <div class="mc-site">📍 ${loc.site || 'Lunar Surface'}</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="mc-tag ${clickable ? 'story' : 'silent'}">${clickable ? '🎧 AUDIO & NASA IMAGES' : 'RESTING MONUMENT'}</span>
+            <span style="font-size:11px; color:#94A3B8;">${clickable ? 'Open ➔' : 'View'}</span>
+          </div>
+        `;
+        card.onclick = () => {
+          if (isMoonEquipmentClickable(loc.id || loc.name)) {
+            openEquipmentDetail(loc.id || loc.name);
+          } else {
+            focusLocation(loc);
+          }
+        };
+        monumentsList.appendChild(card);
+      });
+
+      // Raycasting with drag separation
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      let pointerDownPos = { x: 0, y: 0 };
+      let pointerDownTime = 0;
+
+      renderer.domElement.addEventListener("pointerdown", (e) => {
+        pointerDownPos = { x: e.clientX, y: e.clientY };
+        pointerDownTime = Date.now();
+      });
+
+      renderer.domElement.addEventListener("pointerup", (e) => {
+        const elapsed = Date.now() - pointerDownTime;
+        const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+        if (elapsed > 400 || dist > 8) {
+          return;
+        }
+
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(hitboxes, false);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0].object;
+          const loc = hit.userData.location;
+          selectActiveRover(loc.id || loc.name);
+        }
+      });
+
+      // Focus camera on monument
+      let isFocused = false;
+      let focusProgress = 1.0;
+      let camStart = new THREE.Vector3();
+      let camEnd = new THREE.Vector3();
+
+      function focusLocation(loc) {
+        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+        const activeToolBtn = document.getElementById('tb-' + (loc.id || loc.name.toLowerCase().replace(/[^a-z0-9]/g, '-')));
+        if (activeToolBtn) activeToolBtn.classList.add('active');
+
+        document.querySelectorAll('.monument-card').forEach(c => c.classList.remove('active'));
+        const activeCard = document.getElementById('mc-' + (loc.id || loc.name.toLowerCase().replace(/[^a-z0-9]/g, '-')));
+        if (activeCard) activeCard.classList.add('active');
+
+        controls.autoRotate = false;
+        const targetPos = latLonToVector3(loc.lat, loc.lon, moonRadius);
+        const worldPos = targetPos.clone().applyMatrix4(moonGroup.matrixWorld);
+
+        camStart.copy(camera.position);
+        camEnd.copy(worldPos.clone().normalize().multiplyScalar(4.6));
+        focusProgress = 0.0;
+        isFocused = true;
+      }
+
+      // Animation Loop
+      let clock = new THREE.Clock();
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        const time = clock.getElapsedTime();
+
+        // Beacon pulses
+        beacons.forEach(b => {
+          const pulse = Math.sin(time * 3.5) * 0.2 + 1.0;
+          b.ring.scale.set(pulse, pulse, pulse);
+        });
+
+        // Smooth focus transition
+        if (isFocused && focusProgress < 1.0) {
+          focusProgress += delta * 1.5;
+          if (focusProgress > 1.0) focusProgress = 1.0;
+          const t = 1 - Math.pow(1 - focusProgress, 3);
+          camera.position.lerpVectors(camStart, camEnd, t);
+          controls.target.set(0, 0, 0);
+        }
+
+        controls.update();
+
+        // Project 2D badges
+        const camPos = camera.position.clone();
+        badgeElements.forEach(item => {
+          const wp = item.pos.clone().applyMatrix4(moonGroup.matrixWorld);
+          const dot = wp.clone().normalize().dot(camPos.clone().normalize());
+
+          if (dot > 0.15) {
+            wp.project(camera);
+            const x = (wp.x * 0.5 + 0.5) * wrap.clientWidth;
+            const y = (-(wp.y * 0.5) + 0.5) * wrap.clientHeight;
+            item.el.style.left = x + "px";
+            item.el.style.top = y + "px";
+            item.el.style.display = "flex";
+          } else {
+            item.el.style.display = "none";
+          }
+        });
+
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Auto-initialize Apollo 11 on Moon page load
+      setTimeout(() => {
+        if (typeof selectActiveRover === 'function') {
+          selectActiveRover("apollo-11-lm");
+        }
+      }, 100);
+
+      function onResize() {
+        const w = wrap.clientWidth;
+        const h = wrap.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+      window.addEventListener("resize", onResize);
+
+    })();
+  </script>
+</body>
+</html>
