@@ -1796,14 +1796,19 @@ def render_enhanced_cinematic_solar_system(locations=None):
                 <div id="warp-dest-sub">STAND BY FOR TOUCHDOWN TELEMETRY</div>
             </div>
             <video id="warp-video-mars" class="descent-video" playsinline preload="auto">
+                <source src="https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/videos/space%20to%20mars.mp4" type="video/mp4">
                 <source src="/app/static/videos/space%20to%20mars.mp4" type="video/mp4">
+                <source src="/static/videos/space%20to%20mars.mp4" type="video/mp4">
             </video>
             <video id="warp-video-moon" class="descent-video" playsinline preload="auto">
+                <source src="https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/videos/space%20to%20moon.mp4" type="video/mp4">
                 <source src="/app/static/videos/space%20to%20moon.mp4" type="video/mp4">
+                <source src="/static/videos/space%20to%20moon.mp4" type="video/mp4">
             </video>
-            <video id="warp-video-deep" class="descent-video" playsinline preload="auto" src="/app/static/videos/deep_space.mp4">
+            <video id="warp-video-deep" class="descent-video" playsinline preload="auto" src="https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/videos/deep_space.mp4">
+                <source src="https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/videos/deep_space.mp4" type="video/mp4">
                 <source src="/app/static/videos/deep_space.mp4" type="video/mp4">
-                <source src="/app/static/videos/deep%20space.mp4" type="video/mp4">
+                <source src="/static/videos/deep_space.mp4" type="video/mp4">
             </video>
             <button id="skip-btn">Skip Transition ⏩</button>
 
@@ -2143,25 +2148,41 @@ def render_enhanced_cinematic_solar_system(locations=None):
                 return new THREE.CanvasTexture(c);
             }
 
-            // Texture Loader
+            // Resilient Texture Loader (Local + GitHub Raw CDN Fallback)
             const texLoader = new THREE.TextureLoader();
-            const texPath = "/app/static/textures/";
+            const CDN_TEX_ROOT = "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/textures/";
+            
+            function loadResilientTex(filename) {
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const primaryUrl = isLocal ? ("/app/static/textures/" + filename) : (CDN_TEX_ROOT + filename);
+                const fallbackUrl = isLocal ? (CDN_TEX_ROOT + filename) : ("/app/static/textures/" + filename);
+                
+                const tex = texLoader.load(primaryUrl, undefined, undefined, function() {
+                    console.warn("Retrying texture via fallback:", filename);
+                    texLoader.load(fallbackUrl, function(fb) {
+                        tex.image = fb.image;
+                        tex.needsUpdate = true;
+                    });
+                });
+                tex.crossOrigin = "anonymous";
+                return tex;
+            }
 
             const textures = {
-                milkyWay: texLoader.load(texPath + "milky_way_2k.jpg"),
-                stars: texLoader.load(texPath + "stars.jpg"),
-                sun: texLoader.load(texPath + "sun.jpg"),
-                mercury: texLoader.load(texPath + "mercury.jpg"),
-                venus: texLoader.load(texPath + "venus.jpg"),
-                earth: texLoader.load(texPath + "earth.jpg"),
-                earthClouds: texLoader.load(texPath + "earth_clouds.png"),
-                moon: texLoader.load(texPath + "moon.jpg"),
-                mars: texLoader.load(texPath + "mars.jpg"),
-                jupiter: texLoader.load(texPath + "jupiter.jpg"),
-                saturn: texLoader.load(texPath + "saturn.jpg"),
-                saturnRing: texLoader.load(texPath + "saturn_ring.png"),
-                uranus: texLoader.load(texPath + "uranus.jpg"),
-                neptune: texLoader.load(texPath + "neptune.jpg")
+                milkyWay: loadResilientTex("milky_way_2k.jpg"),
+                stars: loadResilientTex("stars.jpg"),
+                sun: loadResilientTex("sun.jpg"),
+                mercury: loadResilientTex("mercury.jpg"),
+                venus: loadResilientTex("venus.jpg"),
+                earth: loadResilientTex("earth.jpg"),
+                earthClouds: loadResilientTex("earth_clouds.png"),
+                moon: loadResilientTex("moon.jpg"),
+                mars: loadResilientTex("mars.jpg"),
+                jupiter: loadResilientTex("jupiter.jpg"),
+                saturn: loadResilientTex("saturn.jpg"),
+                saturnRing: loadResilientTex("saturn_ring.png"),
+                uranus: loadResilientTex("uranus.jpg"),
+                neptune: loadResilientTex("neptune.jpg")
             };
 
                         const PLANET_NAMES = ["Sun", "Mercury", "Venus", "Earth", "Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
@@ -2566,15 +2587,18 @@ def render_enhanced_cinematic_solar_system(locations=None):
             // ==========================================
             // LIGHTING & THE BLAZING FIERY SUN (WITH GOD RAYS)
             // ==========================================
-            const ambient = new THREE.AmbientLight(0x182438, 0.85);
+            const ambient = new THREE.AmbientLight(0xa0b8d0, 1.4);
             solarSystemGroup.add(ambient);
 
-            const sunLight = new THREE.PointLight(0xFFF2D6, 4.0, 500, 0.45);
+            const hemiLight = new THREE.HemisphereLight(0xfff8ee, 0x1e293b, 1.1);
+            solarSystemGroup.add(hemiLight);
+
+            const sunLight = new THREE.PointLight(0xFFF2D6, 4.5, 800, 0.3);
             solarSystemGroup.add(sunLight);
 
             // Sun Sphere (Enlarged for clear near entrance)
             const sunGeo = new THREE.SphereGeometry(7.2, 48, 48);
-            const sunMat = new THREE.MeshBasicMaterial({ map: textures.sun });
+            const sunMat = new THREE.MeshBasicMaterial({ map: textures.sun, color: 0xffdd44 });
             const sunMesh = new THREE.Mesh(sunGeo, sunMat);
             sunMesh.userData = { name: "Sun", size: 7.2 };
             solarSystemGroup.add(sunMesh);
@@ -2600,16 +2624,16 @@ def render_enhanced_cinematic_solar_system(locations=None):
             // Slower orbital speeds by ~85% for serene, majestic planetarium pacing
             let speedMultiplier = 0.25; // Default: Cinematic Slow
 
-            // Planet Configuration: Scaled UP (~40%) so every world is clearly visible from entrance
+            // Planet Configuration: Scaled UP (~40%) with vibrant natural base colors
             const PLANET_CONFIG = [
-                { name: "Mercury", size: 1.25, dist: 13.0, speed: 0.00095, tex: textures.mercury },
-                { name: "Venus", size: 1.95, dist: 18.5, speed: 0.00070, tex: textures.venus },
-                { name: "Earth", size: 2.15, dist: 25.5, speed: 0.00048, tex: textures.earth, hasClouds: true },
-                { name: "Mars", size: 1.65, dist: 33.5, speed: 0.00038, tex: textures.mars },
-                { name: "Jupiter", size: 4.80, dist: 48.0, speed: 0.00019, tex: textures.jupiter },
-                { name: "Saturn", size: 3.80, dist: 62.0, speed: 0.00014, tex: textures.saturn, hasRings: true },
-                { name: "Uranus", size: 2.70, dist: 75.0, speed: 0.00010, tex: textures.uranus },
-                { name: "Neptune", size: 2.50, dist: 87.0, speed: 0.00008, tex: textures.neptune }
+                { name: "Mercury", size: 1.25, dist: 13.0, speed: 0.00095, tex: textures.mercury, color: 0xb5b5b5 },
+                { name: "Venus", size: 1.95, dist: 18.5, speed: 0.00070, tex: textures.venus, color: 0xe8c17b },
+                { name: "Earth", size: 2.15, dist: 25.5, speed: 0.00048, tex: textures.earth, hasClouds: true, color: 0x2e86de },
+                { name: "Mars", size: 1.65, dist: 33.5, speed: 0.00038, tex: textures.mars, color: 0xee5253 },
+                { name: "Jupiter", size: 4.80, dist: 48.0, speed: 0.00019, tex: textures.jupiter, color: 0xf3a683 },
+                { name: "Saturn", size: 3.80, dist: 62.0, speed: 0.00014, tex: textures.saturn, hasRings: true, color: 0xf7d794 },
+                { name: "Uranus", size: 2.70, dist: 75.0, speed: 0.00010, tex: textures.uranus, color: 0x70a1ff },
+                { name: "Neptune", size: 2.50, dist: 87.0, speed: 0.00008, tex: textures.neptune, color: 0x1e90ff }
             ];
 
             const planets = [];
@@ -2644,9 +2668,14 @@ def render_enhanced_cinematic_solar_system(locations=None):
                 const trackMat = new THREE.LineBasicMaterial({ color: 0x38BDF8, transparent: true, opacity: 0.32 });
                 solarSystemGroup.add(new THREE.Line(trackGeo, trackMat));
 
-                // Planet Mesh with Real NASA Texture
+                // Planet Mesh with Real NASA Texture & Natural Base Color
                 const pGeo = new THREE.SphereGeometry(cfg.size, 40, 40);
-                const pMat = new THREE.MeshStandardMaterial({ map: cfg.tex, roughness: 0.65, metalness: 0.05 });
+                const pMat = new THREE.MeshStandardMaterial({ 
+                    map: cfg.tex, 
+                    color: cfg.color || 0xffffff,
+                    roughness: 0.55, 
+                    metalness: 0.05 
+                });
                 const mesh = new THREE.Mesh(pGeo, pMat);
                 mesh.userData = { name: cfg.name, dist: cfg.dist, speed: cfg.speed, angle: Math.random()*Math.PI*2, size: cfg.size };
                 solarSystemGroup.add(mesh);
@@ -3208,14 +3237,15 @@ def render_enhanced_cinematic_solar_system(locations=None):
             type: "Rover",
             aliasIds: ["opportunity-rover", "opportunity", "oppy", "mer-b", "mer_b"],
             modelFiles: [
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/models/opportunity.glb",
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/models/Oppurtunity%20.glb",
               "/app/static/models/Oppurtunity%20.glb",
               "/app/static/models/opportunity.glb",
               "/static/models/Oppurtunity%20.glb",
-              "/static/models/opportunity.glb",
-              "static/models/Oppurtunity%20.glb",
-              "models/Oppurtunity%20.glb"
+              "/static/models/opportunity.glb"
             ],
             audioFiles: [
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/audio/opportunity.mp3",
               "/app/static/audio/opportunity.mp3",
               "/static/audio/opportunity.mp3",
               "static/audio/opportunity.mp3"
@@ -3228,15 +3258,15 @@ def render_enhanced_cinematic_solar_system(locations=None):
             type: "Lander",
             aliasIds: ["viking-1-lander", "viking-1", "viking1", "viking_1", "viking-lander", "viking_one", "viking"],
             modelFiles: [
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/models/viking-1.glb",
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/models/Viking%20Lander%20.glb",
               "/app/static/models/Viking%20Lander%20.glb",
               "/app/static/models/viking-1.glb",
               "/app/static/models/viking.glb",
-              "/static/models/Viking%20Lander%20.glb",
-              "/static/models/viking-1.glb",
-              "static/models/Viking%20Lander%20.glb",
-              "models/Viking%20Lander%20.glb"
+              "/static/models/Viking%20Lander%20.glb"
             ],
             audioFiles: [
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/audio/viking-1.mp3",
               "/app/static/audio/viking-1.mp3",
               "/static/audio/viking-1.mp3",
               "static/audio/viking-1.mp3"
@@ -3249,14 +3279,14 @@ def render_enhanced_cinematic_solar_system(locations=None):
             type: "Helicopter",
             aliasIds: ["ingenuity-helicopter", "ingenuity", "ingenuity_helicopter", "mars_helicopter", "heli"],
             modelFiles: [
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/models/ingenuity.glb",
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/models/Ingenuity%20Mars%20Helicopter%20.glb",
               "/app/static/models/Ingenuity%20Mars%20Helicopter%20.glb",
               "/app/static/models/ingenuity.glb",
-              "/static/models/Ingenuity%20Mars%20Helicopter%20.glb",
-              "/static/models/ingenuity.glb",
-              "static/models/Ingenuity%20Mars%20Helicopter%20.glb",
-              "models/Ingenuity%20Mars%20Helicopter%20.glb"
+              "/static/models/Ingenuity%20Mars%20Helicopter%20.glb"
             ],
             audioFiles: [
+              "https://raw.githubusercontent.com/harshahuppara/nasa-echo-hack/main/static/audio/ingenuity.mp3",
               "/app/static/audio/ingenuity.mp3",
               "/static/audio/ingenuity.mp3",
               "static/audio/ingenuity.mp3"
