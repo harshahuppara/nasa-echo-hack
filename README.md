@@ -33,48 +33,9 @@ Explore planetary bodies, monuments of human spaceflight, authentic 3D models of
 - **Frontend / 3D Graphics**: HTML5, Modern CSS3, [Three.js](https://threejs.org/) (WebGL), OrbitControls, DRACOLoader
 - **Artificial Intelligence**: [Google Gemini AI API](https://ai.google.dev/) (Flash / Pro)
 - **Database & Telemetry**: [Supabase](https://supabase.com/) PostgreSQL
-- **NASA Archives**: NASA Image and Video Library API (`images-api.nasa.gov`), NASA APOD API
+- **NASA Archives**: NASA Image and Video Library API (`images-api.nasa.gov`), NASA APOD AP
 
----
-
-## 🚀 Getting Started Locally
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/<your-username>/nasa-echo-hack.git
-cd nasa-echo-hack
-```
-
-### 2. Set Up Virtual Environment (Optional but Recommended)
-```bash
-python -m venv venv
-# Windows:
-.\venv\Scripts\activate
-# macOS/Linux:
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-Create a `.env` file in the project root:
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-SUPABASE_URL=your_supabase_url_here
-SUPABASE_KEY=your_supabase_anon_key_here
-NASA_API_KEY=your_nasa_api_key_here
-```
-
-### 5. Launch the Application
-```bash
-streamlit run app.py
-```
-Open your browser at `http://localhost:8501`.
-
----
+- 
 
 ## 🌐 Deployment on Streamlit Community Cloud
 
