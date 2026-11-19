@@ -39,19 +39,6 @@ Explore planetary bodies, monuments of human spaceflight, authentic 3D models of
 
 ## 🌐 Deployment on Streamlit Community Cloud
 
-1. Push this repository to your GitHub account.
-2. Sign in to [Streamlit Community Cloud](https://share.streamlit.io/).
-3. Click **"New app"** and select your repository, branch (`main`), and main file path (`app.py`).
-4. In **Advanced Settings ➔ Secrets**, configure your keys:
-   ```toml
-   GEMINI_API_KEY = "your_gemini_api_key"
-   SUPABASE_URL = "your_supabase_url"
-   SUPABASE_KEY = "your_supabase_anon_key"
-   NASA_API_KEY = "your_nasa_api_key"
-   ```
-5. Click **Deploy**!
-
----
 
 ## 📜 License
 Distributed under the MIT License. Built for the NASA Space Apps / Echo Hack challenge.
